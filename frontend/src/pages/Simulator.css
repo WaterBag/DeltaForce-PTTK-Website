@@ -1,0 +1,42 @@
+.simulator {
+      display: flex; /* 或者使用 grid: display: grid; grid-template-columns: repeat(3, 1fr); */
+      gap: 1px; /* 列间距 */
+      width: 100%;
+      height: 100%;
+      margin: 2rem auto; /* 居中显示 */
+      max-width: 1600px;
+    }
+    
+    .box {
+      flex: 1; /* 平均分配空间 */
+      aspect-ratio: 16/9; /* 保持宽高比 */
+      background-color: #f0f0f0; /* 背景色 */
+      border-radius: 4px; /* 圆角 */
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影 */
+      transition: transform 0.3s ease; /* 过渡效果 */
+    }
+
+.armor-sitting-panel{
+  width: 100%;
+}
+
+.helmet-selector-continer{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.helmet-durability-slider{
+  width: 50%;
+}
+
+.armor-selector-continer{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.armor-durability-slider{
+  width: 50%;
+}
+    

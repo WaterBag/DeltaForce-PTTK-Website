@@ -1,0 +1,131 @@
+/* 主容器 */
+.generic-selector-container {
+  position: relative;
+  width: 250px;
+  font-family: 'Arial', sans-serif;
+}
+
+/* 触发按钮样式 */
+.selector-trigger {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  min-height: 50px;
+  border: 1px solid #000000;
+}
+
+.selector-trigger:hover {
+  background-color: #f7fbff;
+}
+
+/* 选项图片样式 */
+.option-image {
+  height: 50px;
+  object-fit: contain;
+  margin-right: 10px;
+}
+
+/* 选项名称样式 */
+.option-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: black;
+}
+
+/* 选项描述样式 */
+.option-description {
+  font-size: 12px;
+  color: #95a5a6;
+  margin-top: 2px;
+}
+
+/* 占位符文本 */
+.placeholder {
+  color: #000000;
+}
+
+/* 下拉箭头 */
+.dropdown-arrow {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+/* 下拉菜单样式 */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 400px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: 5px;
+  overflow-y: auto;
+}
+
+/* 搜索框容器 */
+.search-container {
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  max-width: 100%;
+  display: flex;
+}
+
+/* 搜索输入框 */
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #f8f9fa;
+}
+
+/* 选项列表容器 */
+.options-list {
+  max-height: 350px;
+}
+
+/* 单个选项 */
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.option-item:hover {
+  background-color: #f8f9fa;
+}
+
+.option-item.selected {
+  background-color: #e3f2fd;
+}
+
+/* 选项信息 */
+.option-info {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
+
+/* 无结果提示 */
+.no-results {
+  padding: 15px;
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+}

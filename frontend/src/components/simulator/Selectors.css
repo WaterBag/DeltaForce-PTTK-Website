@@ -1,0 +1,64 @@
+.weapon-selector {
+  position: relative; /* 关键：让子元素的绝对定位基于此容器 */
+  width: 100%;
+  align-items: center;
+  gap: 8px; /* 可选：图片和文字的间距 */
+}
+
+.weapon-option-image {
+  display: block; /* 避免图片下方留白 */
+  height: 50px; /* 自定义图片高度 */
+  width: auto;
+}
+
+.weapon-option-name {
+  color: black;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+
+/* 稀有度背景色 */
+.rarity-red { background-color: rgb(255, 64, 64); }
+.rarity-orange { background-color: rgb(255, 181, 44); } /* 橙 */
+.rarity-purple { background-color: rgb(212, 39, 255); }      /* 紫 */
+.rarity-blue { background-color: rgb(59, 59, 255); }       /* 蓝 */
+.rarity-green { background-color: rgb(38, 255, 38); }   /* 绿 */
+.rarity-white { background-color: rgb(214, 214, 214); } /* 白 */
+
+.ammo-selector {
+  position: relative; /* 关键：让子元素的绝对定位基于此容器 */
+  width: 100%;
+  align-items: center;
+  gap: 8px; /* 可选：图片和文字的间距 */
+  
+}
+
+.ammo-option-image {
+  display: block; /* 避免图片下方留白 */
+  width: 50px; /* 自定义图片宽度 */
+  height: auto; /* 保持比例 */
+  border-radius: 4px;
+}
+
+.ammo-option-name {
+  color: black;
+  font-size: 14px;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.ammo-option-info {
+  display: flex;            /* 使用 Flexbox */
+  justify-content: flex-end; /* 子元素靠右对齐 */
+  width: 100%;
+  margin-right: 10px;
+}
+
+.ammo-option-info .stats > *{
+  display: flex;            /* 内部也使用 Flexbox */
+  flex-direction: column;   /* 垂直排列 */
+  align-items: flex-start;  /* 内部元素左对齐 */
+  width: 103px;
+}

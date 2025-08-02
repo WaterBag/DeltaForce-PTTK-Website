@@ -1,0 +1,19 @@
+.custom-tooltip {
+  background-color: rgba(255, 255, 255, 0.95); /* 带一点透明度的白色背景 */
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px; /* 圆角 */
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15); /* 加一点阴影，更有立体感 */
+}
+
+.custom-tooltip .label {
+  font-weight: bold; /* 让距离的文字加粗 */
+  margin: 0 0 5px 0; /* 调整边距 */
+  color: #333; /* 深灰色文字 */
+}
+
+.custom-tooltip .tooltip-list {
+  list-style-type: none; /* 必须去掉列表的黑点 */
+  padding: 0;
+  margin: 0;
+}

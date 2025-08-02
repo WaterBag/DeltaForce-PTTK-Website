@@ -1,0 +1,27 @@
+.helmet-selector{
+    width: 50%;
+
+}
+
+.helmet-option-image{
+    width: 50px;
+    height: auto;
+}
+
+.helmet-option-name{
+    margin-left: 10px;
+}
+
+.armor-selector{
+    width: 50%;
+
+}
+
+.armor-option-image{
+    width: 50px;
+    height: auto;
+}
+
+.armor-option-name{
+    margin-left: 10px;
+}

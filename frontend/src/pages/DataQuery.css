@@ -1,0 +1,45 @@
+.data-query {
+    display: flex; /* 或者使用 grid: display: grid; grid-template-columns: repeat(3, 1fr); */
+    gap: 1px; /* 列间距 */
+    width: 100%;
+    height: 100%;
+    margin: 2rem auto; /* 居中显示 */
+    max-width: 1600px;
+    }
+    
+.sittings {
+    flex: 1; /* 平均分配空间 */
+    background-color: #f0f0f0; /* 背景色 */
+    border-radius: 4px; /* 圆角 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影 */
+    transition: transform 0.3s ease; /* 过渡效果 */
+}
+
+.results{
+    flex: 2; /* 平均分配空间 */
+    background-color: #f0f0f0; /* 背景色 */
+    border-radius: 4px; /* 圆角 */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影 */
+    transition: transform 0.3s ease; /* 过渡效果 */
+}
+
+.combo-list {
+  /*不要列表样式*/
+  list-style-type: none; 
+  
+  padding-left: 5px;   
+  margin-top: 0; /* 去掉列表默认的上边距 */
+
+  /* 设置一个最大高度，您可以根据喜好调整这个数值 */
+  max-height: 300px; 
+  
+  /* 当内容超出最大高度时，在Y轴（垂直方向）自动显示滚动条 */
+  overflow-y: auto;   
+  
+  /* (推荐) 加一个边框，让这个滚动区域看起来更清晰 */
+  border: 1px solid #e0e0e0;
+  border-radius: 4px; /* (推荐) 加一点圆角更好看 */
+
+  /* (推荐) 加一点内边距，让内容不要紧贴边框 */
+  padding: 10px;        
+}
