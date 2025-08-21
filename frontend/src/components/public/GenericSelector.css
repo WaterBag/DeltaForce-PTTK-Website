@@ -1,131 +1,137 @@
-/* 主容器 */
+/* --- 1. 主容器 --- */
 .generic-selector-container {
   position: relative;
-  width: 250px;
-  font-family: 'Arial', sans-serif;
+  /* width: 250px; <-- [移除] 我们不再固定宽度，让它自适应父容器 */
+  font-family: inherit; /* (推荐) 继承父元素的字体，保持全局统一 */
 }
 
-/* 触发按钮样式 */
+/* --- 2. 触发按钮 (核心修改区) --- */
 .selector-trigger {
+  /* [增强] 使用Flexbox进行完美垂直居中 */
   display: flex;
-  align-items: center;
-  padding: 10px 15px;
+  align-items: center; 
+  
+  /* [增强] 设定一个固定的最小高度，解决高度变化问题 */
+  min-height: 68px; 
+  
+  /* [美化] 调整内边距、背景和边框，使其更现代化 */
+  padding: 8px 12px; 
   background-color: #ffffff;
-  color: rgb(0, 0, 0);
   border-radius: 4px;
   cursor: pointer;
-  position: relative;
-  min-height: 50px;
-  border: 1px solid #000000;
+  border: 1px solid #dfe1e6; /* 使用更柔和的灰色边框 */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease; /* 添加平滑过渡 */
 }
 
 .selector-trigger:hover {
-  background-color: #f7fbff;
+  border-color: #0052cc; /* 悬停时边框变蓝 */
 }
 
-/* 选项图片样式 */
+.selector-trigger:focus-within { /* (推荐) 当内部输入框聚焦时，也显示高亮 */
+  border-color: #0052cc;
+  box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+}
+
+/* --- 3. 触发器内部元素 --- */
+
+/* [增强] 为已选择的内容（图片+文字）创建一个Flex容器，方便对齐 */
+.selected-content-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%; /* 撑满触发器 */
+  padding: 2px;
+}
+
 .option-image {
-  height: 50px;
+  height: 36px; /* [调整] 稍微缩小一点，更精致 */
+  width: 36px;
   object-fit: contain;
-  margin-right: 10px;
+  margin-right: 12px;
+  flex-shrink: 0; /* 防止图片被压缩 */
 }
 
-/* 选项名称样式 */
 .option-name {
   font-size: 14px;
-  font-weight: bold;
-  color: black;
+  font-weight: 500; /* 使用 500 代替 bold，字体更优雅 */
+  color: #172b4d; /* 使用我们全局的深蓝色文字 */
 }
 
-/* 选项描述样式 */
-.option-description {
-  font-size: 12px;
-  color: #95a5a6;
-  margin-top: 2px;
-}
-
-/* 占位符文本 */
 .placeholder {
-  color: #000000;
+  color: #5e6c84; /* 使用更柔和的占位符颜色 */
 }
 
-/* 下拉箭头 */
-.dropdown-arrow {
-  margin-left: auto;
-  font-size: 12px;
-}
-
-/* 下拉菜单样式 */
+/* --- 4. 下拉菜单 --- */
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px); /* [微调] 与触发器之间留出4px的空隙 */
   left: 0;
   width: 100%;
-  max-height: 400px;
+  max-height: 300px; /* [调整] 稍微降低一点高度 */
   background-color: white;
-  border: 1px solid #ddd;
+  border: 1px solid #dfe1e6;
   border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15); /* [美化] 使用更现代的阴影 */
   z-index: 1000;
-  margin-top: 5px;
   overflow-y: auto;
 }
 
-/* 搜索框容器 */
+/* --- 5. 搜索框 --- */
 .search-container {
-  padding: 10px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #ddd;
-  max-width: 100%;
-  display: flex;
+  padding: 8px; /* [微调] */
+  border-bottom: 1px solid #dfe1e6;
+  position: sticky; /* (推荐) 让搜索框在列表滚动时“粘”在顶部 */
+  top: 0;
+  background-color: white;
+  z-index: 1;
 }
 
-/* 搜索输入框 */
 .search-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #dfe1e6;
   border-radius: 4px;
   outline: none;
 }
 
-.search-input:focus {
-  border-color: #f8f9fa;
-}
-
-/* 选项列表容器 */
+/* --- 6. 选项列表 --- */
 .options-list {
-  max-height: 350px;
+  /* 移除 max-height，因为它已经由 .dropdown-menu 控制 */
 }
 
-/* 单个选项 */
 .option-item {
   display: flex;
   align-items: center;
-  padding: 10px 15px;
+  padding: 8px 12px; /* [微调] */
   cursor: pointer;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f4f5f7; /* 使用更浅的分割线 */
+}
+
+.option-item:last-child {
+  border-bottom: none; /* (推荐) 最后一项不需要分割线 */
 }
 
 .option-item:hover {
-  background-color: #f8f9fa;
+  background-color: #f4f5f7; /* 使用我们全局的柔和灰色 */
 }
 
 .option-item.selected {
-  background-color: #e3f2fd;
+  background-color: #e6f0ff; /* 使用我们全局的激活蓝色 */
+  font-weight: 500;
 }
 
-/* 选项信息 */
 .option-info {
   display: flex;
   flex-direction: column;
-  margin-left: 10px;
 }
 
-/* 无结果提示 */
+.option-description {
+  font-size: 12px;
+  color: #5e6c84;
+}
+
+/* --- 7. 无结果提示 --- */
 .no-results {
-  padding: 15px;
+  padding: 16px;
   text-align: center;
-  color: #7f8c8d;
-  font-style: italic;
+  color: #5e6c84;
 }

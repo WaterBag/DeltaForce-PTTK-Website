@@ -1,0 +1,12 @@
+.universal-slider.disabled .slider-label-text {
+  color: #a5adba; /* 让标签文字变灰 */
+}
+
+.universal-slider.disabled .slider-value-text {
+  color: #a5adba;
+}
+
+.universal-slider.disabled .slider-input {
+  cursor: not-allowed; /* 鼠标指针变为“禁止”图标 */
+  opacity: 0.6; /* 让滑块看起来有点褪色 */
+}

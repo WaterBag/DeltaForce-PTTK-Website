@@ -1,0 +1,24 @@
+/* Header.css */
+
+.header {
+  display: flex;
+  justify-content: space-between; /* 让logo和nav两端对齐 */
+  align-items: center; /* 垂直居中 */
+  padding: 0 24px; /* 左右留出边距 */
+  height: 60px; /* 一个标准的顶部栏高度 */
+  background-color: #ffffff; /* 白色背景 */
+  border-bottom: 1px solid #dfe1e6; /* 底部加一条细线，产生分割感 */
+  flex-shrink: 0; /* 防止在Flex布局中被压缩 */
+}
+
+.logo {
+  font-size: 1.5rem; /* 字体大一点 */
+  font-weight: bold; /* 字体粗一点 */
+  color: #091e42;
+}
+
+.nav ul {
+  display: flex;
+  list-style-type: none; /* 去掉列表的小黑点 */
+  gap: 16px; /* 未来导航项之间的间距 */
+}

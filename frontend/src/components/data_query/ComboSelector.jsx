@@ -1,5 +1,5 @@
 import React from "react";
-
+import './ComboSelector.css';
 
 export function ComboSelector({ combinations, selectedCombos, onSelectionChange }) {
   return (

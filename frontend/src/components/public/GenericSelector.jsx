@@ -1,8 +1,9 @@
 import './GenericSelector.css'; // 样式文件
-
+import { weapons } from '../../assets/data/weapons';
+import { ammos } from '../../assets/data/ammos';
 import React, { useState, useRef, useEffect } from 'react';
 
-const GenericSelector = ({
+export const GenericSelector = ({
     options,                //可选选项
     selectedOption,          //已选选项
     onSelect,               //选择变化时的回调函数
@@ -130,4 +131,4 @@ const GenericSelector = ({
   );
 };
 
-export default GenericSelector;
+

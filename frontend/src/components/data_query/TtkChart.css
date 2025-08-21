@@ -1,19 +1,51 @@
 .custom-tooltip {
-  background-color: rgba(255, 255, 255, 0.95); /* 带一点透明度的白色背景 */
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px; /* 圆角 */
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15); /* 加一点阴影，更有立体感 */
+  background-color: rgba(255, 255, 255, 0.98);
+  border: 1px solid #dfe1e6;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
+  font-size: 14px;
+  /* (推荐) 添加过渡，让出现更平滑 */
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
 }
 
-.custom-tooltip .label {
-  font-weight: bold; /* 让距离的文字加粗 */
-  margin: 0 0 5px 0; /* 调整边距 */
-  color: #333; /* 深灰色文字 */
+.tooltip-label {
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #172b4d;
+  font-size: 1em;
 }
 
-.custom-tooltip .tooltip-list {
-  list-style-type: none; /* 必须去掉列表的黑点 */
+.tooltip-list {
+  list-style-type: none;
   padding: 0;
   margin: 0;
+}
+
+.tooltip-list-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.tooltip-list-item:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-color-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.tooltip-name {
+  color: #42526e;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.tooltip-value {
+  font-weight: 600;
+  margin-left: auto; /* 推到最右边 */
 }

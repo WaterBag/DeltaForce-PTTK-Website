@@ -6,7 +6,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
-const COLORS = [
+export const COLORS = [
   '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', 
   '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
   '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5'
@@ -19,17 +19,20 @@ const CustomTooltip = ({ active, payload, label }) => {
 
   // 只有在鼠标悬停时才渲染
   if (active && payload && payload.length) {
-    // 【核心排序逻辑】
-    // 我们先创建一个 payload 的副本，然后用 sort 方法排序
+
     const sortedPayload = [...payload].sort((a, b) => a.value - b.value);
 
     return (
       <div className="custom-tooltip">
-        <p className="label">{`距离 : ${label} m`}</p>
+        <p className="tooltip-label">{`距离: ${label} m`}</p>
         <ul className="tooltip-list">
           {sortedPayload.map((entry, index) => (
-            <li key={`item-${index}`} style={{ color: entry.color }}>
-              {`${entry.name} : ${entry.value.toFixed(3)}s`}
+            <li key={`item-${index}`} className="tooltip-list-item">
+              <span className="tooltip-color-indicator" style={{ backgroundColor: entry.color }} />
+              <span className="tooltip-name">{entry.name}:</span>
+              <span className="tooltip-value" style={{ color: entry.color }}>
+                {Math.round(entry.value)} ms
+              </span>
             </li>
           ))}
         </ul>
@@ -43,40 +46,68 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 
 export function TtkChart({ data }) {
-    if (!data || data.length === 0) {
-        return <div className="chart-placeholder"><p>请选择组合并点击“生成图表”</p></div>;
-    }
 
-    // 将数据格式化为Recharts需要的格式
-    const formattedData = {};
-    data.forEach(line => {
-        line.data.forEach(point => {
-            if (!formattedData[point.distance]) {
-                formattedData[point.distance] = { distance: point.distance };
-            }
-            formattedData[point.distance][line.name] = point.pttk;
+    let chartPoints = [];
+    const isEmpty = !data || data.length === 0;
+
+    if (!isEmpty) {
+        const formattedData = {};
+        data.forEach(line => {
+            line.data.forEach(point => {
+                if (!formattedData[point.distance]) {
+                    formattedData[point.distance] = { distance: point.distance };
+                }
+                formattedData[point.distance][line.name] = point.pttk;
+            });
         });
-    });
-    const chartPoints = Object.values(formattedData).sort((a, b) => a.distance - b.distance);
-
+        chartPoints = Object.values(formattedData).sort((a, b) => a.distance - b.distance);
+    }
+    
     return (
-        <ResponsiveContainer width="100%" height={500}>
-            <LineChart data={chartPoints} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+        <ResponsiveContainer width="100%" height="80%">
+            <LineChart 
+                data={chartPoints} 
+                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+            >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="distance" type="number" label={{ value: "距离 (米)", position: 'insideBottom', offset: -10 }} domain={['dataMin', 'dataMax']} />
+                <XAxis 
+                    dataKey="distance" 
+                    type="number" 
+                    stroke='#5e6c84'
+                    tick={{fontSize:12}}
+                    label={{ value: "距离 (米)", position: 'insideBottom', offset: 0 ,fill:'#5e6c84'}} 
+                    domain={isEmpty ? [0, 100] : ['dataMin', 'dataMax']}// 为空时，定义一个 0-100m 的默认范围
+                />
                 <YAxis 
-                  label={{ value: "TTK (毫秒)", angle: -90, position: 'insideLeft' }}
-                  domain={[
-                    dataMin => Math.max(0, dataMin - 30), 
-                    dataMax => dataMax + 30   
-                  ]}
+                  stroke='#5e6c84'
+                  tick={{fontSize:12}}
+                  label={{ value: "TTK (毫秒)", angle: -90, position: 'insideLeft' ,fill:'#5e6c84' }}
+                  domain={isEmpty ? [0, 500] : [dataMin => Math.max(0, dataMin - 30), dataMax => dataMax + 30]}// 为空时，定义一个 0-500ms 的默认范围
                   tickFormatter={(tick) => Math.round(tick)}
                 />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {data.map((line, index) => (
-                    <Line key={line.name} type="monotone" dataKey={line.name} stroke={COLORS[index % COLORS.length]} strokeWidth={2} dot={false} connectNulls />
+                <Tooltip 
+                    content={<CustomTooltip />}
+                    cursor={{ stroke: '#0052cc', strokeWidth: 1, strokeDasharray: '3 3' }}// 当悬停时，显示一条垂直的虚线光标
+                />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: '20px' }} />
+                
+                {!isEmpty && data.map((line, index) => (
+                    <Line 
+                        key={line.id} 
+                        type="monotone" 
+                        dataKey={line.name} 
+                        stroke={line.color} 
+                        strokeWidth={2.5} 
+                        dot={false} 
+                        activeDot={{ r: 5, strokeWidth: 2 }} 
+                    />
                 ))}
+
+                {isEmpty && (
+                    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fill="#999" fontSize="1.2em">
+                        请先添加武器配置以进行对比
+                    </text>
+                )}
             </LineChart>
         </ResponsiveContainer>
     );

@@ -1,25 +1,22 @@
-body {
+/* index.css */
+
+/* 1. CSS 重置 (Reset) - 清理浏览器默认样式，让所有元素表现一致 */
+*, *::before, *::after {
+  box-sizing: border-box; /* 让 padding 和 border 不会撑大元素的尺寸，极其重要！*/
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-	margin: 0 auto;
-	min-height: 100vh;
-	max-width: 100%;
-	padding: 4em 0;
-  display: flex;
+  padding: 0;
 }
 
+/* 2. 根元素样式 - 设定整个应用的基础字体和颜色 */
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f4f5f7; /* 一个柔和的灰色背景 */
+  color: #172b4d; /* 深蓝色文字，比纯黑更柔和 */
+}
+
+/* 3. 确保React的根容器能撑满整个屏幕高度 */
 #root {
-  width: 100%;        /* 宽度占满父容器 */
-  max-width: none;    /* 移除可能存在的最大宽度限制 */
-  margin: 0;          /* 移除默认外边距 */
-  padding: 0;         /* 移除默认内边距 */
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  min-height: 100%;
+  display: flex; /* 让我们的App.js里的总布局能撑满 */
 }

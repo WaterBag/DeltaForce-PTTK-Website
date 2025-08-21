@@ -1,0 +1,33 @@
+/* Sidebar.css */
+
+.app-sidebar {
+  width: 240px; /* 一个标准的侧边栏宽度 */
+  background-color: #ffffff;
+  border-right: 1px solid #dfe1e6; /* 右侧加一条细线 */
+  padding: 16px 0; /* 上下留出一些边距 */
+  flex-shrink: 0; /* 防止在Flex布局中被压缩 */
+}
+
+.sidebar-nav ul {
+  list-style-type: none;
+}
+
+.nav-item {
+  padding: 12px 24px; /* 导航项的内边距 */
+  cursor: pointer; /* 鼠标悬停时显示小手图标 */
+  font-weight: 500;
+  color: #42526e;
+  transition: background-color 0.2s ease, color 0.2s ease; /* 添加平滑的过渡效果 */
+  border-left: 3px solid transparent; /* 左侧的激活指示条，默认为透明 */
+}
+
+.nav-item:hover {
+  background-color: #f4f5f7; /* 鼠标悬停时的背景色 */
+}
+
+/* 这就是您代码里已有的 .active 类的样式 */
+.nav-item.active {
+  background-color: #e6f0ff; /* 激活时的背景色 */
+  color: #0052cc; /* 激活时的文字颜色 */
+  border-left-color: #0052cc; /* 激活时，左侧的指示条显示为蓝色 */
+}

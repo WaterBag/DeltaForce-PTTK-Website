@@ -1,0 +1,155 @@
+/* --- 1. 背景遮罩 (保持不变，已经很完美) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(9, 30, 66, 0.5); /* 使用更柔和的深蓝色半透明背景 */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* (推荐) 添加一点动画效果 */
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* --- 2. 悬浮窗主体内容 --- */
+.modal-content {
+  background-color: #f4f5f7; /* 使用我们全局的柔和灰色作为背景 */
+  padding: 0; /* 我们将在内部 section 中控制 padding */
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(9, 30, 66, 0.25);
+  width: 600px; /* 可以适当加宽，容纳更多内容 */
+  max-width: 95%;
+  max-height: 90vh; /* 使用 vh 单位，相对于视口高度 */
+  display: flex;
+  flex-direction: column; /* 内部元素垂直排列 */
+  overflow: hidden; /* 防止内部的圆角被子元素破坏 */
+}
+
+/* --- 3. 头部区域 --- */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #dfe1e6;
+  background-color: #ffffff;
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  color: #172b4d;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #5e6c84;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.close-button:hover {
+  color: #172b4d;
+}
+
+/* --- 4. 主体内容区 --- */
+.modal-body {
+  padding: 24px;
+  overflow-y: auto; /* 让主体内容区自己滚动 */
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* 设置各个 section 之间的间距 */
+}
+
+/* --- 5. 通用的 Section 样式 --- */
+.mod-section h3 {
+  font-size: 1rem;
+  color: #42526e;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #dfe1e6;
+  padding-bottom: 8px;
+}
+
+.mod-group {
+  /* 和其他分组拉开一点距离 */
+  margin-bottom: 20px; 
+}
+
+.mod-group-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #5e6c84; /* 使用柔和的灰色 */
+  text-transform: uppercase; /* (可选) 让标题大写，更有设计感 */
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* --- 6. 配件选择区 (使用Grid布局，让选项整齐排列) --- */
+.mod-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 智能多列布局 */
+  gap: 12px;
+}
+
+.mod-option {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #dfe1e6;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mod-option * {
+cursor: inherit;
+}
+
+.mod-option:hover {
+  border-color: #0052cc;
+}
+
+.mod-option input[type="checkbox"] {
+  margin-right: 10px;
+  width: 16px;
+  height: 16px;
+}
+
+/* --- 7. 底部操作区 --- */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end; /* 按钮靠右 */
+  padding: 16px 24px;
+  border-top: 1px solid #dfe1e6;
+  background-color: #ffffff;
+}
+
+.add-comparison-button {
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.add-comparison-button:hover {
+  background-color: #0065ff;
+}
+.add-comparison-button:disabled {
+  background-color: #a5adba;
+  cursor: not-allowed;
+}
+
+/* (推荐) 定义一个淡入动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

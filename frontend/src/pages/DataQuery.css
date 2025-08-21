@@ -1,45 +1,125 @@
-.data-query {
-    display: flex; /* 或者使用 grid: display: grid; grid-template-columns: repeat(3, 1fr); */
-    gap: 1px; /* 列间距 */
-    width: 100%;
-    height: 100%;
-    margin: 2rem auto; /* 居中显示 */
-    max-width: 1600px;
-    }
-    
-.sittings {
-    flex: 1; /* 平均分配空间 */
-    background-color: #f0f0f0; /* 背景色 */
-    border-radius: 4px; /* 圆角 */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影 */
-    transition: transform 0.3s ease; /* 过渡效果 */
+/* 1. 总布局容器 */
+.data-query-layout {
+  display: flex;
+  gap: 24px; /* 左右两栏之间的间距 */
+  width: 100%;
+  height: 95%;
+  align-items: stretch;
 }
 
-.results{
-    flex: 2; /* 平均分配空间 */
-    background-color: #f0f0f0; /* 背景色 */
-    border-radius: 4px; /* 圆角 */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影 */
-    transition: transform 0.3s ease; /* 过渡效果 */
+/* 2. 左侧设置面板 */
+.sittings-panel {
+  flex: 3; /* 占据 3 份空间 */
+  min-width: 450px; /* 设置一个最小宽度，防止被过度压缩 */
+  display: flex;
+  flex-direction: column; /* 内部 sections 垂直排列 */
+  gap: 20px; /* sections 之间的垂直间距 */
 }
 
-.combo-list {
-  /*不要列表样式*/
-  list-style-type: none; 
-  
-  padding-left: 5px;   
-  margin-top: 0; /* 去掉列表默认的上边距 */
+/* 3. 右侧结果面板 */
+.results-panel {
+  flex: 7; /* 占据 7 份空间 */
+  min-width: 0;
+  display: flex;
+}
 
-  /* 设置一个最大高度，您可以根据喜好调整这个数值 */
-  max-height: 300px; 
-  
-  /* 当内容超出最大高度时，在Y轴（垂直方向）自动显示滚动条 */
-  overflow-y: auto;   
-  
-  /* (推荐) 加一个边框，让这个滚动区域看起来更清晰 */
-  border: 1px solid #e0e0e0;
-  border-radius: 4px; /* (推荐) 加一点圆角更好看 */
+/* 4. 通用 section 样式 */
+.config-section {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+}
 
-  /* (推荐) 加一点内边距，让内容不要紧贴边框 */
-  padding: 10px;        
+/* 5. 护甲配置区 */
+.armor-config {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.armor-selector-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+}
+
+.armor-selector-item > div {
+  flex: 1; 
+  min-width: 0; 
+}
+
+/* 6. 交互区 */
+.interactive-section {
+  display: flex;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex-grow: 1;
+  max-height: 600px;
+  overflow: hidden;
+}
+.interactive-column {
+  flex:1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.interactive-column h4 {
+  margin-bottom: 8px;
+  color: #091e42;
+  font-size: 1em;
+}
+.gun-selector-container, .comparison-list-container {
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  height: 100%;
+  padding: 4px;
+  overflow-y: auto;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+::-webkit-scrollbar
+{
+  width:3px;
+}
+::-webkit-scrollbar-thumb
+{
+  background-color: #dfe1e6;
+  border-radius: 3px;
+}
+
+/* 7. 图表控制区 */
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.chart-controls h4 {
+  margin-right: auto;
+}
+
+/* 8. 开关 (Checkbox) */
+.effect-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.effect-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.results-panel {
+  flex: 7;
+  min-width: 0;
+  display: flex; /* 保持Flex布局，让图表能撑满 */
+  align-items: center;  
+  /* ▼▼▼ 【核心新增区】为图表添加背景和边框 ▼▼▼ */
+  background-color: #ffffff; /* 1. 纯白背景 */
+  padding: 24px;             /* 2. 在图表周围留出一些内边距 */
+  border-radius: 6px;        /* 3. 与左侧面板匹配的圆角 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1); /* 4. 与左侧面板匹配的阴影 */
 }

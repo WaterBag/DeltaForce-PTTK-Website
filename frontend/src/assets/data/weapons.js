@@ -1,65 +1,65 @@
-/*import QCQ171Image from '../../assets/images/gun/QCQ171.png';
+import QCQ171Image from '../../assets/images/gun/QCQ171.png';
 import MP5Image from '../../assets/images/gun/MP5.png';
 import P90Image from '../../assets/images/gun/P90.png';
 import VectorImage from '../../assets/images/gun/Vector.png';
 import UZIImage from '../../assets/images/gun/UZI.png';
-import BisonImage from '../../assets/images/gun/Bison.png';
-import SMG45Image from '../../assets/images/gun/SMG45.png';
-import SR3MImage from '../../assets/images/gun/SR3M.png';
-import WarriorImage from '../../assets/images/gun/Warrior.png';
+import BisonImage from '../../assets/images/gun/野牛.png';
+import SMG45Image from '../../assets/images/gun/SMG-45.png';
+import SR3MImage from '../../assets/images/gun/SR-3M.png';
+import WarriorImage from '../../assets/images/gun/勇士.png';
 import MP7Image from '../../assets/images/gun/MP7.png';
 import QSZ92GImage from '../../assets/images/gun/QSZ92G.png';
-import Magnum357Image from '../../assets/images/gun/Magnum357.png';
-import DesertEagleImage from '../../assets/images/gun/DesertEagle.png';
+import Magnum357Image from '../../assets/images/gun/.357左轮.png';
+import DesertEagleImage from '../../assets/images/gun/沙漠之鹰.png';
 import G18Image from '../../assets/images/gun/G18.png';
-import R93Image from '../../assets/images/gun/R93.png';
+import Pistol93RImage from '../../assets/images/gun/93R.png';
 import G17Image from '../../assets/images/gun/G17.png';
 import M1911Image from '../../assets/images/gun/M1911.png';
 import M4A1Image from '../../assets/images/gun/M4A1.png';
 import AKMImage from '../../assets/images/gun/AKM.png';
-import QBZ951Image from '../../assets/images/gun/QBZ951.png';
-import AKS74UImage from '../../assets/images/gun/AKS74U.png';
-import ASh12Image from '../../assets/images/gun/ASh12.png';
+import QBZ951Image from '../../assets/images/gun/QBZ95-1.png';
+import AKS74UImage from '../../assets/images/gun/AKS-74U.png';
+import ASh12Image from '../../assets/images/gun/Ash-12.png';
 import K416Image from '../../assets/images/gun/K416.png';
 import M16A4Image from '../../assets/images/gun/M16A4.png';
 import AUGImage from '../../assets/images/gun/AUG.png';
 import M7Image from '../../assets/images/gun/M7.png';
 import SG552Image from '../../assets/images/gun/SG552.png';
 import AK12Image from '../../assets/images/gun/AK12.png';
-import SCARHImage from '../../assets/images/gun/SCARH.png';
+import SCARHImage from '../../assets/images/gun/SCAR-H.png';
 import G3Image from '../../assets/images/gun/G3.png';
 import PTR32Image from '../../assets/images/gun/PTR32.png';
-import CAR15Image from '../../assets/images/gun/CAR15.png';
-import ASValImage from '../../assets/images/gun/ASVal.png';
-import TenglongImage from '../../assets/images/gun/Tenglong.png';
+import CAR15Image from '../../assets/images/gun/CAR-15.png';
+import ASValImage from '../../assets/images/gun/AS-Val.png';
+import TenglongImage from '../../assets/images/gun/腾龙.png';
 import K437Image from '../../assets/images/gun/K437.png';
 import KC17Image from '../../assets/images/gun/KC17.png';
 import QJB201Image from '../../assets/images/gun/QJB201.png';
 import M250Image from '../../assets/images/gun/M250.png';
 import M249Image from '../../assets/images/gun/M249.png';
 import PKMImage from '../../assets/images/gun/PKM.png';
-import DoubleBarrel725Image from '../../assets/images/gun/DoubleBarrel725.png';
+import DoubleBarrel725Image from '../../assets/images/gun/725双管.png';
 import M870Image from '../../assets/images/gun/M870.png';
 import S12KImage from '../../assets/images/gun/S12K.png';
 import M1014Image from '../../assets/images/gun/M1014.png';
-import PSG1Image from '../../assets/images/gun/PSG1.png';
+import PSG1Image from '../../assets/images/gun/PSG-1.png';
 import SR9Image from '../../assets/images/gun/SR9.png';
-import SR25Image from '../../assets/images/gun/SR25.png';
+import SR25Image from '../../assets/images/gun/SR-25.png';
 import SKSImage from '../../assets/images/gun/SKS.png';
 import M14Image from '../../assets/images/gun/M14.png';
 import SVDImage from '../../assets/images/gun/SVD.png';
 import VSSImage from '../../assets/images/gun/VSS.png';
-import Mini14Image from '../../assets/images/gun/Mini14.png';
+import Mini14Image from '../../assets/images/gun/Mini-14.png';
 import AWMImage from '../../assets/images/gun/AWM.png';
 import M700Image from '../../assets/images/gun/M700.png';
-import R93RifleImage from '../../assets/images/gun/R93Rifle.png';
-import SV98Image from '../../assets/images/gun/SV98.png';
-*/
+import R93Image from '../../assets/images/gun/R93.png';
+import SV98Image from '../../assets/images/gun/SV-98.png';
+
 export const weapons = [
   {
     id: "1001",
     name: "QCQ171",
-    image: "",//QCQ171Image,
+    image: QCQ171Image,
     caliber: "9*19mm",
     damage: 36,
     armorDamage: 33,
@@ -85,7 +85,7 @@ export const weapons = [
   {
     id: "1002",
     name: "MP5",
-    image: "",//MP5Image,
+    image: MP5Image,//,
     caliber: "9*19mm",
     damage: 30,
     armorDamage: 32,
@@ -111,7 +111,7 @@ export const weapons = [
   {
     id: "1003",
     name: "P90",
-    image: "",//P90Image,
+    image: P90Image,//,
     caliber: "5.7*28mm",
     damage: 32,
     armorDamage: 35,
@@ -137,7 +137,7 @@ export const weapons = [
   {
     id: "1004",
     name: "Vector",
-    image: "",//VectorImage,
+    image: VectorImage,//,
     caliber: ".45ACP",
     damage: 32,
     armorDamage: 28,
@@ -163,7 +163,7 @@ export const weapons = [
   {
     id: "1005",
     name: "UZI",
-    image: "",//UZIImage,
+    image: UZIImage,//,
     caliber: "9*19mm",
     damage: 28,
     armorDamage: 35,
@@ -190,7 +190,7 @@ export const weapons = [
   {
     id: "1006",
     name: "野牛",
-    image: "",//BisonImage,
+    image: BisonImage,//,
     caliber: "9*19mm",
     damage: 32,
     armorDamage: 35,
@@ -216,7 +216,7 @@ export const weapons = [
   {
     id: "1007",
     name: "SMG-45",
-    image: "",//SMG45Image,
+    image: SMG45Image,//,
     caliber: ".45ACP",
     damage: 35,
     armorDamage: 40,
@@ -242,7 +242,7 @@ export const weapons = [
   {
     id: "1008",
     name: "SR-3M",
-    image: "",//SR3MImage,
+    image: SR3MImage,//,
     caliber: "9*39mm",
     damage: 36,
     armorDamage: 48,
@@ -268,7 +268,7 @@ export const weapons = [
   {
     id: "1009",
     name: "勇士",
-    image: "",//WarriorImage,
+    image: WarriorImage,//,
     caliber: "9*19mm",
     damage: 36,
     armorDamage: 35,
@@ -294,7 +294,7 @@ export const weapons = [
   {
     id: "1010",
     name: "MP7",
-    image: "",//MP7Image,
+    image: MP7Image,//,
     caliber: "4.6*30mm",
     damage: 32,
     armorDamage: 28,
@@ -320,7 +320,7 @@ export const weapons = [
   {
     id: "2001",
     name: "QSZ92G",
-    image: "",//QSZ92GImage,
+    image: QSZ92GImage,//,
     caliber: "9*19mm",
     damage: 34,
     armorDamage: 32,
@@ -346,7 +346,7 @@ export const weapons = [
   {
     id: "2002",
     name: ".357左轮",
-    image: "",//Magnum357Image,
+    image: Magnum357Image,//,
     caliber: ".357 Magnum",
     damage: 56,
     armorDamage: 39,
@@ -373,7 +373,7 @@ export const weapons = [
   {
     id: "2003",
     name: "沙漠之鹰",
-    image: "",//DesertEagleImage,
+    image: DesertEagleImage,//,
     caliber: ".50AE",
     damage: 50,
     armorDamage: 53,
@@ -399,7 +399,7 @@ export const weapons = [
   {
     id: "2004",
     name: "G18",
-    image: "",//G18Image,
+    image: G18Image,//,
     caliber: "9*19mm",
     damage: 23,
     armorDamage: 16,
@@ -425,7 +425,7 @@ export const weapons = [
   {
     id: "2005",
     name: "93R",
-    image: "",//R93Image,
+    image: Pistol93RImage,
     caliber: "9*19mm",
     damage: 34,
     armorDamage: 32,
@@ -451,7 +451,7 @@ export const weapons = [
   {
     id: "2006",
     name: "G17",
-    image: "",//G17Image,
+    image: G17Image,//,
     caliber: "9*19mm",
     damage: 27,
     armorDamage: 25,
@@ -477,7 +477,7 @@ export const weapons = [
   {
     id: "2007",
     name: "M1911",
-    image: "",//M1911Image,
+    image: M1911Image,//,
     caliber: "9*19mm",
     damage: 40,
     armorDamage: 30,
@@ -503,7 +503,7 @@ export const weapons = [
   {
     id: "3001",
     name: "M4A1",
-    image:"",// M4A1Image,
+    image: M4A1Image,// ,
     caliber: "5.56*45mm",
     damage: 29,
     armorDamage: 32,
@@ -529,7 +529,7 @@ export const weapons = [
   {
     id: "3002",
     name: "AKM",
-    image:"",// AKMImage,
+    image: AKMImage,// ,
     caliber: "7.62*39mm",
     damage: 40,
     armorDamage: 42,
@@ -553,35 +553,9 @@ export const weapons = [
     decay5: 0
   },
   {
-    id: "30021",
-    name: "AKM-性能枪管",
-    image:"",// AKMImage,
-    caliber: "7.62*39mm",
-    damage: 40,
-    armorDamage: 42,
-    fireRate: 600,
-    muzzleVelocity: 525,
-    headMultiplier: 2.5,
-    abdomenMultiplier: 0.9,
-    upperArmMultiplier: 0.4,
-    lowerArmMultiplier: 0.4,
-    thighMultiplier: 0.4,
-    calfMultiplier: 0.4,
-    range1: 40,
-    decay1: 1,
-    range2: 70,
-    decay2: 0.85,
-    range3: 999,
-    decay3: 0.7,
-    range4: 0,
-    decay4: 0,
-    range5: 0,
-    decay5: 0
-  },
-  {
     id: "3003",
     name: "QBZ95-1",
-    image:"",// QBZ951Image,
+    image: QBZ951Image,// ,
     caliber: "5.8*42mm",
     damage: 28,
     armorDamage: 42,
@@ -607,7 +581,7 @@ export const weapons = [
   {
     id: "3004",
     name: "AKS-74U",
-    image: "",//AKS74UImage,
+    image: AKS74UImage,//,
     caliber: "5.45*39mm",
     damage: 34,
     armorDamage: 36,
@@ -633,7 +607,7 @@ export const weapons = [
   {
     id: "3005",
     name: "ASh-12",
-    image:"",// ASh12Image,
+    image: ASh12Image,// ,
     caliber: "12.7*55",
     damage: 56,
     armorDamage: 55,
@@ -659,7 +633,7 @@ export const weapons = [
   {
     id: "3006",
     name: "K416",
-    image:"",// K416Image,
+    image: K416Image,// ,
     caliber: "5.56*45mm",
     damage: 31,
     armorDamage: 35,
@@ -685,7 +659,7 @@ export const weapons = [
   {
     id: "3007",
     name: "M16A4",
-    image:"",// M16A4Image,
+    image: M16A4Image,// ,
     caliber: "5.56*45mm",
     damage: 33,
     armorDamage: 39,
@@ -711,7 +685,7 @@ export const weapons = [
   {
     id: "3008",
     name: "AUG",
-    image:"",// AUGImage,
+    image: AUGImage,// ,
     caliber: "5.56*45mm",
     damage: 32,
     armorDamage: 35,
@@ -737,7 +711,7 @@ export const weapons = [
   {
     id: "3009",
     name: "M7",
-    image:"",// M7Image,
+    image: M7Image,// ,
     caliber: "6.8*51mm",
     damage: 38,
     armorDamage: 40,
@@ -763,7 +737,7 @@ export const weapons = [
   {
     id: "3010",
     name: "SG552",
-    image:"",// SG552Image,
+    image: SG552Image,// ,
     caliber: "5.56*45mm",
     damage: 24,
     armorDamage: 31,
@@ -789,7 +763,7 @@ export const weapons = [
   {
     id: "3011",
     name: "AK12",
-    image:"",// AK12Image,
+    image: AK12Image,// ,
     caliber: "5.45*39mm",
     damage: 29,
     armorDamage: 41,
@@ -815,7 +789,7 @@ export const weapons = [
   {
     id: "3012",
     name: "SCAR-H",
-    image:"",// SCARHImage,
+    image: SCARHImage,// ,
     caliber: "7.62*51mm",
     damage: 40,
     armorDamage: 40,
@@ -841,7 +815,7 @@ export const weapons = [
   {
     id: "3013",
     name: "G3",
-    image:"",// G3Image,
+    image: G3Image,// ,
     caliber: "7.62*51mm",
     damage: 39,
     armorDamage: 42,
@@ -867,7 +841,7 @@ export const weapons = [
   {
     id: "3014",
     name: "PTR-32",
-    image:"",// PTR32Image,
+    image: PTR32Image,// ,
     caliber: "7.62*39mm",
     damage: 34,
     armorDamage: 36,
@@ -893,7 +867,7 @@ export const weapons = [
   {
     id: "3015",
     name: "CAR-15",
-    image:"",// CAR15Image,
+    image: CAR15Image,// ,
     caliber: "5.56*45mm",
     damage: 27,
     armorDamage: 32,
@@ -919,7 +893,7 @@ export const weapons = [
   {
     id: "3016",
     name: "AS-Val",
-    image:"",// ASValImage,
+    image: ASValImage,// ,
     caliber: "9*39mm",
     damage: 29,
     armorDamage: 48,
@@ -945,7 +919,7 @@ export const weapons = [
   {
     id: "3017",
     name: "腾龙",
-    image:"",// TenglongImage,
+    image: TenglongImage,// ,
     caliber: "5.8*42mm",
     damage: 35,
     armorDamage: 38,
@@ -968,62 +942,11 @@ export const weapons = [
     range5: 0,
     decay5: 0
   },
-  {
-    id: "30171",
-    name: "腾龙-高速导气",
-    image:"",// TenglongImage,
-    caliber: "5.8*42mm",
-    damage: 35,
-    armorDamage: 38,
-    fireRate: 759,
-    muzzleVelocity: 575,
-    headMultiplier: 2.1,
-    abdomenMultiplier: 0.9,
-    upperArmMultiplier: 0.4,
-    lowerArmMultiplier: 0.4,
-    thighMultiplier: 0.4,
-    calfMultiplier: 0.4,
-    range1: 35,
-    decay1: 1,
-    range2: 62,
-    decay2: 0.85,
-    range3: 999,
-    decay3: 0.7,
-    range4: 0,
-    decay4: 0,
-    range5: 0,
-    decay5: 0
-  },
-  {
-    id: "30172",
-    name: "腾龙-稳固导气",
-    image:"",// TenglongImage,
-    caliber: "5.8*42mm",
-    damage: 35,
-    armorDamage: 38,
-    fireRate: 660,
-    muzzleVelocity: 575,
-    headMultiplier: 2.1,
-    abdomenMultiplier: 0.9,
-    upperArmMultiplier: 0.4,
-    lowerArmMultiplier: 0.4,
-    thighMultiplier: 0.4,
-    calfMultiplier: 0.4,
-    range1: 35,
-    decay1: 1,
-    range2: 62,
-    decay2: 0.85,
-    range3: 999,
-    decay3: 0.7,
-    range4: 0,
-    decay4: 0,
-    range5: 0,
-    decay5: 0
-  },
+  
   {
     id: "3018",
     name: "K437",
-    image:"",// K437Image,
+    image: K437Image,// ,
     caliber: ".300BLK",
     damage: 34,
     armorDamage: 35,
@@ -1049,7 +972,7 @@ export const weapons = [
   {
     id: "3019",
     name: "KC17",
-    image:"",// KC17Image,
+    image: KC17Image,// ,
     caliber: "5.45*39mm",
     damage: 30,
     armorDamage: 48,
@@ -1075,7 +998,7 @@ export const weapons = [
   {
     id: "4001",
     name: "QJB201",
-    image:"",// QJB201Image,
+    image: QJB201Image,// ,
     caliber: "5.8*42mm",
     damage: 32,
     armorDamage: 38,
@@ -1102,7 +1025,7 @@ export const weapons = [
   {
     id: "4002",
     name: "M250",
-    image:"",// M250Image,
+    image: M250Image,// ,
     caliber: "6.8*51mm",
     damage: 55,
     armorDamage: 53,
@@ -1129,7 +1052,7 @@ export const weapons = [
   {
     id: "4003",
     name: "M249",
-    image:"",// M249Image,
+    image: M249Image,// ,
     caliber: "5.56*45mm",
     damage: 30,
     armorDamage: 38,
@@ -1156,7 +1079,7 @@ export const weapons = [
   {
     id: "4004",
     name: "PKM",
-    image:"",// PKMImage,
+    image: PKMImage,// ,
     caliber: "7.62*54R",
     damage: 45,
     armorDamage: 42,
@@ -1183,7 +1106,7 @@ export const weapons = [
   {
     id: "5001",
     name: "725双管",
-    image:"",// DoubleBarrel725Image,
+    image: DoubleBarrel725Image,// ,
     caliber: "12Gauge",
     damage: 120, // 15*8
     armorDamage: 128, // 16*8
@@ -1209,7 +1132,7 @@ export const weapons = [
   {
     id: "5002",
     name: "M870",
-    image:"",// M870Image,
+    image: M870Image,// ,
     caliber: "12Gauge",
     damage: 136, // 17*8
     armorDamage: 128, // 16*8
@@ -1235,7 +1158,7 @@ export const weapons = [
   {
     id: "5003",
     name: "S12K",
-    image:"",// S12KImage,
+    image: S12KImage,// ,
     caliber: "12Gauge",
     damage: 104, // 13*8
     armorDamage: 128, // 16*8
@@ -1261,7 +1184,7 @@ export const weapons = [
   {
     id: "5004",
     name: "M1014",
-    image:"",// M1014Image,
+    image: M1014Image,// ,
     caliber: "12Gauge",
     damage: 112, // 14*8
     armorDamage: 128, // 16*8
@@ -1287,7 +1210,7 @@ export const weapons = [
   {
     id: "6001",
     name: "PSG-1",
-    image:"",// PSG1Image,
+    image: PSG1Image,// ,
     caliber: "7.62*51mm",
     damage: 50,
     armorDamage: 55,
@@ -1313,7 +1236,7 @@ export const weapons = [
   {
     id: "6002",
     name: "SR9",
-    image:"",// SR9Image,
+    image: SR9Image,// ,
     caliber: "7.62*51mm",
     damage: 50,
     armorDamage: 55,
@@ -1339,7 +1262,7 @@ export const weapons = [
   {
     id: "6003",
     name: "SR25",
-    image:"",// SR25Image,
+    image: SR25Image,// ,
     caliber: "7.62*51mm",
     damage: 50,
     armorDamage: 55,
@@ -1365,7 +1288,7 @@ export const weapons = [
   {
     id: "6004",
     name: "SKS",
-    image:"",// SKSImage,
+    image: SKSImage,// ,
     caliber: "7.62*39mm",
     damage: 44,
     armorDamage: 42,
@@ -1391,7 +1314,7 @@ export const weapons = [
   {
     id: "6005",
     name: "M14",
-    image:"",// M14Image,
+    image: M14Image,// ,
     caliber: "7.62*51mm",
     damage: 39,
     armorDamage: 41,
@@ -1417,7 +1340,7 @@ export const weapons = [
   {
     id: "6006",
     name: "SVD",
-    image:"",// SVDImage,
+    image: SVDImage,// ,
     caliber: "7.62*54R",
     damage: 56,
     armorDamage: 56,
@@ -1443,7 +1366,7 @@ export const weapons = [
   {
     id: "6007",
     name: "VSS",
-    image:"",// VSSImage,
+    image: VSSImage,// ,
     caliber: "9*39mm",
     damage: 35,
     armorDamage: 48,
@@ -1469,7 +1392,7 @@ export const weapons = [
   {
     id: "6008",
     name: "Mini-14",
-    image:"",// Mini14Image,
+    image: Mini14Image,// ,
     caliber: "5.56*45mm",
     damage: 32,
     armorDamage: 38,
@@ -1495,7 +1418,7 @@ export const weapons = [
   {
     id: "7001",
     name: "AWM",
-    image:"",// AWMImage,
+    image: AWMImage,// ,
     caliber: ".338 Lap Mag",
     damage: 100,
     armorDamage: 10,
@@ -1521,7 +1444,7 @@ export const weapons = [
   {
     id: "7002",
     name: "M700",
-    image:"",// M700Image,
+    image: M700Image,// ,
     caliber: "7.62*51mm",
     damage: 61,
     armorDamage: 58,
@@ -1547,7 +1470,7 @@ export const weapons = [
   {
     id: "7003",
     name: "R93",
-    image:"",// R93RifleImage,
+    image: R93Image,// ,
     caliber: "7.62*51mm",
     damage: 61,
     armorDamage: 58,
@@ -1573,7 +1496,7 @@ export const weapons = [
   {
     id: "7004",
     name: "SV98",
-    image:"",// SV98Image,
+    image: SV98Image,// ,
     caliber: "7.62*54R",
     damage: 60,
     armorDamage: 58,

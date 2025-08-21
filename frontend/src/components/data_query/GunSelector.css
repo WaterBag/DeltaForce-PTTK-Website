@@ -1,0 +1,34 @@
+
+.gun-list-item {
+  /* 1. 【核心】使用Flexbox，让图片和文字横向排列、垂直居中 */
+  display: flex;
+  align-items: center;
+  
+  /* 2. 【大小一致】设置固定的高度和内边距 */
+  height: 50px;
+  padding: 5px 10px;
+  
+  /* 3. 【交互反馈】 */
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0; /* 添加分割线 */
+  transition: background-color 0.2s ease; /* 平滑过渡效果 */
+}
+
+/* 4. 鼠标悬停时的样式 */
+.gun-list-item:hover {
+  background-color: #e6f0ff; /* 淡蓝色背景 */
+}
+
+/* 5. 图片样式 */
+.gun-item-image {
+  height: 30px; /* 图片高度 */
+  width: 60px;  /* 给一个稍宽的宽度，适应长条形的枪械图片 */
+  object-fit: contain; /* 确保图片在容器内按比例缩放，不被裁剪或拉伸 */
+  margin-right: 15px; /* 图片和文字之间的间距 */
+}
+
+/* 6. 名字样式 */
+.gun-item-name {
+  font-weight: 500;
+  color: #172b4d;
+}
