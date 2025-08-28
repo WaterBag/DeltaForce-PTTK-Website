@@ -13,10 +13,36 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #f4f5f7; /* 一个柔和的灰色背景 */
   color: #172b4d; /* 深蓝色文字，比纯黑更柔和 */
+  font-size: 16px; /* 基础字体大小 */
+  overflow-x: hidden; /* 防止水平滚动 */
+  overscroll-behavior-x: none; /* 防止水平过度滚动 */
 }
 
 /* 3. 确保React的根容器能撑满整个屏幕高度 */
 #root {
   min-height: 100%;
   display: flex; /* 让我们的App.js里的总布局能撑满 */
+  overflow-x: hidden; /* 防止水平滚动 */
+  overscroll-behavior-x: none; /* 防止水平过度滚动 */
+  width: 100%; /* 确保宽度不超过视口 */
+}
+
+/* 4. 响应式基础设置 */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 14px; /* 在小屏幕上稍微减小基础字体大小 */
+  }
+}
+
+/* 5. 移动设备优化 */
+@media (max-width: 480px) {
+  html, body {
+    font-size: 12px; /* 在更小的屏幕上进一步减小字体大小 */
+  }
+}
+
+/* 6. 视口设置 - 确保适当的缩放 */
+@viewport {
+  width: device-width;
+  zoom: 1.0;
 }

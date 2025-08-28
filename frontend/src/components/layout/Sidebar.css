@@ -6,6 +6,7 @@
   border-right: 1px solid #dfe1e6; /* 右侧加一条细线 */
   padding: 16px 0; /* 上下留出一些边距 */
   flex-shrink: 0; /* 防止在Flex布局中被压缩 */
+  position: relative;
 }
 
 .sidebar-nav ul {
@@ -30,4 +31,146 @@
   background-color: #e6f0ff; /* 激活时的背景色 */
   color: #0052cc; /* 激活时的文字颜色 */
   border-left-color: #0052cc; /* 激活时，左侧的指示条显示为蓝色 */
+}
+
+/* 概率信息显示区域 - 放在sidebar底部 */
+.probability-info {
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  padding: 16px;
+  background-color: #fafbfc;
+  border-top: 1px solid #dfe1e6;
+  margin-bottom: 0;
+}
+
+.probability-info h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #42526e;
+  text-align: center;
+}
+
+.probability-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 16px;
+}
+
+.probability-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  min-width: 0;
+}
+
+.probability-item .label {
+  font-size: 12px;
+  color: #6b778c;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.probability-item .value {
+  font-size: 13px;
+  color: #0052cc;
+  font-weight: 600;
+}
+
+.probability-total {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #dfe1e6;
+  font-size: 12px;
+  color: #6b778c;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ICP备案信息样式 */
+.icp-info {
+  position: absolute;
+  bottom: -4px; /* 放在概率信息区域下方 */
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  color: #b3b9c4;
+  padding: 4px 0;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.icp-info:hover {
+  opacity: 1;
+}
+
+/* 响应式布局 - 平板设备 */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 200px; /* 减小侧边栏宽度 */
+  }
+  
+  .nav-item {
+    padding: 10px 16px; /* 减小导航项内边距 */
+  }
+}
+
+
+/* 响应式布局 - 移动设备 */
+@media (max-width: 480px) {
+  .app-sidebar {
+    width: auto; /* 自动宽度，根据内容调整 */
+    border-right: 1px solid #dfe1e6; /* 保持右侧边框 */
+    border-bottom: none; /* 无底部边框 */
+    padding: 8px 0; /* 减小上下内边距 */
+    overflow-x: hidden; /* 防止水平滚动 */
+  }
+  
+  .sidebar-nav ul {
+    display: flex; /* 水平排列导航项 */
+    overflow-x: hidden; /* 防止水平滚动 */
+    padding: 0 12px; /* 添加左右内边距 */
+    flex-wrap: nowrap; /* 不换行 */
+  }
+  
+  .nav-item {
+    padding: 8px 12px; /* 减小导航项内边距 */
+    white-space: nowrap; /* 防止文本换行 */
+    border-left: none; /* 移除左侧边框 */
+    border-bottom: 3px solid transparent; /* 添加底部边框作为激活指示 */
+  }
+  
+.nav-item.active {
+  background-color: #e3f2fd; /* 激活状态的背景色 */
+  border-left: 4px solid #2196f3; /* 左侧激活指示条 */
+}
+
+.nav-item button {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.nav-item button:hover {
+  background-color: #f5f5f5;
+}
+
+  /* 在移动设备上隐藏概率信息 */
+  .probability-info {
+    display: none;
+  }
 }

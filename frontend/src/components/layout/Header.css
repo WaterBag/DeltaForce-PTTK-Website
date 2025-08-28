@@ -22,3 +22,56 @@
   list-style-type: none; /* 去掉列表的小黑点 */
   gap: 16px; /* 未来导航项之间的间距 */
 }
+
+/* ▼▼▼ 为新链接添加样式 ▼▼▼ */
+.bilibili-link {
+  display: flex; /* (推荐) 使用Flexbox，能让图标和文字轻松对齐 */
+  align-items: center;
+  
+  color: #4a73b1; /* 使用蓝色，让它看起来像个链接 */
+  text-decoration: none; /* 去掉默认的下划线 */
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.bilibili-link:hover {
+  color: #0065ff; /* 鼠标悬停时，颜色变得更亮 */
+}
+
+/* (可选) 如果您使用了图标，可以为图标设置样式 */
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px; /* 图标和文字之间的间距 */
+}
+
+/* 响应式布局 - 平板设备 */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px; /* 减小内边距 */
+  }
+  
+  .logo {
+    font-size: 1.3rem; /* 减小logo字体大小 */
+  }
+}
+
+/* 响应式布局 - 移动设备 */
+@media (max-width: 480px) {
+  .header {
+    padding: 0 12px; /* 进一步减小内边距 */
+    height: 50px; /* 减小header高度 */
+  }
+  
+  .logo {
+    font-size: 1.1rem; /* 进一步减小logo字体大小 */
+  }
+  
+  .bilibili-link span {
+    display: none; /* 在移动设备上隐藏文字，只显示图标 */
+  }
+  
+  .nav-icon {
+    margin-right: 0; /* 移除图标右侧间距 */
+  }
+}

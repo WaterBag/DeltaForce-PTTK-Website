@@ -1,3 +1,69 @@
+/* 基本样式 */
+.universal-slider {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.slider-labelandvalue {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.slider-label-text {
+  font-weight: 500;
+  color: #172b4d;
+}
+
+.slider-value-text {
+  font-weight: 600;
+  color: #0052cc;
+}
+
+.slider-input {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #dfe1e6;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* 滑块样式 */
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0052cc;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0052cc;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: none;
+}
+
+.slider-input::-webkit-slider-thumb:hover {
+  background: #0065ff;
+}
+
+.slider-input::-moz-range-thumb:hover {
+  background: #0065ff;
+}
+
+/* 禁用状态样式 */
 .universal-slider.disabled .slider-label-text {
   color: #a5adba; /* 让标签文字变灰 */
 }
@@ -7,6 +73,50 @@
 }
 
 .universal-slider.disabled .slider-input {
-  cursor: not-allowed; /* 鼠标指针变为“禁止”图标 */
+  cursor: not-allowed; /* 鼠标指针变为"禁止"图标 */
   opacity: 0.6; /* 让滑块看起来有点褪色 */
+}
+
+/* 响应式样式 - 平板设备 */
+@media (max-width: 768px) {
+  .slider-input {
+    height: 5px; /* 减小滑块高度 */
+  }
+  
+  .slider-input::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .slider-input::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .slider-label-text,
+  .slider-value-text {
+    font-size: 0.9em; /* 减小字体大小 */
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media (max-width: 480px) {
+  .slider-input {
+    height: 4px; /* 进一步减小滑块高度 */
+  }
+  
+  .slider-input::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .slider-input::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .slider-label-text,
+  .slider-value-text {
+    font-size: 0.85em; /* 进一步减小字体大小 */
+  }
 }

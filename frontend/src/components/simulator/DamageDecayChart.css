@@ -1,0 +1,22 @@
+.decay-chart-container {
+    width: 100%;
+}
+
+.decay-chart-container h4 {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #091e42;
+}
+
+.custom-decay-tooltip {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #000000;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.custom-decay-tooltip p {
+    margin: 2px 0;
+}

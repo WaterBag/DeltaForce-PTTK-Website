@@ -19,14 +19,6 @@
 }
 
 
-/* 稀有度背景色 */
-.rarity-red { background-color: rgb(255, 64, 64); }
-.rarity-orange { background-color: rgb(255, 181, 44); } /* 橙 */
-.rarity-purple { background-color: rgb(212, 39, 255); }      /* 紫 */
-.rarity-blue { background-color: rgb(59, 59, 255); }       /* 蓝 */
-.rarity-green { background-color: rgb(38, 255, 38); }   /* 绿 */
-.rarity-white { background-color: rgb(214, 214, 214); } /* 白 */
-
 .ammo-selector {
   position: relative; /* 关键：让子元素的绝对定位基于此容器 */
   width: 100%;

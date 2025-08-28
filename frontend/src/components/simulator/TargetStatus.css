@@ -1,0 +1,70 @@
+.target-status-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #dfe1e6;
+}
+
+.target-status-panel h3 {
+    margin: 0 0 4px 0;
+    color: #091e42;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+.hp-bar-container {
+    width: 100%;
+    height: 24px;
+    background-color: #ebecf0;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #dfe1e6;
+}
+
+.hp-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #2684ff, #0052cc);
+    transition: width 0.3s ease-out;
+}
+
+.hp-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.9em;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.status-display {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-item {
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.status-item .label {
+    color: #5e6c84;
+    margin-right: 8px;
+}
+
+.status-item .value {
+    color: #172b4d;
+    font-weight: 600;
+    text-align: right;
+}

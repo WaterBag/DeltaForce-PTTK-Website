@@ -587,7 +587,9 @@ export const modifications = [
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.06,
       damageChange: true,
-      btkQueryName: 'AKM-性能枪管'
+      btkQueryName: 'AKM-性能枪管',
+      dataQueryName: 'AKM-性能枪管组合'
+
     }
   },
   {
@@ -1074,6 +1076,7 @@ export const modifications = [
       muzzleVelocityModifier: 0.3,
       damageChange: true,
       btkQueryName: 'M7-提丰长枪管',
+      dataQueryName: 'M7-堤风超长枪管'
     }
   },
   {

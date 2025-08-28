@@ -1,3 +1,21 @@
+/**
+ * 弹药数据配置文件
+ * 包含游戏中所有弹药的详细属性数据
+ * 用于TTK计算、伤害模拟和武器配置
+ * 
+ * 弹药属性说明：
+ * - id: 弹药唯一标识符
+ * - caliber: 弹药口径（与武器口径匹配）
+ * - name: 弹药名称
+ * - rarity: 稀有度等级（红、橙、紫、蓝、绿、白）
+ * - penetration: 穿透等级（0-7，决定对护甲的穿透能力）
+ * - secondaryPenetration: 次级穿透系数（当穿透等级=护甲等级+1时的穿透率）
+ * - sameLevelPenetration: 同级穿透系数（当穿透等级=护甲等级时的穿透率）
+ * - fleshDamageCoeff: 肉体伤害系数（对无护甲目标的伤害倍率）
+ * - armor1-armor6: 对不同等级护甲的伤害系数（1-6级护甲）
+ * - image: 弹药图片资源
+ */
+
 import Image50AE from '../../assets/images/ammo/.50-AE.png';
 import Image338 from '../../assets/images/ammo/.338.png';
 import Image46x30mm from '../../assets/images/ammo/4.6x30mm.png';
@@ -160,9 +178,9 @@ export const ammos = [
     name: "RIP",
     rarity: "蓝",
     penetration: 0,
-    secondaryPenetration: 0.75,
-    sameLevelPenetration: 0,
-    fleshDamageCoeff: 1.3,
+    secondaryPenetration: 0,
+    sameLevelPenetration: 1,
+    fleshDamageCoeff: 1.35,
     armor1: 0.4,
     armor2: 0.3,
     armor3: 0.2,
@@ -823,9 +841,9 @@ export const ammos = [
     name: "RIP",
     rarity: "蓝",
     penetration: 0,
-    secondaryPenetration: 0.75,
-    sameLevelPenetration: 0,
-    fleshDamageCoeff: 1.3,
+    secondaryPenetration: 0,
+    sameLevelPenetration: 1,
+    fleshDamageCoeff: 1.4,
     armor1: 0.4,
     armor2: 0.3,
     armor3: 0.2,

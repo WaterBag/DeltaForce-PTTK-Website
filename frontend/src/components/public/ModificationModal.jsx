@@ -14,6 +14,8 @@ export function ModificationModal({ isOpen, onClose, gunName, gunDetailsMap, onA
 
     const [selectedBullet, setSelectedBullet] = useState(null);
     const [selectedMods, setSelectedMods] = useState([]);
+    const [hoveredMod, setHoveredMod] = useState(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
     const groupedMods = useMemo(() => {
         if (!availableMods) return {}; // 如果没有配件，返回一个空对象
@@ -46,10 +48,8 @@ export function ModificationModal({ isOpen, onClose, gunName, gunDetailsMap, onA
         return damageMod ? damageMod.effects.btkQueryName : gunName;
     }, [selectedMods, availableMods, gunName]);
 
-    
     const currentVariantDetails = gunDetailsMap ? gunDetailsMap[currentVariantName] : null;// 【数据源切换】从 gunDetails 这个“数据字典”中，取出当前变体的数据
 
-    
     const bulletOptions = useMemo(() => {// 【实时联动】后续的所有 useMemo，都依赖于这个【动态切换】的数据源
 
         if (!currentVariantDetails || !currentVariantDetails.availableBullets) {// 1. 【安全检查】我们只检查 currentVariantDetails 和它内部的 availableBullets
@@ -58,7 +58,7 @@ export function ModificationModal({ isOpen, onClose, gunName, gunDetailsMap, onA
         
         const availableBulletNames = currentVariantDetails.availableBullets;//后端API已经为我们准备好了干净、去重的 availableBullets 数组
 
-        const weaponInfo = weaponInfoMap[gunName];//    根据枪械名找到口径
+        const weaponInfo = weaponInfoMap[gunName];//根据枪械名找到口径
         if (!weaponInfo) return [];
         const weaponCaliber = weaponInfo.caliber;
         
@@ -150,23 +150,40 @@ export function ModificationModal({ isOpen, onClose, gunName, gunDetailsMap, onA
                                 <h4 className="mod-group-title">{type}</h4>
                                 
                                 <div className="mod-options-grid">
-                                    {/* 2. 内层循环：遍历当前类型下的所有【配件】 */}
                                     {groupedMods[type].map(mod => (
-                                        <label key={mod.id} className="mod-option">
-                                            <input
-                                                type="checkbox"
-                                                id={`mod-${gunName}-${mod.id}`}
-                                                checked={selectedMods.includes(mod.id)}
-                                                onChange={(e) => handleModChange(mod.id, e.target.checked)}
-                                            />
-                                            <label htmlFor={`mod-${gunName}-${mod.id}`}>{mod.name}</label>
-                                        </label>
+                                        // ▼▼▼ 【核心修正】▼▼▼
+                                        // 1. 将 <label> 改为 <div>，因为它不再与 input 关联
+                                        <div
+                                            key={mod.id}
+                                            // 2. 根据 selectedMods 中是否包含 mod.id，动态添加 'selected' 类
+                                            className={`mod-option ${selectedMods.includes(mod.id) ? 'selected' : ''}`}
+                                            // 3. 将点击事件直接绑定在 div 上
+                                            onClick={() => {
+                                                // 4. 在点击时，手动切换选择状态
+                                                const isCurrentlySelected = selectedMods.includes(mod.id);
+                                                handleModChange(mod.id, !isCurrentlySelected);
+                                            }}
+                                            // 6. 添加鼠标悬停事件
+                                            onMouseEnter={(e) => {
+                                                setHoveredMod(mod);
+                                                // 获取鼠标位置
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setTooltipPosition({
+                                                    x: rect.right + 10,
+                                                    y: rect.top
+                                                });
+                                            }}
+                                            onMouseLeave={() => setHoveredMod(null)}
+                                        >
+                                            {/* 5. 移除 <input type="checkbox"> */}
+                                            <span>{mod.name}</span>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
                         ))}
 
-                        {/* (推荐) 如果一个配件都没有，可以显示提示 */}
+                        {/*如果一个配件都没有，显示提示 */}
                         {(!availableMods || availableMods.length === 0) && (
                             <p>该武器暂无可选配件。</p>
                         )}
@@ -186,6 +203,51 @@ export function ModificationModal({ isOpen, onClose, gunName, gunDetailsMap, onA
                         添加至对比
                     </button>
                 </footer>
+
+                {/* 配件效果提示 */}
+                {hoveredMod && (
+                    <div 
+                        className="mod-tooltip"
+                        style={{
+                            left: `${tooltipPosition.x}px`,
+                            top: `${tooltipPosition.y}px`
+                        }}
+                    >
+                        <h4>{hoveredMod.name}</h4>
+                        <div className="mod-effects">
+                            {hoveredMod.effects.rangeModifier !== 0 && (
+                                <div className="effect-item">
+                                    <span className="effect-label">射程:</span>
+                                    <span className={`effect-value ${hoveredMod.effects.rangeModifier > 0 ? 'positive' : 'negative'}`}>
+                                        {hoveredMod.effects.rangeModifier > 0 ? '+' : ''}{Math.round(hoveredMod.effects.rangeModifier * 100)}%
+                                    </span>
+                                </div>
+                            )}
+                            {hoveredMod.effects.fireRateModifier !== 0 && (
+                                <div className="effect-item">
+                                    <span className="effect-label">射速:</span>
+                                    <span className={`effect-value ${hoveredMod.effects.fireRateModifier > 0 ? 'positive' : 'negative'}`}>
+                                        {hoveredMod.effects.fireRateModifier > 0 ? '+' : ''}{Math.round(hoveredMod.effects.fireRateModifier * 100)}%
+                                    </span>
+                                </div>
+                            )}
+                            {hoveredMod.effects.muzzleVelocityModifier !== 0 && (
+                                <div className="effect-item">
+                                    <span className="effect-label">初速:</span>
+                                    <span className={`effect-value ${hoveredMod.effects.muzzleVelocityModifier > 0 ? 'positive' : 'negative'}`}>
+                                        {hoveredMod.effects.muzzleVelocityModifier > 0 ? '+' : ''}{Math.round(hoveredMod.effects.muzzleVelocityModifier * 100)}%
+                                    </span>
+                                </div>
+                            )}
+                            {hoveredMod.effects.damageChange && (
+                                <div className="effect-item">
+                                    <span className="effect-label">伤害:</span>
+                                    <span className="effect-value special">改变伤害曲线</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

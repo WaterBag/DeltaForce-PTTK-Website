@@ -7,6 +7,7 @@
   font-size: 14px;
   /* (推荐) 添加过渡，让出现更平滑 */
   transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  max-width: 300px; /* 限制最大宽度，防止在小屏幕上过宽 */
 }
 
 .tooltip-label {
@@ -48,4 +49,58 @@
 .tooltip-value {
   font-weight: 600;
   margin-left: auto; /* 推到最右边 */
+}
+
+/* 响应式样式 - 平板设备 */
+@media (max-width: 768px) {
+  .custom-tooltip {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .tooltip-color-indicator {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media (max-width: 480px) {
+  .custom-tooltip {
+    padding: 6px;
+    font-size: 10px;
+    max-width: 220px; /* 在更小的屏幕上进一步限制宽度 */
+  }
+  
+  .tooltip-label {
+    margin-bottom: 4px;
+    font-size: 0.9em;
+  }
+  
+  .tooltip-list-item {
+    margin-bottom: 3px;
+  }
+  
+  .tooltip-color-indicator {
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+  }
+  
+  .tooltip-name {
+    margin-right: 5px;
+  }
+}
+
+/* 添加图例响应式样式 */
+.recharts-legend-wrapper .recharts-default-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .recharts-legend-wrapper .recharts-default-legend .recharts-legend-item {
+    margin-right: 8px !important;
+  }
 }

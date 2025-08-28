@@ -10,11 +10,29 @@
 .app-content {
   display: flex;
   flex-direction: row; /* 2. 水平排列：Sidebar 在左，main-content 在右 */
-  flex-grow: 1; /* 关键！让这个区域“成长”，撑满Header之外的所有剩余垂直空间 */
+  flex-grow: 1; /* 关键！让这个区域"成长"，撑满Header之外的所有剩余垂直空间 */
 }
 
 .main-content {
-  flex-grow: 1; /* 关键！让主内容区“成长”，撑满Sidebar之外的所有剩余水平空间 */
+  flex-grow: 1; /* 关键！让主内容区"成长"，撑满Sidebar之外的所有剩余水平空间 */
   padding: 24px; /* 在内容周围留出一些呼吸空间 */
   overflow-y: auto; /* 如果内容超长，让这个区域自己滚动，而不是整个页面 */
+}
+
+/* 响应式布局 - 平板设备 */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px; /* 减小内边距 */
+  }
+}
+
+/* 响应式布局 - 移动设备 */
+@media (max-width: 480px) {
+  .app-content {
+    flex-direction: column; /* 在移动设备上改为垂直排列 */
+  }
+  
+  .main-content {
+    padding: 12px; /* 进一步减小内边距 */
+  }
 }

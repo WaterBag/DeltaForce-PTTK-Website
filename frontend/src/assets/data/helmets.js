@@ -1,3 +1,16 @@
+/**
+ * 头盔数据配置文件
+ * 包含游戏中所有头盔的详细属性数据
+ * 用于TTK计算、伤害模拟和头盔选择
+ * 
+ * 头盔属性说明：
+ * - id: 头盔唯一标识符（与选择规则配置匹配）
+ * - name: 头盔名称
+ * - level: 防护等级（1-6级，决定对弹药的抗性）
+ * - durability: 最大耐久度值
+ * - image: 头盔图片资源
+ */
+
 import helmet0 from '../../assets/images/helmet/无.jpg';
 import helmet1001 from '../../assets/images/helmet/老式钢盔.png';
 import helmet1002 from '../../assets/images/helmet/安保头盔.png';

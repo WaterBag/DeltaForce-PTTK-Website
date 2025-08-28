@@ -1,83 +1,127 @@
 import { API_BASE_URL } from './config';
 
-export async function fetchAvailableGuns({helmetLevel,
+/**
+ * 根据护甲和头盔配置获取可用枪械列表
+ * @param {Object} params - 配置参数对象
+ * @param {number} params.helmetLevel - 头盔防护等级
+ * @param {number} params.armorLevel - 护甲防护等级  
+ * @param {number} params.helmetDurability - 头盔耐久度值
+ * @param {number} params.armorDurability - 护甲耐久度值
+ * @param {number} params.chestProtection - 胸部防护值
+ * @param {number} params.stomachProtection - 腹部防护值
+ * @param {number} params.armProtection - 手臂防护值
+ * @returns {Promise<string[]>} 可用枪械名称数组
+ * @throws {Error} 当必需参数缺失或请求失败时抛出错误
+ */
+export async function fetchAvailableGuns({
+  helmetLevel,
   armorLevel,
   helmetDurability,
   armorDurability,
   chestProtection,
   stomachProtection,
-  armProtection}) {
-    if (
-        helmetLevel == null || armorLevel == null ||
-        helmetDurability == null || armorDurability == null
-    ) {
-        throw new Error("fetchAvailableGuns 参数不完整");
-    }
-    const response = await fetch(`${API_BASE_URL}/api/ttk/available-guns`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-        helmetLevel,
-        armorLevel,
-        helmetDurability,
-        armorDurability,
-        chestProtection,
-        stomachProtection,
-        armProtection
-        })
-    });
+  armProtection
+}) {
+  // 验证必需参数
+  if (
+    helmetLevel == null || armorLevel == null ||
+    helmetDurability == null || armorDurability == null
+  ) {
+    throw new Error("fetchAvailableGuns 参数不完整");
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/api/ttk/available-guns`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      helmetLevel,
+      armorLevel,
+      helmetDurability,
+      armorDurability,
+      chestProtection,
+      stomachProtection,
+      armProtection
+    })
+  });
 
   if (!response.ok) {
     throw new Error(`请求可用枪械失败: ${response.status}`);
   }
 
   return await response.json();
-    
 }
 
+/**
+ * 获取指定枪械的详细数据
+ * @param {Object} params - 配置参数对象
+ * @param {string} params.gunName - 枪械名称
+ * @param {number} params.helmetLevel - 头盔防护等级
+ * @param {number} params.armorLevel - 护甲防护等级
+ * @param {number} params.helmetDurability - 头盔耐久度值
+ * @param {number} params.armorDurability - 护甲耐久度值
+ * @param {number} params.chestProtection - 胸部防护值
+ * @param {number} params.stomachProtection - 腹部防护值
+ * @param {number} params.armProtection - 手臂防护值
+ * @returns {Promise<Object>} 枪械详细数据对象
+ * @throws {Error} 当必需参数缺失或请求失败时抛出错误
+ */
 export async function fetchGunDetails({
-    gunName,
-    helmetLevel,
-    armorLevel,
-    helmetDurability,
-    armorDurability,
-    chestProtection,
-    stomachProtection,
-    armProtection
+  gunName,
+  helmetLevel,
+  armorLevel,
+  helmetDurability,
+  armorDurability,
+  chestProtection,
+  stomachProtection,
+  armProtection
 }) {
-    if (!gunName ||
-        helmetLevel == null || armorLevel == null ||
-        helmetDurability == null || armorDurability == null
-    ) {
-        throw new Error("fetchGunDetails 参数不完整");
-    }
-    const response = await fetch(`${API_BASE_URL}/api/ttk/gun-details`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-        gunName,
-        helmetLevel,
-        armorLevel,
-        helmetDurability,
-        armorDurability,
-        chestProtection,
-        stomachProtection,
-        armProtection
-        })
-    });
+  // 验证必需参数
+  if (!gunName ||
+    helmetLevel == null || armorLevel == null ||
+    helmetDurability == null || armorDurability == null
+  ) {
+    throw new Error("fetchGunDetails 参数不完整");
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/api/ttk/gun-details`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      gunName,
+      helmetLevel,
+      armorLevel,
+      helmetDurability,
+      armorDurability,
+      chestProtection,
+      stomachProtection,
+      armProtection
+    })
+  });
 
   if (!response.ok) {
     throw new Error(`请求枪械详情失败: ${response.status}`);
   }
 
   return await response.json();
-    
 }
 
+/**
+ * 获取武器和护甲的组合数据
+ * @param {Object} params - 配置参数对象
+ * @param {number} params.helmetLevel - 头盔防护等级
+ * @param {number} params.armorLevel - 护甲防护等级
+ * @param {number} params.helmetDurability - 头盔耐久度值
+ * @param {number} params.armorDurability - 护甲耐久度值
+ * @param {number} params.chestProtection - 胸部防护值
+ * @param {number} params.stomachProtection - 腹部防护值
+ * @param {number} params.armProtection - 手臂防护值
+ * @returns {Promise<Object>} 组合数据对象
+ * @throws {Error} 当必需参数缺失或请求失败时抛出错误
+ */
 export async function fetchCombinations({
   helmetLevel,
   armorLevel,
@@ -87,27 +131,29 @@ export async function fetchCombinations({
   stomachProtection,
   armProtection
 }) {
-    if (
-        helmetLevel == null || armorLevel == null ||
-        helmetDurability == null || armorDurability == null
-    ) {
-        throw new Error("fetchCombinations 参数不完整");
-    }
-    const response = await fetch(`${API_BASE_URL}/api/ttk/combinations`, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-        helmetLevel,
-        armorLevel,
-        helmetDurability,
-        armorDurability,
-        chestProtection,
-        stomachProtection,
-        armProtection
-        })
-    });
+  // 验证必需参数
+  if (
+    helmetLevel == null || armorLevel == null ||
+    helmetDurability == null || armorDurability == null
+  ) {
+    throw new Error("fetchCombinations 参数不完整");
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/api/ttk/combinations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      helmetLevel,
+      armorLevel,
+      helmetDurability,
+      armorDurability,
+      chestProtection,
+      stomachProtection,
+      armProtection
+    })
+  });
 
   if (!response.ok) {
     throw new Error(`请求组合失败: ${response.status}`);
@@ -116,39 +162,53 @@ export async function fetchCombinations({
   return await response.json();
 }
 
-
+/**
+ * 获取TTK（Time to Kill）曲线数据
+ * @param {Object} params - 配置参数对象
+ * @param {string} params.weaponName - 武器名称
+ * @param {string} params.ammoName - 弹药名称
+ * @param {number} params.helmetLevel - 头盔防护等级
+ * @param {number} params.armorLevel - 护甲防护等级
+ * @param {number} params.helmetDurability - 头盔耐久度值
+ * @param {number} params.armorDurability - 护甲耐久度值
+ * @param {number} params.chestProtection - 胸部防护值
+ * @param {number} params.stomachProtection - 腹部防护值
+ * @param {number} params.armProtection - 手臂防护值
+ * @returns {Promise<Object>} TTK曲线数据对象
+ * @throws {Error} 当请求失败时抛出错误
+ */
 export async function fetchTtkCurve({
-    weaponName,
-    ammoName,
-    helmetLevel,
-    armorLevel,
-    helmetDurability,
-    armorDurability,
-    chestProtection,
-    stomachProtection,
-    armProtection
+  weaponName,
+  ammoName,
+  helmetLevel,
+  armorLevel,
+  helmetDurability,
+  armorDurability,
+  chestProtection,
+  stomachProtection,
+  armProtection
 }) {
-    const response = await fetch(`${API_BASE_URL}/api/ttk/ttk-curve`, { // <--- 注意路径
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            weaponName,
-            ammoName,
-            helmetLevel,
-            armorLevel,
-            helmetDurability,
-            armorDurability,
-            chestProtection,
-            stomachProtection,
-            armProtection
-        })
-    });
+  const response = await fetch(`${API_BASE_URL}/api/ttk/ttk-curve`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      weaponName,
+      ammoName,
+      helmetLevel,
+      armorLevel,
+      helmetDurability,
+      armorDurability,
+      chestProtection,
+      stomachProtection,
+      armProtection
+    })
+  });
 
-    if (!response.ok) {
-        throw new Error(`请求TTK曲线失败: ${response.status}`);
-    }
+  if (!response.ok) {
+    throw new Error(`请求TTK曲线失败: ${response.status}`);
+  }
 
-    return await response.json();
+  return await response.json();
 }

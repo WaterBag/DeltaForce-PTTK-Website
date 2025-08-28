@@ -20,7 +20,12 @@
 .results-panel {
   flex: 7; /* 占据 7 份空间 */
   min-width: 0;
-  display: flex;
+  display: flex; /* 保持Flex布局，让图表能撑满 */
+  align-items: center;  
+  background-color: #ffffff; /* 1. 纯白背景 */
+  padding: 24px;             /* 2. 在图表周围留出一些内边距 */
+  border-radius: 6px;        /* 3. 与左侧面板匹配的圆角 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1); /* 4. 与左侧面板匹配的阴影 */
 }
 
 /* 4. 通用 section 样式 */
@@ -112,14 +117,100 @@
   cursor: pointer;
 }
 
-.results-panel {
-  flex: 7;
-  min-width: 0;
-  display: flex; /* 保持Flex布局，让图表能撑满 */
-  align-items: center;  
-  /* ▼▼▼ 【核心新增区】为图表添加背景和边框 ▼▼▼ */
-  background-color: #ffffff; /* 1. 纯白背景 */
-  padding: 24px;             /* 2. 在图表周围留出一些内边距 */
-  border-radius: 6px;        /* 3. 与左侧面板匹配的圆角 */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1); /* 4. 与左侧面板匹配的阴影 */
+/* 响应式布局 - 平板设备 */
+@media (max-width: 1024px) {
+  .data-query-layout {
+    gap: 16px; /* 减小左右两栏之间的间距 */
+  }
+  
+  .sittings-panel {
+    min-width: 350px; /* 减小最小宽度 */
+  }
+  
+  .results-panel {
+    padding: 16px; /* 减小内边距 */
+  }
+  
+  .armor-selector-item {
+    flex-direction: column; /* 改为垂直排列 */
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .interactive-section {
+    max-height: 500px; /* 减小最大高度 */
+  }
+  
+  .chart-controls {
+    flex-wrap: wrap; /* 允许换行 */
+    gap: 16px;
+  }
+  
+  .chart-controls h4 {
+    width: 100%; /* 标题占满一行 */
+    margin-bottom: 8px;
+  }
+}
+
+/* 响应式布局 - 移动设备 */
+@media (max-width: 768px) {
+  .data-query-layout {
+    flex-direction: column; /* 改为垂直排列 */
+    height: auto; /* 高度自适应 */
+    gap: 16px;
+  }
+  
+  .sittings-panel {
+    flex: none; /* 移除flex比例 */
+    min-width: 0; /* 移除最小宽度限制 */
+    width: 100%; /* 占满宽度 */
+  }
+  
+  .results-panel {
+    flex: none; /* 移除flex比例 */
+    width: 100%; /* 占满宽度 */
+    padding: 12px; /* 进一步减小内边距 */
+    min-height: 300px; /* 设置最小高度 */
+    height: 400px; /* 设置明确的高度，确保图表有足够的空间 */
+  }
+  
+  .interactive-section {
+    flex-direction: column; /* 改为垂直排列 */
+    max-height: none; /* 移除最大高度限制 */
+  }
+  
+  .interactive-column {
+    max-height: 150px; /* 减小高度 */
+  }
+}
+
+/* 更小的移动设备 */
+@media (max-width: 480px) {
+  .data-query-layout {
+    overflow-x: hidden; /* 防止水平滚动 */
+  }
+  
+  .sittings-panel {
+    overflow-x: hidden; /* 防止水平滚动 */
+  }
+  
+  .config-section {
+    padding: 12px; /* 减小内边距 */
+  }
+  
+  .chart-controls {
+    flex-direction: column; /* 改为垂直排列 */
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .results-panel {
+    padding: 8px; /* 进一步减小内边距 */
+    height: 310px; /* 调整高度，确保图表在更小的屏幕上也能显示 */
+    overflow-x: hidden; /* 防止水平滚动 */
+  }
+  
+  .interactive-column {
+    max-height: 150px; /* 减小高度 */
+  }
 }

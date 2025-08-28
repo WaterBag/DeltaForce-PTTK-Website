@@ -81,3 +81,59 @@
 .rarity-blue   { color: #3498db; }
 .rarity-green  { color: #2ecc71; }
 .rarity-white  { color: #5e6c84; }
+
+/* 响应式样式 - 平板设备 */
+@media (max-width: 768px) {
+  .comparison-list-empty {
+    padding: 15px;
+    font-size: 0.9em;
+  }
+  
+  .comparison-list-item {
+    padding: 10px 8px;
+  }
+  
+  .color-indicator {
+    width: 10px;
+    height: 10px;
+    margin-right: 10px;
+  }
+  
+  .remove-button {
+    font-size: 1.3rem;
+    padding: 0 4px;
+    margin-left: 8px;
+    /* 在平板设备上始终显示删除按钮，提高可用性 */
+    opacity: 0.7;
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media (max-width: 480px) {
+  .comparison-list-empty {
+    padding: 12px;
+    font-size: 0.85em;
+  }
+  
+  .comparison-list-item {
+    padding: 8px 6px;
+  }
+  
+  .color-indicator {
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+  }
+  
+  .comparison-line-name {
+    font-size: 0.9em;
+  }
+  
+  .remove-button {
+    font-size: 1.2rem;
+    padding: 0 3px;
+    margin-left: 6px;
+    /* 在移动设备上始终显示删除按钮，提高可用性 */
+    opacity: 1;
+  }
+}

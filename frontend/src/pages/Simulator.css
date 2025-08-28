@@ -1,42 +1,462 @@
-.simulator {
-      display: flex; /* 或者使用 grid: display: grid; grid-template-columns: repeat(3, 1fr); */
-      gap: 1px; /* 列间距 */
-      width: 100%;
-      height: 100%;
-      margin: 2rem auto; /* 居中显示 */
-      max-width: 1600px;
-    }
-    
-    .box {
-      flex: 1; /* 平均分配空间 */
-      aspect-ratio: 16/9; /* 保持宽高比 */
-      background-color: #f0f0f0; /* 背景色 */
-      border-radius: 4px; /* 圆角 */
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影 */
-      transition: transform 0.3s ease; /* 过渡效果 */
-    }
-
-.armor-sitting-panel{
+/* ============================================= */
+/* 1. 主模拟器布局                             */
+/* ============================================= */
+.simulator-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+  height: 100%;
   width: 100%;
+  box-sizing: border-box;
+  background-color: #f0f2f5;
 }
 
-.helmet-selector-continer{
-  width: 100%;
+/* ============================================= */
+/* 2. 左右侧边栏通用样式                       */
+/* ============================================= */
+.left-panel,
+.right-panel {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  /* 关键属性，确保 flex 子项能正确收缩 */
 }
 
-.helmet-durability-slider{
-  width: 50%;
-}
-
-.armor-selector-continer{
-  width: 100%;
+/* ============================================= */
+/* 3. 左侧面板 (目标配置区) - 内部样式         */
+/* ============================================= */
+.left-panel .config-section,
+.left-panel .simulation-controls,
+.left-panel .target-status {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.armor-durability-slider{
-  width: 50%;
+.left-panel h3 {
+  margin: 0 0 4px 0;
+  color: #091e42;
+  font-size: 1em;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #dfe1e6;
 }
-    
+
+.left-panel .generic-selector-container {
+  width: 100%;
+}
+
+.distance-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9em;
+  padding: 4px 0;
+}
+
+.distance-control label {
+  color: #5e6c84;
+  font-weight: 600;
+}
+
+.distance-control input {
+  width: 80px;
+  padding: 6px 8px;
+  border: 1px solid #c1c7d0;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 1em;
+}
+
+.hit-log-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* 关键：给日志列表一个固定的高度 */
+  height: 180px;
+  overflow-y: auto;
+  /* 内容超出时自动显示滚动条 */
+  background-color: #fafbfc;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.hit-log-list li {
+  font-size: 0.85em;
+  color: #42526e;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f2f5;
+  line-height: 1.4;
+}
+
+.hit-log-list li:last-child {
+  border-bottom: none;
+}
+
+/* 高亮最新一条日志 */
+.hit-log-list li:first-child {
+  color: #172b4d;
+  font-weight: 600;
+}
+
+/* 空状态提示 */
+.hit-log-list .empty-log {
+  color: #5e6c84;
+  font-style: italic;
+  text-align: center;
+  /* 垂直居中 */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+}
+
+
+/* ============================================= */
+/* 4. 中间面板 (假人)                          */
+/* ============================================= */
+.simulator-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+}
+
+.reset-simulation-button {
+  padding: 10px 20px;
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #42526e;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.reset-simulation-button:hover {
+  background-color: #ebecf0;
+  border-color: #c1c7d0;
+}
+
+/* ============================================= */
+/* 5. 右侧面板 (武器配置区) - 内部样式         */
+/* ============================================= */
+
+.right-panel h3,
+.right-panel h2,
+.right-panel h4 {
+  margin: 0 0 12px 0;
+  color: #091e42;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.right-panel .summary-panel h2 {
+  font-size: 1.1em;
+}
+
+.mod-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: 230px;
+}
+
+.mod-list-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.mod-group{
+  margin-bottom: 8px;
+}
+
+.mod-group-title {
+  color: #5e6c84;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mod-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.mod-option {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  background-color: #fafbfc;
+  padding: 8px;
+  border-radius: 4px;
+  /* ▼▼▼ 【核心修正 2】使用透明边框占位，防止跳动 ▼▼▼ */
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9em;
+  color: #172b4d;
+}
+
+.mod-option:hover {
+  /* ▼▼▼ 【核心修正 3】悬停时显示灰色边框 ▼▼▼ */
+  border-color: #dfe1e6;
+  background-color: #f4f5f7;
+}
+
+/* ▼▼▼ 【核心修正 4】为 .selected 类添加高亮样式 ▼▼▼ */
+.mod-option.selected {
+  background-color: #e6f0ff;
+  /* 浅蓝色背景 */
+  border-color: #0052cc;
+  color: #0052cc;
+  font-weight: 600;
+}
+
+.mod-option.selected:hover {
+  background-color: #dbe9fe;
+  /* 选中状态下悬停，颜色稍深 */
+  border-color: #0041a3;
+}
+
+.placeholder-text {
+  color: #5e6c84;
+  font-style: italic;
+  padding: 20px 10px;
+  text-align: center;
+  border-radius: 4px;
+  height: 100%;
+}
+
+.summary-panel {
+  border-top: 1px solid #dfe1e6;
+  padding-top: 16px;
+}
+
+.stats-table {
+  margin-bottom: 10px;
+}
+
+.stats-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f2f5;
+  font-size: 0.9em;
+}
+
+.stats-table td:first-child {
+  color: #5e6c84;
+}
+
+.stats-table td:last-child {
+  color: #172b4d;
+  text-align: right;
+  font-weight: 600;
+}
+
+.right-panel .reset-button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 16px;
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #bf2600;
+  background-color: #ffede6;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.right-panel .reset-button:hover {
+  background-color: #ffddd1;
+}
+
+  .right-panel .reset-button:disabled {
+    background-color: #f4f5f7;
+    color: #a5adba;
+    cursor: not-allowed;
+  }
+
+  /* 配件效果提示样式 */
+  .mod-tooltip {
+    position: fixed;
+    background-color: #ffffff;
+    border: 1px solid #dfe1e6;
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 250px;
+    max-width: 300px;
+    pointer-events: none;
+  }
+
+  .mod-tooltip h4 {
+    margin: 0 0 12px 0;
+    color: #091e42;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #dfe1e6;
+    padding-bottom: 8px;
+  }
+
+  .mod-effects {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .effect-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+  }
+
+  .effect-label {
+    color: #5e6c84;
+    font-weight: 500;
+  }
+
+  .effect-value {
+    font-weight: 600;
+  }
+
+  .effect-value.positive {
+    color: #36b37e;
+  }
+
+  .effect-value.negative {
+    color: #ff5630;
+  }
+
+  .effect-value.special {
+    color: #6554c0;
+    font-style: italic;
+  }
+
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .mod-tooltip {
+      min-width: 200px;
+      max-width: 250px;
+    }
+
+    .mod-tooltip h4 {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .mod-tooltip {
+      position: fixed;
+      left: 50% !important;
+      top: auto !important;
+      bottom: 20px !important;
+      transform: translateX(-50%);
+      min-width: 280px;
+      max-width: 90vw;
+      max-height: 40vh;
+      overflow-y: auto;
+    }
+
+    .mod-tooltip h4 {
+      font-size: 0.85rem;
+      margin: 0 0 8px 0;
+      padding-bottom: 6px;
+    }
+
+    .mod-effects {
+      gap: 6px;
+    }
+
+    .effect-item {
+      font-size: 0.8rem;
+    }
+  }
+
+/* ============================================= */
+/* 6. 统一滚动条样式                           */
+/* ============================================= */
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #dfe1e6;
+  border-radius: 3px;
+}
+
+/* ============================================= */
+/* 7. 响应式布局                               */
+/* ============================================= */
+@media (max-width: 1200px) {
+  .simulator-layout {
+    grid-template-columns: 340px 1fr 380px;
+  }
+}
+
+@media (max-width: 992px) {
+  .simulator-layout {
+    grid-template-columns: 400px 1fr;
+  }
+
+  .right-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .simulator-layout {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .left-panel,
+  .right-panel,
+  .simulator-panel {
+    width: 100%;
+  }
+
+  .right-panel {
+    display: flex;
+  }
+
+  .left-panel {
+    order: 1;
+  }
+
+  .simulator-panel {
+    order: 2;
+    min-height: 450px;
+  }
+
+  .right-panel {
+    order: 3;
+  }
+}

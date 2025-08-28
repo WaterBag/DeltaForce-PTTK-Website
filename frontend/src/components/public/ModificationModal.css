@@ -5,7 +5,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(9, 30, 66, 0.5); /* 使用更柔和的深蓝色半透明背景 */
+  background-color: rgba(9, 30, 66, 0.5);
+  /* 使用更柔和的深蓝色半透明背景 */
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -16,16 +17,22 @@
 
 /* --- 2. 悬浮窗主体内容 --- */
 .modal-content {
-  background-color: #f4f5f7; /* 使用我们全局的柔和灰色作为背景 */
-  padding: 0; /* 我们将在内部 section 中控制 padding */
+  background-color: #f4f5f7;
+  /* 使用我们全局的柔和灰色作为背景 */
+  padding: 0;
+  /* 我们将在内部 section 中控制 padding */
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(9, 30, 66, 0.25);
-  width: 600px; /* 可以适当加宽，容纳更多内容 */
+  width: 600px;
+  /* 可以适当加宽，容纳更多内容 */
   max-width: 95%;
-  max-height: 90vh; /* 使用 vh 单位，相对于视口高度 */
+  max-height: 90vh;
+  /* 使用 vh 单位，相对于视口高度 */
   display: flex;
-  flex-direction: column; /* 内部元素垂直排列 */
-  overflow: hidden; /* 防止内部的圆角被子元素破坏 */
+  flex-direction: column;
+  /* 内部元素垂直排列 */
+  overflow: hidden;
+  /* 防止内部的圆角被子元素破坏 */
 }
 
 /* --- 3. 头部区域 --- */
@@ -53,18 +60,21 @@
   cursor: pointer;
   transition: color 0.2s ease;
 }
+
 .close-button:hover {
   color: #172b4d;
 }
 
 /* --- 4. 主体内容区 --- */
-.modal-body {
-  padding: 24px;
-  overflow-y: auto; /* 让主体内容区自己滚动 */
-  display: flex;
-  flex-direction: column;
-  gap: 24px; /* 设置各个 section 之间的间距 */
-}
+  .modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    /* 让主体内容区自己滚动 */
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    /* 设置各个 section 之间的间距 */
+  }
 
 /* --- 5. 通用的 Section 样式 --- */
 .mod-section h3 {
@@ -77,14 +87,16 @@
 
 .mod-group {
   /* 和其他分组拉开一点距离 */
-  margin-bottom: 20px; 
+  margin-bottom: 20px;
 }
 
 .mod-group-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #5e6c84; /* 使用柔和的灰色 */
-  text-transform: uppercase; /* (可选) 让标题大写，更有设计感 */
+  color: #5e6c84;
+  /* 使用柔和的灰色 */
+  text-transform: uppercase;
+  /* (可选) 让标题大写，更有设计感 */
   letter-spacing: 0.5px;
   margin-bottom: 12px;
 }
@@ -92,7 +104,8 @@
 /* --- 6. 配件选择区 (使用Grid布局，让选项整齐排列) --- */
 .mod-options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 智能多列布局 */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  /* 智能多列布局 */
   gap: 12px;
 }
 
@@ -108,7 +121,7 @@
 }
 
 .mod-option * {
-cursor: inherit;
+  cursor: inherit;
 }
 
 .mod-option:hover {
@@ -124,7 +137,8 @@ cursor: inherit;
 /* --- 7. 底部操作区 --- */
 .modal-footer {
   display: flex;
-  justify-content: flex-end; /* 按钮靠右 */
+  justify-content: flex-end;
+  /* 按钮靠右 */
   padding: 16px 24px;
   border-top: 1px solid #dfe1e6;
   background-color: #ffffff;
@@ -140,9 +154,11 @@ cursor: inherit;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
+
 .add-comparison-button:hover {
   background-color: #0065ff;
 }
+
 .add-comparison-button:disabled {
   background-color: #a5adba;
   cursor: not-allowed;
@@ -150,6 +166,271 @@ cursor: inherit;
 
 /* (推荐) 定义一个淡入动画 */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 响应式样式 - 平板设备 */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    /* 减小宽度 */
+    max-height: 85vh;
+    /* 减小高度 */
+  }
+
+  .modal-header {
+    padding: 12px 20px;
+    /* 减小内边距 */
+  }
+
+  .modal-header h2 {
+    font-size: 1.1rem;
+    /* 减小标题字体大小 */
+  }
+
+  .close-button {
+    font-size: 1.5rem;
+    /* 减小关闭按钮大小 */
+  }
+
+  .modal-body {
+    padding: 20px;
+    /* 减小内边距 */
+    gap: 20px;
+    /* 减小间距 */
+  }
+
+  .mod-options-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    /* 减小列宽 */
+    gap: 10px;
+    /* 减小间距 */
+  }
+
+  .mod-option {
+    padding: 6px 10px;
+    /* 减小内边距 */
+  }
+
+  .modal-footer {
+    padding: 12px 20px;
+    /* 减小内边距 */
+  }
+
+  .add-comparison-button {
+    padding: 8px 14px;
+    /* 减小按钮内边距 */
+    font-size: 0.9rem;
+    /* 减小按钮字体大小 */
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media (max-width: 480px) {
+  .modal-content {
+    width: 95%;
+    /* 增加宽度以利用更多空间 */
+    max-height: 80vh;
+    /* 进一步减小高度 */
+  }
+
+  .modal-header {
+    padding: 10px 16px;
+    /* 进一步减小内边距 */
+  }
+
+  .modal-header h2 {
+    font-size: 1rem;
+    /* 进一步减小标题字体大小 */
+  }
+
+  .close-button {
+    font-size: 1.3rem;
+    /* 进一步减小关闭按钮大小 */
+  }
+
+  .modal-body {
+    padding: 16px;
+    /* 进一步减小内边距 */
+    overflow-y: auto;
+    /* 限制最大高度 */
+  }
+
+
+  .mod-section h3 {
+    font-size: 0.9rem;
+    /* 减小标题字体大小 */
+    margin-bottom: 12px;
+    /* 增加下边距避免重叠 */
+    padding-bottom: 6px;
+    /* 减小下内边距 */
+  }
+
+  .mod-group-title {
+    font-size: 0.8rem;
+    /* 减小标题字体大小 */
+    margin-bottom: 10px;
+    /* 减小下边距 */
+  }
+
+  .mod-options-grid {
+    grid-template-columns: 1fr;
+    /* 单列布局 */
+    overflow: hidden;
+    /* 防止内容溢出 */
+  }
+
+  .mod-option {
+    /* ▼▼▼ 【核心修正 1】让文字内容在块内居中 ▼▼▼ */
+    display: flex;
+    justify-content: center;
+    /* 水平居中 */
+    align-items: center;
+    /* 垂直居中 */
+    text-align: center;
+    /* 如果文字换行，也让它居中 */
+
+    background-color: #fafbfc;
+    padding: 8px;
+    border-radius: 4px;
+    /* ▼▼▼ 【核心修正 2】使用透明边框占位，防止跳动 ▼▼▼ */
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9em;
+    color: #172b4d;
+  }
+
+  .mod-option:hover {
+    /* ▼▼▼ 【核心修正 3】悬停时显示灰色边框 ▼▼▼ */
+    border-color: #dfe1e6;
+    background-color: #f4f5f7;
+  }
+
+  /* ▼▼▼ 【核心修正 4】为 .selected 类添加高亮样式 ▼▼▼ */
+  .mod-option.selected {
+    background-color: #e6f0ff;
+    /* 浅蓝色背景 */
+    border-color: #0052cc;
+    /* 品牌蓝色边框 */
+    color: #0052cc;
+    /* 品牌蓝色文字 */
+    font-weight: 600;
+    /* 字体加粗 */
+  }
+
+  .mod-option.selected:hover {
+    background-color: #dbe9fe;
+    /* 选中状态下悬停，颜色稍深 */
+    border-color: #0041a3;
+  }
+
+  .modal-footer {
+    padding: 10px 16px;
+    /* 进一步减小内边距 */
+  }
+
+  .add-comparison-button {
+    padding: 8px 12px;
+    /* 进一步减小按钮内边距 */
+    font-size: 0.85rem;
+    /* 进一步减小按钮字体大小 */
+    width: 100%;
+    /* 按钮占满宽度 */
+  }
+}
+
+/* --- 配件效果工具提示样式 --- */
+.mod-tooltip {
+  position: fixed;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
+  z-index: 1001;
+  min-width: 250px;
+  max-width: 300px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.mod-tooltip h4 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  color: #172b4d;
+  font-weight: 600;
+  border-bottom: 1px solid #dfe1e6;
+  padding-bottom: 8px;
+}
+
+.mod-effects {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.effect-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.effect-label {
+  color: #5e6c84;
+  font-weight: 500;
+}
+
+.effect-value {
+  font-weight: 600;
+}
+
+.effect-value.positive {
+  color: #36b37e; /* 绿色表示正面效果 */
+}
+
+.effect-value.negative {
+  color: #ff5630; /* 红色表示负面效果 */
+}
+
+.effect-value.special {
+  color: #6554c0; /* 紫色表示特殊效果 */
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .mod-tooltip {
+    min-width: 200px;
+    max-width: 250px;
+    padding: 12px;
+  }
+  
+  .mod-tooltip h4 {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  
+  .effect-item {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mod-tooltip {
+    position: fixed;
+    top: auto;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 280px;
+    max-width: 90%;
+  }
 }

@@ -1,48 +1,100 @@
+// React核心库
 import { useState ,useEffect,useMemo} from 'react';
+
+// 组件导入
 import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
 import { UniversalSlider } from '../components/public/UniversalSlider';
-import { fetchAvailableGuns, fetchGunDetails } from '../api/ttkAPI';
 import { TtkChart } from '../components/data_query/TtkChart'; 
-import { processChartData } from '../utils/dataProcessor';
 import { GunSelector } from '../components/data_query/GunSelector';
 import { ModificationModal } from '../components/public/ModificationModal';
-import { modifications } from '../assets/data/modifications.js';
 import { ComparisonList } from '../components/data_query/ComparisonList.jsx';
+import { Alert } from '../components/public/Alert';
+import { useAlert } from '../hooks/useAlert';
+
+// API函数
+import { fetchAvailableGuns, fetchGunDetails } from '../api/ttkAPI';
+
+// 工具函数
+import { processChartData } from '../utils/dataProcessor';
 import { generateDurabilityValues } from '../utils/numberUtils.js';
+
+// 配置和规则
 import { selectionRules } from '../config/selectionRules.js';
+
+// 静态数据
+import { modifications } from '../assets/data/modifications.js';
 import armors from '../assets/data/armors';
 import helmets from '../assets/data/helmets';
 import { weapons } from '../assets/data/weapons.js';
+
+// 样式文件
 
 
 
 import './DataQuery.css'
 
+/**
+ * 数据查询页面组件 - 用于武器TTK（Time to Kill）数据查询和对比
+ * 提供护甲配置、武器选择、配件改装和图表显示功能
+ * @returns {JSX.Element} 数据查询页面组件
+ */
 export function DataQuery(){
 
+    // Alert hook
+    const { alertState, showError, closeAlert } = useAlert();
+
+    // 护甲配置相关状态
+    /** @type {[Object|null, Function]} 当前选中的头盔对象 */
     const [selectedHelmet, setSelectedHelmet] = useState(null);
+    /** @type {[Object|null, Function]} 当前选中的护甲对象 */
     const [selectedArmor, setSelectedArmor] = useState(null);
+    /** @type {[number|null, Function]} 当前头盔耐久度值 */
     const [helmetDurability, setHelmetDurability] = useState(null);
-    const [armorDurability, setArmorDurability] = useState(null);// 用户选择的装备
+    /** @type {[number|null, Function]} 当前护甲耐久度值 */
+    const [armorDurability, setArmorDurability] = useState(null);
 
-    const [loading,setLoading] = useState(false);// 查询按钮的加载状态
-    const [availableGuns, setAvailableGuns] = useState([]);// 可用枪械列表
-    const [currentGunDetails, setCurrentGunDetails] = useState(null);// 当前选中枪械的详细信息
-    const [isModelOpen, setIsModelOpen] = useState(false);// 是否打开模型选择器
-    const [currentEditingGun, setCurrentEditingGun] = useState(null);// 当前编辑的枪械
+    // 数据加载和查询状态
+    /** @type {[boolean, Function]} 数据加载状态 */
+    const [loading,setLoading] = useState(false);
+    /** @type {[string[], Function]} 可用枪械名称列表 */
+    const [availableGuns, setAvailableGuns] = useState([]);
+    /** @type {[Object|null, Function]} 当前选中枪械的详细信息映射 */
+    const [currentGunDetails, setCurrentGunDetails] = useState(null);
+
+    // 模态框和编辑状态
+    /** @type {[boolean, Function]} 配件选择模态框显示状态 */
+    const [isModelOpen, setIsModelOpen] = useState(false);
+    /** @type {[string|null, Function]} 当前正在编辑的枪械名称 */
+    const [currentEditingGun, setCurrentEditingGun] = useState(null);
+
+    // 图表数据状态
+    /** @type {[Array, Function]} 对比线配置数组 */
     const [comparisonLines, setComparisonLines] = useState([]);
-    const [displayedChartData, setDisplayedChartData] = useState([]);//加工后显示在图表上的数据
-    const [applyVelocityEffect, setApplyVelocityEffect] = useState(false);//是否应用枪口初速影响
-    const [applyTriggerDelay,setApplyTriggerDelay] = useState(false)//是否应用扳机延迟影响
+    /** @type {[Array, Function]} 处理后显示在图表上的数据 */
+    const [displayedChartData, setDisplayedChartData] = useState([]);
+
+    // 图表效果开关状态
+    /** @type {[boolean, Function]} 是否应用枪口初速影响 */
+    const [applyVelocityEffect, setApplyVelocityEffect] = useState(false);
+    /** @type {[boolean, Function]} 是否应用扳机延迟影响 */
+    const [applyTriggerDelay,setApplyTriggerDelay] = useState(false)
     
 
     
+    /**
+     * 处理图表数据变化的副作用
+     * 当对比线、枪口初速影响或扳机延迟影响发生变化时，重新处理并更新图表数据
+     */
     useEffect(() => {
         console.log("数据或开关变化，开始处理数据");
         const processedData = processChartData(comparisonLines, applyVelocityEffect, applyTriggerDelay);
         setDisplayedChartData(processedData);
     }, [comparisonLines, applyVelocityEffect, applyTriggerDelay]);
 
+    /**
+     * 自动查询可用枪械的副作用
+     * 当护甲和头盔配置发生变化时，自动查询可用的枪械列表
+     */
     useEffect(() => { //自动查询可用枪械
 
         const queryGuns = async () => {
@@ -79,41 +131,78 @@ export function DataQuery(){
 
     }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability]);
 
+    /**
+     * 可用的头盔列表，根据选择规则过滤
+     */
     const availableHelmets = useMemo(() => {
         return helmets.filter(h => selectionRules.allowedHelmetIds.includes(h.id));
     }, []); 
 
+    /**
+     * 可用的护甲列表，根据选择规则过滤
+     */
     const availableArmors = useMemo(() => {
         return armors.filter(a => selectionRules.allowedArmorIds.includes(a.id));
     }, []);
 
+    /**
+     * 头盔耐久度可选值列表，基于所选头盔的最大耐久度生成
+     */
     const helmetDurabilityValues = useMemo(() => {
-        if (!selectedHelmet) return [];
-        return generateDurabilityValues(selectedHelmet.durability,15);
+        if (selectedHelmet && selectedHelmet.durability > 0) {
+            return generateDurabilityValues(selectedHelmet.durability, 15);
+        }
+        return [0];
     }, [selectedHelmet]);
     
+    /**
+     * 护甲耐久度可选值列表，基于所选护甲的最大耐久度生成
+     */
     const armorDurabilityValues = useMemo(() => {
-        if (!selectedArmor) return [];
-        return generateDurabilityValues(selectedArmor.durability,35);
+        if (selectedArmor && selectedArmor.durability > 0) {
+            return generateDurabilityValues(selectedArmor.durability, 35);
+        }
+        return [0];
     }, [selectedArmor]);
 
 
+    /**
+     * 处理头盔选择事件
+     * @param {Object} helmet - 选中的头盔对象
+     */
     const handleHelmetSelect = (helmet) => {
         setSelectedHelmet(helmet);
-        const newValues = generateDurabilityValues(helmet.durability,15);
-        setHelmetDurability(newValues[newValues.length - 1]);
+        if (helmet && helmet.durability > 0) {
+            const newValues = generateDurabilityValues(helmet.durability, 15);
+            setHelmetDurability(newValues[newValues.length - 1]);
+        } else {
+            setHelmetDurability(0);
+        }
         setAvailableGuns([]);
         setComparisonLines([]);
     };
 
+    /**
+     * 处理护甲选择事件
+     * @param {Object} armor - 选中的护甲对象
+     */
     const handleArmorSelect = (armor) => {
         setSelectedArmor(armor);
-        const newValues = generateDurabilityValues(armor.durability,35);
-        setArmorDurability(newValues[newValues.length - 1]);
+        if (armor && armor.durability > 0) {
+            const newValues = generateDurabilityValues(armor.durability, 35);
+            setArmorDurability(newValues[newValues.length - 1]);
+        } else {
+            setArmorDurability(0);
+        }
         setAvailableGuns([]);
         setComparisonLines([]);
     };
 
+    /**
+     * 处理添加对比线事件
+     * @param {Object} config - 配置对象，包含枪械名称、子弹名称和配件列表
+     * @param {Array} btkDataPoints - BTK数据点数组
+     */
     const handleAddComparison = (config, btkDataPoints) => {
         console.log("添加新折线配置:", config);
 
@@ -143,11 +232,19 @@ export function DataQuery(){
 
     };
 
+    /**
+     * 处理删除对比线事件
+     * @param {string} lineIdToRemove - 要删除的对比线ID
+     */
     const handleRemoveComparison = (lineIdToRemove) => {// 删除指定的折线配置
         console.log("删除折线配置:", lineIdToRemove);
         setComparisonLines(prevLines => prevLines.filter(line => line.id !== lineIdToRemove));
     };
 
+    /**
+     * 处理枪械选择事件
+     * @param {string} gunName - 选中的枪械名称
+     */
     const handleGunSelect = async (gunName) => {
         console.log("选择了枪械:", gunName);
         setLoading(true);
@@ -196,13 +293,17 @@ export function DataQuery(){
 
         } catch (error) {
             console.error('获取枪械详情失败:', error);
-            alert('获取枪械详情失败，请稍后再试。');
+            showError('获取枪械详情失败，请稍后再试。');
         } finally {
             setLoading(false);
         }
     };
 
 
+    /**
+     * 处理模型关闭事件
+     * 关闭配件选择模态框并重置相关状态
+     */
     const handleModelClose = () => {
         console.log("关闭模型选择器");
         setIsModelOpen(false);
@@ -329,11 +430,21 @@ export function DataQuery(){
                             typeof value === 'number' && value !== 0
                         );
                         
-                        // 只有两个条件都满足，才返回 true
-                        return hasRealEffect;
+                        const hasDamageChange = mod.effects.damageChange === true;
+
+                        return hasRealEffect || hasDamageChange;
                     })
                     : []
                 }
+            />
+            
+            {/* 自定义Alert组件 */}
+            <Alert
+                isOpen={alertState.isOpen}
+                message={alertState.message}
+                type={alertState.type}
+                onClose={closeAlert}
+                autoClose={alertState.autoClose}
             />
         </>
     );

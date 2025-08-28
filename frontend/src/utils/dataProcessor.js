@@ -1,22 +1,30 @@
+/**
+ * 数据处理工具模块
+ * 负责处理武器数据、计算TTK、应用改装效果等核心业务逻辑
+ */
+
 import { weapons } from '../assets/data/weapons';
 import { modifications as allModifications } from '../assets/data/modifications.js';
 import { COLORS } from '../components/data_query/TtkChart.jsx';
 
 /**
- * 计算基础ttk数据
+ * 期望击杀时间计算器 - 计算基于概率的期望TTK
+ * @param {string} btkDataJsonString - BTK数据的JSON字符串
+ * @returns {number|null} 计算出的期望TTK值，如果计算失败返回null
  */
 const EbtkCalculator = (btkDataJsonString) => {
     try {
         const btkData = JSON.parse(btkDataJsonString);
-        const Ebtk = btkData.reduce((sum,current) =>sum + current.btk * current.probability, 0);
+        const Ebtk = btkData.reduce((sum, current) => sum + current.btk * current.probability, 0);
         return Ebtk;
-    }catch(error) {
+    } catch (error) {
         console.error("TTK计算器错误:", error);
         return null;
     }
 }
 
-// weaponInfoMap 的创建逻辑保持不变，它能完美适配您的新 weapons.js 格式
+// 武器信息映射表 - 将武器名称映射到对应的武器信息对象
+// 用于快速查找武器属性，如射速、射程、枪口初速等
 const weaponInfoMap = weapons.reduce((acc, weapon) => {
     acc[weapon.name] = weapon;
     return acc;
@@ -53,8 +61,13 @@ const findEffectiveRange = (weaponInfo, maxDbDistance) => {
     return weaponInfo.range5;
 };
 
-
-// expandStepData 函数的逻辑完全复用我们上一版的，因为它已经很完美了，只需要给它传入正确的maxRange即可
+/**
+ * 扩展阶梯数据函数 - 将稀疏的阶梯数据转换为密集的连续数据
+ * 用于将只在关键距离点有数据的阶梯函数转换为每个距离点都有数据的连续函数
+ * @param {Array} sparseData - 稀疏数据数组，包含{distance, pttk}对象
+ * @param {number} maxRange - 最大射程距离
+ * @returns {Array} 密集数据数组，包含0到maxRange每个距离点的pttk值
+ */
 const expandStepData = (sparseData, maxRange) => {
     if (!sparseData || sparseData.length === 0 || !maxRange) return [];
     const sortedData = [...sparseData].sort((a, b) => a.distance - b.distance);
@@ -72,19 +85,24 @@ const expandStepData = (sparseData, maxRange) => {
     return denseData;
 };
 
-
-// processChartData 主函数，负责调度一切
+/**
+ * 处理图表数据主函数 - 处理比较线数据并应用各种效果
+ * 负责计算武器改装效果、处理TTK数据、应用枪口初速和扳机延迟效果
+ * @param {Array} comparisonLines - 比较线配置数组
+ * @param {boolean} applyEffect - 是否应用枪口初速效果
+ * @param {boolean} applyTriggerDelay - 是否应用扳机延迟效果
+ * @returns {Array} 处理后的图表数据数组
+ */
 export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay) => {
     if (!comparisonLines || comparisonLines.length === 0) {
         console.warn("⚠️ 警告: 没有可用的比较线数据，返回空数组。");
         return [];
     }
 
-    return comparisonLines.map((lineConfig ,index)=> {
+    return comparisonLines.map((lineConfig, index) => {
         // --- 准备工作：获取所需信息 ---
         const { gunName, bulletName, mods, btkDataPoints, displayName } = lineConfig;
         const weaponInfo = weaponInfoMap[gunName];
-
 
         if (!weaponInfo) {
             console.error(`【严重错误】武器信息未找到! 数据库枪名: "${gunName}". 请检查 weapons.js 中是否存在完全匹配的 name。`);
@@ -99,12 +117,12 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
         
         if (!weaponInfo) return null;
 
-        // 初始化“效果累加器”
+        // 初始化"效果累加器"
         let totalFireRateModifier = 0;
         let totalRangeModifier = 0;
         let totalMuzzleVelocityModifier = 0;
 
-        // 遍历配件，只进行“累加”操作
+        // 遍历配件，只进行"累加"操作
         if (mods && mods.length > 0) {
             mods.forEach(modId => {
                 const mod = allModifications.find(m => m.id === modId);
@@ -128,12 +146,12 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
             ...weaponInfo, // 先复制所有原始属性
             
             // 计算最终射速
-            fireRate: weaponInfo.fireRate * ( 1+totalFireRateModifier),
+            fireRate: weaponInfo.fireRate * (1 + totalFireRateModifier),
             
             // 计算最终枪口初速
             muzzleVelocity: weaponInfo.muzzleVelocity * (1 + totalMuzzleVelocityModifier),
             
-            //计算最终的各个射程档位
+            // 计算最终的各个射程档位
             range1: weaponInfo.range1 ? weaponInfo.range1 * (1 + totalRangeModifier) : 0,
             range2: weaponInfo.range2 ? weaponInfo.range2 * (1 + totalRangeModifier) : 0,
             range3: weaponInfo.range3 ? weaponInfo.range3 * (1 + totalRangeModifier) : 0,
@@ -149,7 +167,7 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
         const bulletBtkPoints = btkDataPoints.filter(p => p.bullet_name === bulletName);
         
-        //确保数据点是按原始距离排序的
+        // 确保数据点是按原始距离排序的
         const sortedBtkDataPoints = [...bulletBtkPoints].sort((a, b) => a.distance - b.distance);
 
         const sparseTtkData = sortedBtkDataPoints.map((point, index) => {
@@ -158,7 +176,7 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
             
             const baseTtk = (eBtk - 1) * (60 / fireRate) * 1000;
             
-            //根据索引，从改装后的武器信息中，获取新的射程
+            // 根据索引，从改装后的武器信息中，获取新的射程
             let correctDistance;
             if (index === 0) {
                 // 第一个数据点 (index 0)，其跳变点在 0 米处
@@ -223,8 +241,7 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
             bulletName:bulletName,
             name:displayName, 
             data: processedData,
-            color: COLORS[index % COLORS.length] //用于已选枪械显示
+            color: COLORS[index % COLORS.length] // 用于已选枪械显示
         };
-    }).filter(Boolean); //过滤掉所有处理失败的线
-    
+    }).filter(Boolean); // 过滤掉所有处理失败的线
 };

@@ -31,4 +31,40 @@
 .gun-item-name {
   font-weight: 500;
   color: #172b4d;
+  white-space: nowrap; /* 防止文本换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 显示省略号 */
+  flex: 1; /* 占据剩余空间 */
+}
+
+/* 响应式样式 - 平板设备 */
+@media (max-width: 768px) {
+  .gun-list-item {
+    height: 45px; /* 稍微减小高度 */
+    padding: 4px 8px; /* 减小内边距 */
+  }
+  
+  .gun-item-image {
+    height: 25px; /* 减小图片高度 */
+    width: 50px; /* 减小图片宽度 */
+    margin-right: 10px; /* 减小间距 */
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media (max-width: 480px) {
+  .gun-list-item {
+    height: 40px; /* 进一步减小高度 */
+    padding: 3px 6px; /* 进一步减小内边距 */
+  }
+  
+  .gun-item-image {
+    height: 20px; /* 进一步减小图片高度 */
+    width: 40px; /* 进一步减小图片宽度 */
+    margin-right: 8px; /* 进一步减小间距 */
+  }
+  
+  .gun-item-name {
+    font-size: 0.9em; /* 减小字体大小 */
+  }
 }
