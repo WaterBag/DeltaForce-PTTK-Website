@@ -1160,7 +1160,7 @@ export const modifications = [
     id: 'MK47LongBarrel',
     name: 'Mk47体验服-长枪管(射程不准）',
     type: ['枪管'],
-    appliesTo: ['MK47'],
+    appliesTo: ['MK47-体验服'],
     effects: {
       rangeModifier: 0.3,
       fireRateModifier: 0,
