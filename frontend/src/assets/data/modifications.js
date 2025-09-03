@@ -651,7 +651,7 @@ export const modifications = [
     id: 'ARCommandoShortBarrel',
     name:'AR特攻短枪管组合',
     type: ['枪管'],
-    appliesTo: ['M16A4','M4A1','CAR-15'],
+    appliesTo: ['CAR-15', 'M16A4', 'M4A1'],
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -1155,6 +1155,20 @@ export const modifications = [
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.3,
     }
+  },
+  {
+    id: 'MK47LongBarrel',
+    name: 'Mk47体验服-长枪管(射程不准）',
+    type: ['枪管'],
+    appliesTo: ['MK47'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.3,
+    },
+    damageChange: true,
+    btkQueryName: 'MK47-体验服-长枪管',
+    dataQueryName: 'MK47-体验服-长枪管'
   },
   {
     id: 'MP5TacticalBarrel',
