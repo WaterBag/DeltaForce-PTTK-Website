@@ -1157,18 +1157,32 @@ export const modifications = [
     }
   },
   {
-    id: 'MK47LongBarrel',
-    name: 'Mk47体验服-长枪管(射程不准）',
+    id: 'MK47AshBarrel',
+    name: 'Mk47体验服-余烬枪管',
     type: ['枪管'],
     appliesTo: ['MK47-体验服'],
     effects: {
       rangeModifier: 0.3,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.3,
+      damageChange: true,
+      btkQueryName: 'MK47-体验服-长枪管',
+      dataQueryName: 'MK47体验服-长枪管'
     },
-    damageChange: true,
-    btkQueryName: 'MK47-体验服-长枪管',
-    dataQueryName: 'MK47-体验服-长枪管'
+  },
+  {
+    id: 'MK47WarBarrel',
+    name: 'Mk47体验服-鏖战枪管',
+    type: ['枪管'],
+    appliesTo: ['MK47-体验服'],
+    effects: {
+      rangeModifier: -0.1,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0,
+      damageChange: true,
+      btkQueryName: 'MK47-体验服-长枪管',
+      dataQueryName: 'MK47体验服-长枪管'
+    },
   },
   {
     id: 'MP5TacticalBarrel',
