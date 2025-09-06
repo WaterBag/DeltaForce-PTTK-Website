@@ -1121,7 +1121,7 @@ export const weapons = [
     damage: 40,
     armorDamage: 46,
     fireRate: 625,
-    muzzleVelocity: 535,
+    muzzleVelocity: 525,
     headMultiplier: 1.9,
     chestMultiplier: 1,
     abdomenMultiplier: 0.9,
