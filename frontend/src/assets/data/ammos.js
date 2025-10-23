@@ -34,6 +34,7 @@ import Image12Gauge from '../../assets/images/ammo/12-Gauge.png';
 import Image45ACP from '../../assets/images/ammo/45-ACP.png';
 import Image300BLK from '../../assets/images/ammo/300BLK.png';
 import Image357Magnum from '../../assets/images/ammo/357-Magnum.png';
+import Image4570Govt from '../../assets/images/ammo/45-70-GOVT.png';
 
 export const ammos = [
   {
@@ -1328,5 +1329,56 @@ export const ammos = [
     armor5: 1.1,
     armor6: 1.1,
     image: Image300BLK
+  },
+  {
+    id: 1901,
+    caliber: "45-70 Govt",
+    name: "RN",
+    rarity: "蓝",
+    penetration: 0,
+    secondaryPenetration: 0.75,
+    sameLevelPenetration: 0,
+    fleshDamageCoeff: 1.5,
+    armor1: 0.4,
+    armor2: 0.3,
+    armor3: 0.2,
+    armor4: 0.2,
+    armor5: 0.2,
+    armor6: 0.2,
+    image: Image4570Govt
+  },
+  {
+    id: 1902,
+    caliber: "45-70 Govt",
+    name: "FMJ",
+    rarity: "紫",
+    penetration: 4,
+    secondaryPenetration: 0.9,
+    sameLevelPenetration: 0.75,
+    fleshDamageCoeff: 1,
+    armor1: 1,
+    armor2: 1,
+    armor3: 1,
+    armor4: 1,
+    armor5: 1,
+    armor6: 0.6,
+    image: Image4570Govt
+  },
+  {
+    id: 1903,
+    caliber: "45-70 Govt",
+    name: "FTX",
+    rarity: "橙",
+    penetration: 5,
+    secondaryPenetration: 0.9,
+    sameLevelPenetration: 0.75,
+    fleshDamageCoeff: 1,
+    armor1: 1.1,
+    armor2: 1.1,
+    armor3: 1.1,
+    armor4: 1.1,
+    armor5: 1.1,
+    armor6: 1.1,
+    image: Image4570Govt
   }
 ];

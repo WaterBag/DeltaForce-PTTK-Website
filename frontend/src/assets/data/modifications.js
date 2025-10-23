@@ -1,6 +1,15 @@
+const pistol = ['93R', '.357左轮', 'G17', 'G18', 'M1911', 'QSZ92G', '沙漠之鹰']
+const shotgun = ['725双管', 'S12K', 'M1014', 'M870']
+const sniper = ['AWM', 'SR-25', 'M700', 'SVD', 'PSG-1', 'G3', 'PTR-32', 'SV-98', 'R93', 'SR9']
+const general = ['M250', 'M7', 'K437', 'KC17', 'K416', 'MP7', 'Vector', 'SR-25', 'MK47', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9']
+const russia = ['PKM', 'SR-3M', 'AK-12', 'AKM', 'KC17', 'SKS', 'AKS-74U', 'MK47']
+const smg = ['MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', 'G18', 'M1911', '沙漠之鹰', '93R', '野牛', 'UZI', '.357左轮', 'G17', 'QSZ92G']
+
+
+
 export const modifications = [
 
-  
+
   {
     id: '725CowboySuppressor',
     name: '725双管霰弹枪牛仔消音器',
@@ -16,7 +25,7 @@ export const modifications = [
     id: 'ElitePistolBrake',
     name: '精英手枪制退器',
     type: ['枪口'],
-    appliesTo: ['93R', '.357左轮', 'G17', 'G18', 'M1911', 'QSZ92G', '沙漠之鹰'],
+    appliesTo: pistol,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -27,7 +36,7 @@ export const modifications = [
     id: 'PurifierPistolSuppressor',
     name: '净化手枪消音器',
     type: ['枪口'],
-    appliesTo: ['93R', '.357左轮', 'G17', 'G18', 'M1911', 'QSZ92G', '沙漠之鹰'],
+    appliesTo: pistol,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -38,7 +47,7 @@ export const modifications = [
     id: 'PracticalPistolFlashHider',
     name: '实用手枪消焰器',
     type: ['枪口'],
-    appliesTo: ['93R', '.357左轮', 'G17', 'G18', 'M1911', 'QSZ92G', '沙漠之鹰'],
+    appliesTo: pistol,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -49,7 +58,7 @@ export const modifications = [
     id: 'ResonanceSniperSuppressor',
     name: '共鸣狙击枪消音器',
     type: ['枪口'],
-    appliesTo: ['AWM','SR-25','M700','SVD','PSG-1','G3','PTR-32','SV-98','R93','SR9'],
+    appliesTo: sniper,
     effects: {
       rangeModifier: 0.3,
       fireRateModifier: 0,
@@ -60,7 +69,7 @@ export const modifications = [
     id: 'VortexFlashHider',
     name: '漩涡消焰器',
     type: ['枪口'],
-    appliesTo: ['AWM','SR-25','M700','SVD','PSG-1','G3','PTR-32','SV-98','R93','SR9'],
+    appliesTo: sniper,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -115,7 +124,32 @@ export const modifications = [
     id: 'CrowFlashHider',
     name: '鸟笼消焰器',
     type: ['枪口'],
-    appliesTo: ['K416', 'M4A1', 'AUG', 'M249', 'SG552', 'Mini-14', 'CAR-15', 'M16A4'],
+    appliesTo: smg,
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0,
+    }
+  },
+  {
+    id: 'FFCDualFlowMuzzleBrake',
+    name: 'FFC双流制退器',
+    type: ['枪口'],
+    appliesTo: [
+      'M7',
+      'K437',
+      'MK47',
+      'K416',
+      'M4A1',
+      'AUG',
+      'M249',
+      '腾龙',
+      'SG552',
+      'QBZ95-1',
+      'Mini-14',
+      'CAR-15',
+      'M16A4'
+    ],
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -126,7 +160,7 @@ export const modifications = [
     id: 'AdvancedMultiCaliberSuppressor',
     name: '先进多口径消音器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0.18,
       fireRateModifier: 0,
@@ -137,7 +171,7 @@ export const modifications = [
     id: 'FortressHorizontalCompensator',
     name: '堡垒水平补偿器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -148,7 +182,7 @@ export const modifications = [
     id: 'KindlingSpiralFlashHider',
     name: '薪火螺旋消焰器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -159,7 +193,7 @@ export const modifications = [
     id: 'M7PracticalSuppressor',
     name: 'M7实用消音器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -170,7 +204,7 @@ export const modifications = [
     id: 'PoseidonFlashHider',
     name: '海神消焰器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -181,7 +215,7 @@ export const modifications = [
     id: 'SandstormVerticalCompensator',
     name: '沙暴垂直补偿器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -192,7 +226,7 @@ export const modifications = [
     id: 'SteelMuzzleBrake',
     name: '钢制膛口制退器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -203,7 +237,7 @@ export const modifications = [
     id: 'BlazingFireSuppressor',
     name: '炽火抑制器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -214,7 +248,7 @@ export const modifications = [
     id: 'DeadSilenceSuppressor',
     name: '死寂消音器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0.24,
       fireRateModifier: -0.13,
@@ -225,7 +259,7 @@ export const modifications = [
     id: 'PracticalFlashHider',
     name: '实用消焰器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -236,7 +270,7 @@ export const modifications = [
     id: 'PracticalSuppressor',
     name: '实用消音器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -247,7 +281,7 @@ export const modifications = [
     id: 'SMGEchoSuppressor',
     name: '冲锋枪回声消音器',
     type: ['枪口'],
-    appliesTo: ['MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', 'G18', 'M1911', '沙漠之鹰', '93R', '野牛', 'UZI', '.357左轮', 'G17', 'QSZ92G'],
+    appliesTo: russia,
     effects: {
       rangeModifier: 0.3,
       fireRateModifier: 0,
@@ -258,7 +292,7 @@ export const modifications = [
     id: 'AKPracticalCompensator',
     name: 'AK实用补偿器',
     type: ['枪口'],
-    appliesTo: ['PKM', 'SR-3M', 'AK-12', 'AKM', 'SKS', 'AKS-74U'],
+    appliesTo: russia,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -269,7 +303,7 @@ export const modifications = [
     id: 'BellMouthFlashHider',
     name: '喇叭口消焰器',
     type: ['枪口'],
-    appliesTo: ['PKM', 'SR-3M', 'AK-12', 'AKM', 'SKS', 'AKS-74U'],
+    appliesTo: russia,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -280,7 +314,7 @@ export const modifications = [
     id: 'DTKMuzzleBrake',
     name: 'DTK制退器',
     type: ['枪口'],
-    appliesTo: ['PKM', 'SR-3M', 'AK-12', 'AKM', 'SKS', 'AKS-74U'],
+    appliesTo: russia,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -291,7 +325,7 @@ export const modifications = [
     id: 'PBSRussianSuppressor',
     name: 'PBS俄式消音器',
     type: ['枪口'],
-    appliesTo: ['PKM', 'SR-3M', 'AK-12', 'AKM', 'SKS', 'AKS-74U'],
+    appliesTo: russia,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -302,7 +336,7 @@ export const modifications = [
     id: 'AKBraveFireSuppressor',
     name: 'AK勇火消音器',
     type: ['枪口'],
-    appliesTo: ['PKM', 'SR-3M', 'AK-12', 'AKM', 'SKS', 'AKS-74U'],
+    appliesTo: russia,
     effects: {
       rangeModifier: 0.18,
       fireRateModifier: 0,
@@ -401,7 +435,7 @@ export const modifications = [
     id: 'WhisperTacticalSuppressor',
     name: '轻语战术消音器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0.18,
       fireRateModifier: 0,
@@ -412,7 +446,7 @@ export const modifications = [
     id: 'TitaniumCompetitionBrake',
     name: '钛金竞赛制退器',
     type: ['枪口'],
-    appliesTo: ['M250', 'M7', 'K437', 'K416', 'MP7', 'Vector', 'SR-25', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9'],
+    appliesTo: general,
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -1044,6 +1078,20 @@ export const modifications = [
     }
   },
   {
+    id: 'M250Barrel',
+    name: 'M250长枪管',
+    type: ['枪管'],
+    appliesTo: ['M250-S6季中前'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.3,
+      damageChange: true,
+      btkQueryName: 'M250-钛金长枪管-S6季中前',
+      dataQueryName: 'M250-钛金长枪管-S6季中前'
+    }
+  },
+  {
     id: 'M250LongBarrel',
     name:'M250钛金长枪管',
     type: ['枪管'],
@@ -1052,6 +1100,9 @@ export const modifications = [
       rangeModifier: 0.3,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.3,
+      damageChange: true,
+      btkQueryName: 'M250-钛金长枪管',
+      dataQueryName: 'M250-钛金长枪管'
     }
   },
   {
@@ -1157,31 +1208,45 @@ export const modifications = [
     }
   },
   {
-    id: 'MK47AshBarrel',
-    name: 'Mk47体验服-余烬枪管',
+    id: 'MK47LongBarrel',
+    name: 'Mk47-枪管',
     type: ['枪管'],
-    appliesTo: ['MK47-体验服'],
+    appliesTo: ['MK47-S6季中前'],
     effects: {
       rangeModifier: 0.3,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.3,
       damageChange: true,
-      btkQueryName: 'MK47-体验服-长枪管',
-      dataQueryName: 'MK47体验服-长枪管'
+      btkQueryName: 'MK47-长枪管-S6季中前',
+      dataQueryName: 'MK47-长枪管-S6季中前'
+    },
+  },
+  {
+    id: 'MK47AshBarrel',
+    name: 'Mk47-余烬枪管',
+    type: ['枪管'],
+    appliesTo: ['MK47'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.33,
+      damageChange: true,
+      btkQueryName: 'MK47-余烬枪管',
+      dataQueryName: 'MK47-余烬枪管'
     },
   },
   {
     id: 'MK47WarBarrel',
-    name: 'Mk47体验服-鏖战枪管',
+    name: 'Mk47-鏖战枪管',
     type: ['枪管'],
-    appliesTo: ['MK47-体验服'],
+    appliesTo: ['MK47'],
     effects: {
       rangeModifier: -0.1,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0,
       damageChange: true,
-      btkQueryName: 'MK47-体验服-长枪管',
-      dataQueryName: 'MK47体验服-长枪管'
+      btkQueryName: 'MK47-鏖战枪管',
+      dataQueryName: 'MK47-鏖战枪管'
     },
   },
   {
@@ -1369,6 +1434,8 @@ export const modifications = [
       rangeModifier: 0,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0,
+      changeTriggerDelay: true,
+      triggerDelay: -67
     }
   },
   {
@@ -1597,9 +1664,9 @@ export const modifications = [
     type: ['枪管'],
     appliesTo: ['SR25'],
     effects: {
-      rangeModifier: 0.18,
+      rangeModifier: 0.77,
       fireRateModifier: 0,
-      muzzleVelocityModifier: 0.18,
+      muzzleVelocityModifier: 0.636,
     }
   },
   {
@@ -1608,9 +1675,9 @@ export const modifications = [
     type: ['枪管'],
     appliesTo: ['SR25'],
     effects: {
-      rangeModifier: 0.3,
+      rangeModifier: 0.95,
       fireRateModifier: 0,
-      muzzleVelocityModifier: 0.3,
+      muzzleVelocityModifier: 0.363,
     }
   },
   {
@@ -1620,8 +1687,11 @@ export const modifications = [
     appliesTo: ['SR25'],
     effects: {
       rangeModifier: 0,
-      fireRateModifier: 0,
-      muzzleVelocityModifier: 0,
+      fireRateModifier: 0.217,
+      muzzleVelocityModifier: 0.136,
+      damageChange: true,
+      specialRange: true,
+      dataQueryName: 'SR25-短枪管',
     }
   },
   {
@@ -1932,4 +2002,34 @@ export const modifications = [
       muzzleVelocityModifier: 0,
     }
   },
+  {
+    id: 'MarlinRhinoLever',
+    name: 'Marlin犀牛杠杆',
+    type: ['杠杆'],
+    appliesTo: ['Marlin杠杆步枪'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: -0.25,
+      muzzleVelocityModifier: 0,
+      damageChange: true,
+      specialRange: true,
+      btkQueryName: 'Marlin杠杆步枪-犀牛',
+      dataQueryName: 'Marlin杠杆步枪-犀牛杠杆'
+    }
+  },
+  {
+    id: 'MarlinHummingbirdLever',
+    name: 'Marlin蜂鸟杠杆',
+    type: ['杠杆'],
+    appliesTo: ['Marlin杠杆步枪'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 1,
+      muzzleVelocityModifier: 0,
+      damageChange: true,
+      btkQueryName: 'Marlin杠杆步枪-蜂鸟',
+      dataQueryName: 'Marlin杠杆步枪-蜂鸟杠杆'
+    }
+  },
+
 ]

@@ -99,8 +99,8 @@ export function Simulator() {
       return null;
     }
 
-    // --- 步骤 1: 确定基础伤害模型 ---
-    // 处理特殊配件（如不同口径转换套件）导致的伤害模型变更
+    // --- 步骤 1: 确定基础伤害模型和射程模型 ---
+    // 处理特殊配件（如不同口径转换套件）导致的伤害模型和射程模型变更
 
     // a. 查找是否有名为 "damageChange" 的特殊配件被选中
     //    这类配件会完全改变武器的伤害属性（如口径转换）
@@ -108,9 +108,16 @@ export function Simulator() {
       .map(modId => modifications.find(m => m.id === modId)) // 将id数组转为配件对象数组
       .find(mod => mod?.effects?.damageChange === true);     // 找到第一个带 damageChange 的配件
 
-    // b. 决定使用哪个武器作为"基础模板"
+    // b. 查找是否有名为 "specialRange" 的特殊配件被选中
+    //    这类配件会使用变体武器的射程数据
+    const specialRangeMod = selectedMods
+      .map(modId => modifications.find(m => m.id === modId))
+      .find(mod => mod?.effects?.specialRange === true);
+
+    // c. 决定使用哪个武器作为"基础模板"
     //    默认使用用户选择的原始武器数据
     let baseWeaponProfile = selectedWeapon;
+    let rangeWeaponProfile = selectedWeapon;
 
     //    如果找到了特殊配件（如口径转换套件）...
     if (damageMod) {
@@ -125,8 +132,21 @@ export function Simulator() {
       }
     }
 
-    // c. 创建一个最终属性对象，它的伤害相关属性来自正确的"基础模板"
-    //    而其他所有属性（射速、射程等）仍然来自【原始】的 selectedWeapon
+    //    如果找到了specialRange配件...
+    if (specialRangeMod) {
+      const variantName = specialRangeMod.effects.dataQueryName;
+      // ...就从总武器列表里找到那个变体的数据
+      const weaponVariant = weapons.find(w => w.name === variantName);
+      if (weaponVariant) {
+        // ...并将其设为我们的"射程模板"（使用变体武器的射程属性）
+        rangeWeaponProfile = weaponVariant;
+      } else {
+        console.warn(`未找到名为 "${variantName}" 的武器变体数据!`);
+      }
+    }
+
+    // d. 创建一个最终属性对象，它的伤害相关属性来自正确的"基础模板"
+    //    射程和射程衰减倍率属性来自"射程模板"，其他属性仍然来自【原始】的 selectedWeapon
     //    这种分离确保配件只影响它们应该影响的属性
     let finalWeaponStats = {
       ...selectedWeapon, // 初始继承所有原始武器的属性
@@ -139,6 +159,17 @@ export function Simulator() {
       lowerArmMultiplier: baseWeaponProfile.lowerArmMultiplier,
       thighMultiplier: baseWeaponProfile.thighMultiplier,
       calfMultiplier: baseWeaponProfile.calfMultiplier,
+      // 用"射程模板"的射程和射程衰减倍率数据覆盖（处理specialRange配件）
+      range1: rangeWeaponProfile.range1,
+      range2: rangeWeaponProfile.range2,
+      range3: rangeWeaponProfile.range3,
+      range4: rangeWeaponProfile.range4,
+      range5: rangeWeaponProfile.range5,
+      decay1: rangeWeaponProfile.decay1,
+      decay2: rangeWeaponProfile.decay2,
+      decay3: rangeWeaponProfile.decay3,
+      decay4: rangeWeaponProfile.decay4,
+      decay5: rangeWeaponProfile.decay5,
     };
 
 

@@ -111,7 +111,14 @@ export function DataQuery(){
                     armProtection: selectedArmor.upperArm
                 });
                 const baseWeaponNames = new Set(weapons.map(w => w.name));
-                const filteredGuns = data.filter(gunName => baseWeaponNames.has(gunName));
+                const filteredGuns = data.filter(gunName => {
+                  // 先检查是否在基础武器列表中
+                  if (!baseWeaponNames.has(gunName)) return false;
+                  
+                  // 再检查对应的武器id是否为4位数
+                  const weapon = weapons.find(w => w.name === gunName);
+                  return weapon && weapon.id.length === 4;
+                });
                 setAvailableGuns(filteredGuns);
             } catch (error) {
                 console.error('自动查询可用枪械失败:', error);
