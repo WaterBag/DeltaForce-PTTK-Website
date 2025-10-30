@@ -210,7 +210,7 @@ export const ammos = [
   {
     id: 306,
     caliber: ".45ACP",
-    name: "ACP+P",
+    name: "ACP+P 红鼠窝",
     rarity: "橙",
     penetration: 5,
     secondaryPenetration: 0.75,
@@ -222,6 +222,23 @@ export const ammos = [
     armor4: 1.1,
     armor5: 1.1,
     armor6: 1,
+    image: Image45ACP
+  },
+  {
+    id: 307,
+    caliber: ".45ACP",
+    name: "Super 测试服",
+    rarity: "橙",
+    penetration: 5,
+    secondaryPenetration: 0.75,
+    sameLevelPenetration: 0.5,
+    fleshDamageCoeff: 0.85,
+    armor1: 1.1,
+    armor2: 1.1,
+    armor3: 1.1,
+    armor4: 1.1,
+    armor5: 1.1,
+    armor6: 1.3,
     image: Image45ACP
   },
   {
@@ -273,6 +290,23 @@ export const ammos = [
     armor4: 1,
     armor5: 1,
     armor6: 0.6,
+    image: Image50AE
+  },
+  {
+    id: 404,
+    caliber: ".50AE",
+    name: "AP 测试服",
+    rarity: "橙",
+    penetration: 5,
+    secondaryPenetration: 0.85,
+    sameLevelPenetration: 0.8,
+    fleshDamageCoeff: 1,
+    armor1: 1.1,
+    armor2: 1.1,
+    armor3: 1.1,
+    armor4: 1.1,
+    armor5: 1.1,
+    armor6: 1,
     image: Image50AE
   },
   {
@@ -987,6 +1021,23 @@ export const ammos = [
     armor4: 1.1,
     armor5: 1.1,
     armor6: 1.1,
+    image: Image46x30mm
+  },
+  {
+    id: 1303,
+    caliber: "4.6*30mm",
+    name: "Ultra SX 测试服",
+    rarity: "红",
+    penetration: 6,
+    secondaryPenetration: 0.58,
+    sameLevelPenetration: 0.4,
+    fleshDamageCoeff: 1,
+    armor1: 0.275,
+    armor2: 0.275,
+    armor3: 0.275,
+    armor4: 0.275,
+    armor5: 0.275,
+    armor6: 0.275,
     image: Image46x30mm
   },
   {

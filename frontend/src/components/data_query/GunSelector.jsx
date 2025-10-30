@@ -26,15 +26,15 @@ export function GunSelector({ guns, onGunSelect }) {
     if (!guns || guns.length === 0) {
         return <div className="comparison-list-empty">请先选择头盔护甲</div>;
     }
-
+    const sortedGuns = guns
+        .map(gunName => weaponDetailsMap[gunName])
+        .filter(weapon => weapon) // 确保 weapon 对象存在
+        .sort((a, b) => a.id - b.id); // 2. 按武器ID从小到大排序
     return (
         <div className="gun-selector">
             {
-                guns.map(gunName => {
-                    const weapon = weaponDetailsMap[gunName];
-                    // 如果找不到对应的武器信息，跳过渲染
-                    if(!weapon) return null;
-
+                
+                sortedGuns.map(weapon => {
                     return(
                         <div 
                             className="gun-list-item" 

@@ -3,7 +3,7 @@ const shotgun = ['725双管', 'S12K', 'M1014', 'M870']
 const sniper = ['AWM', 'SR-25', 'M700', 'SVD', 'PSG-1', 'G3', 'PTR-32', 'SV-98', 'R93', 'SR9']
 const general = ['M250', 'M7', 'K437', 'KC17', 'K416', 'MP7', 'Vector', 'SR-25', 'MK47', 'M4A1', 'AUG', 'P90', 'M249', 'M14', 'PKM', 'QJB201', 'QCQ171', 'SR-3M', 'AK-12', 'SCAR-H', '腾龙', 'AKM', 'M700', 'PSG-1', 'SVD', 'SG552', 'G3', 'QBZ95-1', 'MP5', 'PTR-32', 'SMG-45', '勇士', 'R93', 'SV-98', 'Mini-14', 'SKS', 'CAR-15', 'M16A4', '野牛', 'AKS-74U', 'UZI', 'SR9']
 const russia = ['PKM', 'SR-3M', 'AK-12', 'AKM', 'KC17', 'SKS', 'AKS-74U', 'MK47']
-const smg = ['MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', 'G18', 'M1911', '沙漠之鹰', '93R', '野牛', 'UZI', '.357左轮', 'G17', 'QSZ92G']
+const smg = ['MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', '野牛', 'UZI']
 
 
 
@@ -281,7 +281,7 @@ export const modifications = [
     id: 'SMGEchoSuppressor',
     name: '冲锋枪回声消音器',
     type: ['枪口'],
-    appliesTo: russia,
+    appliesTo: smg,
     effects: {
       rangeModifier: 0.3,
       fireRateModifier: 0,
@@ -1078,20 +1078,6 @@ export const modifications = [
     }
   },
   {
-    id: 'M250Barrel',
-    name: 'M250长枪管',
-    type: ['枪管'],
-    appliesTo: ['M250-S6季中前'],
-    effects: {
-      rangeModifier: 0.3,
-      fireRateModifier: 0,
-      muzzleVelocityModifier: 0.3,
-      damageChange: true,
-      btkQueryName: 'M250-钛金长枪管-S6季中前',
-      dataQueryName: 'M250-钛金长枪管-S6季中前'
-    }
-  },
-  {
     id: 'M250LongBarrel',
     name:'M250钛金长枪管',
     type: ['枪管'],
@@ -1206,20 +1192,6 @@ export const modifications = [
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.3,
     }
-  },
-  {
-    id: 'MK47LongBarrel',
-    name: 'Mk47-枪管',
-    type: ['枪管'],
-    appliesTo: ['MK47-S6季中前'],
-    effects: {
-      rangeModifier: 0.3,
-      fireRateModifier: 0,
-      muzzleVelocityModifier: 0.3,
-      damageChange: true,
-      btkQueryName: 'MK47-长枪管-S6季中前',
-      dataQueryName: 'MK47-长枪管-S6季中前'
-    },
   },
   {
     id: 'MK47AshBarrel',
@@ -1640,7 +1612,7 @@ export const modifications = [
     id: 'SMG45BambooRatShortBarrel',
     name:'SMG45竹鼠短枪管',
     type: ['枪管'],
-    appliesTo: ['SMG45'],
+    appliesTo: ['SMG-45'],
     effects: {
       rangeModifier: 0,
       fireRateModifier: 0,
@@ -1651,7 +1623,7 @@ export const modifications = [
     id: 'SMG45PracticalHeavyBarrel',
     name:'SMG45实用重枪管',
     type: ['枪管'],
-    appliesTo: ['SMG45'],
+    appliesTo: ['SMG-45'],
     effects: {
       rangeModifier: 0.06,
       fireRateModifier: 0,
@@ -2032,4 +2004,35 @@ export const modifications = [
     }
   },
 
+]
+
+const oldModifications = [
+  {
+    id: 'MK47LongBarrel',
+    name: 'Mk47-枪管',
+    type: ['枪管'],
+    appliesTo: ['MK47-S6季中前'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.3,
+      damageChange: true,
+      btkQueryName: 'MK47-长枪管-S6季中前',
+      dataQueryName: 'MK47-长枪管-S6季中前'
+    },
+  },
+  {
+    id: 'M250Barrel',
+    name: 'M250长枪管',
+    type: ['枪管'],
+    appliesTo: ['M250-S6季中前'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.3,
+      damageChange: true,
+      btkQueryName: 'M250-钛金长枪管-S6季中前',
+      dataQueryName: 'M250-钛金长枪管-S6季中前'
+    }
+  },
 ]

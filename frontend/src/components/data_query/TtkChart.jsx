@@ -34,15 +34,27 @@ const CustomTooltip = ({ active, payload, label }) => {
       <div className="custom-tooltip">
         <p className="tooltip-label">{`距离: ${label} m`}</p>
         <ul className="tooltip-list">
-          {sortedPayload.map((entry, index) => (
-            <li key={`item-${index}`} className="tooltip-list-item">
-              <span className="tooltip-color-indicator" style={{ backgroundColor: entry.color }} />
-              <span className="tooltip-name">{entry.name}:</span>
-              <span className="tooltip-value" style={{ color: entry.color }}>
-                {Math.round(entry.value)} ms
-              </span>
-            </li>
-          ))}
+          {sortedPayload.map((entry, index) => {
+            //解析武器名和配件
+            const name = entry.name;
+            const attachmentIndex = name.indexOf('(');
+
+            const weaponName = attachmentIndex > -1 ? name.substring(0, attachmentIndex).trim() : name;
+            const attachments = attachmentIndex > -1 ? name.substring(attachmentIndex) : null;
+
+            return (
+              <li key={`item-${index}`} className="tooltip-list-item">
+                <span className="tooltip-color-indicator" style={{ backgroundColor: entry.color }} />
+                <div className="tooltip-name-container">
+                  <span className="tooltip-name">{weaponName}:</span>
+                  {attachments && <span className="tooltip-attachments">{attachments}</span>}
+                </div>
+                <span className="tooltip-value" style={{ color: entry.color }}>
+                  {Math.round(entry.value)} ms
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </div>
     );
