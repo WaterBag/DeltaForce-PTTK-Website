@@ -1,5 +1,5 @@
-import React, { useState , useMemo , useEffect} from 'react';
-import { WeaponSelector} from '../components/simulator/Selectors';
+import React, { useState, useMemo, useEffect } from 'react';
+import { WeaponSelector } from '../components/simulator/Selectors';
 import { AmmoSelector } from '../components/public/AmmoSelector';
 import { Alert } from '../components/public/Alert';
 import { useAlert } from '../hooks/useAlert';
@@ -26,7 +26,7 @@ export function Simulator() {
   // 状态管理
   /** @type {[Object|null, Function]} 当前选中的武器对象 */
   const [selectedWeapon, setSelectedWeapon] = useState(null);
-  
+
   // Alert hook
   const { alertState, showWarning, closeAlert } = useAlert();
   /** @type {[Object|null, Function]} 当前选中的弹药对象 */
@@ -58,7 +58,6 @@ export function Simulator() {
   const [currentArmorDurability, setCurrentArmorDurability] = useState(null);
   /** @type {[Object|null, Function]} 击中日志 */
   const [hitLog, setHitLog] = useState([]);
-  
 
   // 用于血量滑条的数值列表，生成1到100的整数数组
   const hpValues = useMemo(() => Array.from({ length: 100 }, (_, i) => i + 1), []);
@@ -69,14 +68,14 @@ export function Simulator() {
     setCurrentHelmetDurability(helmetDurability);
     setTargetHp(initialHp);
     setHitLog([]);
-  }, [selectedHelmet, helmetDurability]);
+  }, [selectedHelmet, helmetDurability, initialHp]);
 
   // 当护甲选择或耐久度变化时，重置护甲耐久度和目标血量
   useEffect(() => {
     setCurrentArmorDurability(armorDurability);
     setTargetHp(initialHp);
     setHitLog([]);
-  }, [selectedArmor, armorDurability]);
+  }, [selectedArmor, armorDurability, initialHp]);
 
   // 当武器、弹药、配件或初始血量变化时，重置目标血量
   useEffect(() => {
@@ -84,13 +83,11 @@ export function Simulator() {
     setHitLog([]);
   }, [selectedWeapon, selectedAmmo, selectedMods, initialHp]);
 
-  
-
   /**
    * 配置武器计算 - 应用所有配件效果后的最终武器属性
    * 处理伤害模型变更和通用属性百分比修正，实现复杂的武器配置系统
    * 支持伤害模型切换和属性百分比叠加，确保配件效果正确应用
-   * 
+   *
    * @returns {Object|null} 配置后的武器属性对象，包含所有配件效果
    *                       如果未选择武器则返回null
    */
@@ -106,7 +103,7 @@ export function Simulator() {
     //    这类配件会完全改变武器的伤害属性（如口径转换）
     const damageMod = selectedMods
       .map(modId => modifications.find(m => m.id === modId)) // 将id数组转为配件对象数组
-      .find(mod => mod?.effects?.damageChange === true);     // 找到第一个带 damageChange 的配件
+      .find(mod => mod?.effects?.damageChange === true); // 找到第一个带 damageChange 的配件
 
     // b. 查找是否有名为 "specialRange" 的特殊配件被选中
     //    这类配件会使用变体武器的射程数据
@@ -172,7 +169,6 @@ export function Simulator() {
       decay5: rangeWeaponProfile.decay5,
     };
 
-
     // --- 步骤 2: 应用通用属性修改 (百分比修正) ---
 
     // a. 初始化效果累加器
@@ -191,34 +187,33 @@ export function Simulator() {
     });
 
     // c. 将累加后的百分比效果应用到最终属性上
-    finalWeaponStats.fireRate *= (1 + totalFireRateModifier);
-    finalWeaponStats.muzzleVelocity *= (1 + totalMuzzleVelocityModifier);
-    finalWeaponStats.range1 *= (1 + totalRangeModifier);
-    finalWeaponStats.range2 *= (1 + totalRangeModifier);
-    finalWeaponStats.range3 *= (1 + totalRangeModifier);
-    finalWeaponStats.range4 *= (1 + totalRangeModifier);
-    finalWeaponStats.range5 *= (1 + totalRangeModifier);
+    finalWeaponStats.fireRate *= 1 + totalFireRateModifier;
+    finalWeaponStats.muzzleVelocity *= 1 + totalMuzzleVelocityModifier;
+    finalWeaponStats.range1 *= 1 + totalRangeModifier;
+    finalWeaponStats.range2 *= 1 + totalRangeModifier;
+    finalWeaponStats.range3 *= 1 + totalRangeModifier;
+    finalWeaponStats.range4 *= 1 + totalRangeModifier;
+    finalWeaponStats.range5 *= 1 + totalRangeModifier;
 
     return finalWeaponStats;
-
   }, [selectedWeapon, selectedMods]);
 
   /**
    * 处理头盔选择事件
    * @param {Object} helmet - 选中的头盔对象
    */
-  const handleHelmetSelect = (helmet) => {
-      setSelectedHelmet(helmet);
-      setHelmetDurability(helmet.durability);
+  const handleHelmetSelect = helmet => {
+    setSelectedHelmet(helmet);
+    setHelmetDurability(helmet.durability);
   };
 
   /**
    * 处理护甲选择事件
    * @param {Object} armor - 选中的护甲对象
    */
-  const handleArmorSelect = (armor) => {
-      setSelectedArmor(armor);
-      setArmorDurability(armor.durability);
+  const handleArmorSelect = armor => {
+    setSelectedArmor(armor);
+    setArmorDurability(armor.durability);
   };
 
   /**
@@ -228,9 +223,9 @@ export function Simulator() {
     if (!selectedHelmet || selectedHelmet.durability <= 0) {
       return []; // 如果没有选头盔，或者头盔耐久为0，直接返回空数组
     }
-    return generateDurabilityValues(selectedHelmet.durability,0,1);
+    return generateDurabilityValues(selectedHelmet.durability, 0, 1);
   }, [selectedHelmet]);
-      
+
   /**
    * 护甲耐久度可选值列表，基于所选护甲的最大耐久度生成
    */
@@ -238,23 +233,23 @@ export function Simulator() {
     if (!selectedArmor || selectedArmor.durability <= 0) {
       return []; // 如果没有选护甲，或者护甲耐久为0，直接返回空数组
     }
-    return generateDurabilityValues(selectedArmor.durability,0,1);
+    return generateDurabilityValues(selectedArmor.durability, 0, 1);
   }, [selectedArmor]);
 
   /**
    * 处理武器选择事件
    * @param {Object} weapon - 选中的武器对象
    */
-  const handleWeaponSelect = (weapon) => {
+  const handleWeaponSelect = weapon => {
     setSelectedWeapon(weapon);
     setSelectedAmmo(null); // 更换武器时重置弹药选择
-    setSelectedMods([]); 
+    setSelectedMods([]);
   };
 
   /**
    * 处理配件选择事件 - 管理配件选择和冲突检测
    * 自动处理配件槽位冲突，确保同一槽位只能选择一个配件
-   * 
+   *
    * @param {string} modId - 配件ID
    * @param {boolean} isSelected - 配件是否被选中
    */
@@ -280,20 +275,21 @@ export function Simulator() {
   /**
    * 动态计算可用弹药 - 根据所选武器的口径筛选弹药
    * 确保只有与当前武器口径匹配的弹药才会显示
-   * 
+   *
    * @returns {Array} 可用的弹药选项数组
    */
   const availableAmmos = useMemo(() => {
-      if (!selectedWeapon) {// 如果没有选择武器，就直接返回一个空数组
-          return [];
-      }
-      return ammos.filter(ammo => ammo.caliber === selectedWeapon.caliber);// 如果选择了武器，就进行筛选
+    if (!selectedWeapon) {
+      // 如果没有选择武器，就直接返回一个空数组
+      return [];
+    }
+    return ammos.filter(ammo => ammo.caliber === selectedWeapon.caliber); // 如果选择了武器，就进行筛选
   }, [selectedWeapon]); //依赖项数组：只有当 selectedWeapon 变化时，才重新计算
 
   /**
    * 动态计算可用配件 - 根据所选武器筛选适用的配件
    * 过滤掉没有实际效果的配件，只显示真正有影响的配件选项
-   * 
+   *
    * @returns {Array} 可用的配件选项数组
    */
   const availableMods = useMemo(() => {
@@ -317,16 +313,16 @@ export function Simulator() {
 
       const effectValues = Object.values(mod.effects); //获取所有效果的值，组成一个数组
 
-      const hasRealEffect = effectValues.some(value => //检查这个数组中，是否有【至少一个】是【数字且不为0】
-        typeof value === 'number' && value !== 0
+      const hasRealEffect = effectValues.some(
+        (
+          value //检查这个数组中，是否有【至少一个】是【数字且不为0】
+        ) => typeof value === 'number' && value !== 0
       );
-      
-      const hasDamageChange = mod.effects.damageChange === true;//检查配件是否改变伤害
 
-      return hasRealEffect || hasDamageChange;//只有两个条件都满足，才返回 true
+      const hasDamageChange = mod.effects.damageChange === true; //检查配件是否改变伤害
+
+      return hasRealEffect || hasDamageChange; //只有两个条件都满足，才返回 true
     });
-    
-
   }, [selectedWeapon]); // <-- 依赖项：只有当 selectedWeapon 变化时，才重新计算
 
   /**
@@ -343,7 +339,6 @@ export function Simulator() {
       groups[type].push(mod);
       return groups;
     }, {});
-
   }, [availableMods]);
 
   /**
@@ -376,24 +371,33 @@ export function Simulator() {
     }
 
     // 依赖项数组：当 targetHp 或 configuredWeapon (影响TTK计算) 变化时，执行此 effect
-  }, [targetHp, configuredWeapon]); 
+  }, [targetHp, configuredWeapon, hitLog]);
 
   /**
    * 处理命中事件 - 核心模拟逻辑
    * 计算单次命中造成的伤害和护甲耐久度变化
-   * 
+   *
    * @param {string} hitSite - 命中部位标识符
    */
-  const handleHit = (hitSite) => {
+  const handleHit = hitSite => {
     if (!configuredWeapon || !selectedAmmo || !selectedHelmet || !selectedArmor) {
-      showWarning("请先选择完整的武器、弹药和护甲配置！");
+      showWarning('请先选择完整的武器、弹药和护甲配置！');
       return;
     }
     if (targetHp <= 0) {
-      showWarning("目标已被击倒，请重置配置或调整初始血量以开始新的模拟。");
+      showWarning('目标已被击倒，请重置配置或调整初始血量以开始新的模拟。');
       return;
     }
-    const result = calculateSingleHit(configuredWeapon, selectedAmmo, selectedHelmet, selectedArmor, currentHelmetDurability, currentArmorDurability, hitSite, distance);
+    const result = calculateSingleHit(
+      configuredWeapon,
+      selectedAmmo,
+      selectedHelmet,
+      selectedArmor,
+      currentHelmetDurability,
+      currentArmorDurability,
+      hitSite,
+      distance
+    );
     setTargetHp(prev => prev - result.healthDamage);
     setCurrentHelmetDurability(result.newHelmetDurability);
     setCurrentArmorDurability(result.newArmorDurability);
@@ -415,7 +419,7 @@ export function Simulator() {
     <div className="simulator-layout">
       {/* 护甲配置面板 */}
       <div className="left-panel">
-        <div className='config-section armor-config'>
+        <div className="config-section armor-config">
           <HelmetSelector
             options={helmets}
             selectedHelmet={selectedHelmet}
@@ -443,13 +447,25 @@ export function Simulator() {
         </div>
         <div className="simulation-controls">
           <h3>模拟参数</h3>
-          <UniversalSlider label="目标初始血量" values={hpValues} value={initialHp} onChange={setInitialHp} />
+          <UniversalSlider
+            label="目标初始血量"
+            values={hpValues}
+            value={initialHp}
+            onChange={setInitialHp}
+          />
           <div className="distance-control">
             <label htmlFor="distance-input">交战距离 (米):</label>
-            <input type="number" id="distance-input" value={distance} onChange={(e) => setDistance(Number(e.target.value))} min="0" step="1" />
+            <input
+              type="number"
+              id="distance-input"
+              value={distance}
+              onChange={e => setDistance(Number(e.target.value))}
+              min="0"
+              step="1"
+            />
           </div>
         </div>
-        <div className='target-status'>
+        <div className="target-status">
           <TargetStatus
             targetHp={targetHp}
             totalHp={initialHp}
@@ -463,17 +479,14 @@ export function Simulator() {
           <h4>命中日志</h4>
           <ul className="hit-log-list">
             {hitLog.length > 0 ? (
-              hitLog.map((log, index) => (
-                <li key={index}>{log}</li>
-              ))
+              hitLog.map((log, index) => <li key={index}>{log}</li>)
             ) : (
               <li className="empty-log">等待日志</li>
             )}
           </ul>
         </div>
       </div>
-      
-      
+
       {/* 占位区域 */}
       <div className="simulator-panel">
         <TargetDummy onHit={handleHit} />
@@ -481,13 +494,10 @@ export function Simulator() {
           重置假人状态
         </button>
       </div>
-      
+
       {/* 武器和弹药选择面板 */}
       <div className="right-panel">
-        <WeaponSelector
-          selectedWeapon={selectedWeapon}
-          onSelect={handleWeaponSelect}
-        />
+        <WeaponSelector selectedWeapon={selectedWeapon} onSelect={handleWeaponSelect} />
         <AmmoSelector
           options={availableAmmos}
           selectedAmmo={selectedAmmo}
@@ -518,13 +528,13 @@ export function Simulator() {
                             handleModChange(mod.id, !isCurrentlySelected);
                           }}
                           // 添加鼠标悬停事件
-                          onMouseEnter={(e) => {
+                          onMouseEnter={e => {
                             setHoveredMod(mod);
                             // 获取鼠标位置，将工具提示显示在左边
                             const rect = e.currentTarget.getBoundingClientRect();
                             setTooltipPosition({
                               x: rect.left - 280, // 向左偏移工具提示宽度
-                              y: rect.top
+                              y: rect.top,
                             });
                           }}
                           onMouseLeave={() => setHoveredMod(null)}
@@ -583,7 +593,7 @@ export function Simulator() {
           </button>
         </div>
       </div>
-      
+
       {/* 自定义Alert组件 */}
       <Alert
         isOpen={alertState.isOpen}
@@ -595,11 +605,11 @@ export function Simulator() {
 
       {/* 配件效果提示 */}
       {hoveredMod && (
-        <div 
+        <div
           className="mod-tooltip"
           style={{
             left: `${tooltipPosition.x}px`,
-            top: `${tooltipPosition.y}px`
+            top: `${tooltipPosition.y}px`,
           }}
         >
           <h4>{hoveredMod.name}</h4>
@@ -607,24 +617,33 @@ export function Simulator() {
             {hoveredMod.effects.rangeModifier !== 0 && (
               <div className="effect-item">
                 <span className="effect-label">射程:</span>
-                <span className={`effect-value ${hoveredMod.effects.rangeModifier > 0 ? 'positive' : 'negative'}`}>
-                  {hoveredMod.effects.rangeModifier > 0 ? '+' : ''}{Math.round(hoveredMod.effects.rangeModifier * 100)}%
+                <span
+                  className={`effect-value ${hoveredMod.effects.rangeModifier > 0 ? 'positive' : 'negative'}`}
+                >
+                  {hoveredMod.effects.rangeModifier > 0 ? '+' : ''}
+                  {Math.round(hoveredMod.effects.rangeModifier * 100)}%
                 </span>
               </div>
             )}
             {hoveredMod.effects.fireRateModifier !== 0 && (
               <div className="effect-item">
                 <span className="effect-label">射速:</span>
-                <span className={`effect-value ${hoveredMod.effects.fireRateModifier > 0 ? 'positive' : 'negative'}`}>
-                  {hoveredMod.effects.fireRateModifier > 0 ? '+' : ''}{Math.round(hoveredMod.effects.fireRateModifier * 100)}%
+                <span
+                  className={`effect-value ${hoveredMod.effects.fireRateModifier > 0 ? 'positive' : 'negative'}`}
+                >
+                  {hoveredMod.effects.fireRateModifier > 0 ? '+' : ''}
+                  {Math.round(hoveredMod.effects.fireRateModifier * 100)}%
                 </span>
               </div>
             )}
             {hoveredMod.effects.muzzleVelocityModifier !== 0 && (
               <div className="effect-item">
                 <span className="effect-label">初速:</span>
-                <span className={`effect-value ${hoveredMod.effects.muzzleVelocityModifier > 0 ? 'positive' : 'negative'}`}>
-                  {hoveredMod.effects.muzzleVelocityModifier > 0 ? '+' : ''}{Math.round(hoveredMod.effects.muzzleVelocityModifier * 100)}%
+                <span
+                  className={`effect-value ${hoveredMod.effects.muzzleVelocityModifier > 0 ? 'positive' : 'negative'}`}
+                >
+                  {hoveredMod.effects.muzzleVelocityModifier > 0 ? '+' : ''}
+                  {Math.round(hoveredMod.effects.muzzleVelocityModifier * 100)}%
                 </span>
               </div>
             )}

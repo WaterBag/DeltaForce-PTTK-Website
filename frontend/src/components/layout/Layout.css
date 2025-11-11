@@ -31,7 +31,7 @@
   .app-content {
     flex-direction: column; /* 在移动设备上改为垂直排列 */
   }
-  
+
   .main-content {
     padding: 12px; /* 进一步减小内边距 */
   }

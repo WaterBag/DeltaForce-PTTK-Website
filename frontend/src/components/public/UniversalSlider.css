@@ -82,17 +82,17 @@
   .slider-input {
     height: 5px; /* 减小滑块高度 */
   }
-  
+
   .slider-input::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
   }
-  
+
   .slider-input::-moz-range-thumb {
     width: 14px;
     height: 14px;
   }
-  
+
   .slider-label-text,
   .slider-value-text {
     font-size: 0.9em; /* 减小字体大小 */
@@ -104,17 +104,17 @@
   .slider-input {
     height: 4px; /* 进一步减小滑块高度 */
   }
-  
+
   .slider-input::-webkit-slider-thumb {
     width: 12px;
     height: 12px;
   }
-  
+
   .slider-input::-moz-range-thumb {
     width: 12px;
     height: 12px;
   }
-  
+
   .slider-label-text,
   .slider-value-text {
     font-size: 0.85em; /* 进一步减小字体大小 */

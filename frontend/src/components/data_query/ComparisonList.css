@@ -65,22 +65,39 @@
   padding: 0 5px;
   margin-left: 10px;
   flex-shrink: 0;
-  
+
   /* 【核心交互】默认情况下，按钮是透明的 */
-  opacity: 0; 
-  transition: opacity 0.2s ease, color 0.2s ease;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
 }
 
 .remove-button:hover {
   color: #de350b; /* 悬停时变为红色 */
 }
 
-.rarity-red    { color: #e74c3c; font-weight: bold; }
-.rarity-orange { color: #e67e22; font-weight: bold; }
-.rarity-purple { color: #9b59b6; font-weight: bold; }
-.rarity-blue   { color: #3498db; }
-.rarity-green  { color: #2ecc71; }
-.rarity-white  { color: #5e6c84; }
+.rarity-red {
+  color: #e74c3c;
+  font-weight: bold;
+}
+.rarity-orange {
+  color: #e67e22;
+  font-weight: bold;
+}
+.rarity-purple {
+  color: #9b59b6;
+  font-weight: bold;
+}
+.rarity-blue {
+  color: #3498db;
+}
+.rarity-green {
+  color: #2ecc71;
+}
+.rarity-white {
+  color: #5e6c84;
+}
 
 /* 响应式样式 - 平板设备 */
 @media (max-width: 768px) {
@@ -88,17 +105,17 @@
     padding: 15px;
     font-size: 0.9em;
   }
-  
+
   .comparison-list-item {
     padding: 10px 8px;
   }
-  
+
   .color-indicator {
     width: 10px;
     height: 10px;
     margin-right: 10px;
   }
-  
+
   .remove-button {
     font-size: 1.3rem;
     padding: 0 4px;
@@ -114,21 +131,21 @@
     padding: 12px;
     font-size: 0.85em;
   }
-  
+
   .comparison-list-item {
     padding: 8px 6px;
   }
-  
+
   .color-indicator {
     width: 8px;
     height: 8px;
     margin-right: 8px;
   }
-  
+
   .comparison-line-name {
     font-size: 0.9em;
   }
-  
+
   .remove-button {
     font-size: 1.2rem;
     padding: 0 3px;

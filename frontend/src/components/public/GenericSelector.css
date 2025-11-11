@@ -9,25 +9,28 @@
 .selector-trigger {
   /* [增强] 使用Flexbox进行完美垂直居中 */
   display: flex;
-  align-items: center; 
-  
+  align-items: center;
+
   /* [增强] 设定一个固定的最小高度，解决高度变化问题 */
-  min-height: 68px; 
-  
+  min-height: 68px;
+
   /* [美化] 调整内边距、背景和边框，使其更现代化 */
-  padding: 8px 12px; 
+  padding: 8px 12px;
   background-color: #ffffff;
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid #dfe1e6; /* 使用更柔和的灰色边框 */
-  transition: border-color 0.2s ease, box-shadow 0.2s ease; /* 添加平滑过渡 */
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease; /* 添加平滑过渡 */
 }
 
 .selector-trigger:hover {
   border-color: #0052cc; /* 悬停时边框变蓝 */
 }
 
-.selector-trigger:focus-within { /* (推荐) 当内部输入框聚焦时，也显示高亮 */
+.selector-trigger:focus-within {
+  /* (推荐) 当内部输入框聚焦时，也显示高亮 */
   border-color: #0052cc;
   box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
 }

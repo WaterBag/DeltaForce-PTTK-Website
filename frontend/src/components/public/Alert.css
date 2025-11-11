@@ -11,7 +11,6 @@
   padding-top: 20px;
   z-index: 1000;
   pointer-events: none;
-  
 }
 
 .alert {
@@ -127,17 +126,17 @@
   .alert-overlay {
     padding: 16px;
   }
-  
+
   .alert {
     min-width: auto;
     width: calc(100% - 32px);
     max-width: none;
   }
-  
+
   .alert-content {
     gap: 8px;
   }
-  
+
   .alert-message {
     font-size: 13px;
   }
@@ -149,32 +148,32 @@
     background: #2d2d2d;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
-  
+
   .alert-message {
     color: #e0e0e0;
   }
-  
+
   .alert-close {
     color: #999;
   }
-  
+
   .alert-close:hover {
     background: #3d3d3d;
     color: #e0e0e0;
   }
-  
+
   .alert-info {
     background: linear-gradient(135deg, #1a3c5a 0%, #2d2d2d 100%);
   }
-  
+
   .alert-warning {
     background: linear-gradient(135deg, #5c4a1a 0%, #2d2d2d 100%);
   }
-  
+
   .alert-error {
     background: linear-gradient(135deg, #5c2a2a 0%, #2d2d2d 100%);
   }
-  
+
   .alert-success {
     background: linear-gradient(135deg, #2d5a1a 0%, #2d2d2d 100%);
   }

@@ -5,7 +5,9 @@
   border-left: 4px solid transparent;
   padding-left: 4px;
 }
-.ammo-option-image.rarity-red    { border-left-color: #e74c3c; }
+.ammo-option-image.rarity-red {
+  border-left-color: #e74c3c;
+}
 /* ... 其他颜色 ... */
 
 /* --- 2. 【已选择项】的样式 (在触发器中) --- */
@@ -84,9 +86,21 @@
   color: #42526e;
 }
 
-.rarity-red    { border-left-color: #e74c3c; }
-.rarity-orange { border-left-color: #e67e22; }
-.rarity-purple { border-left-color: #9b59b6; }
-.rarity-blue   { border-left-color: #3498db; }
-.rarity-green  { border-left-color: #2ecc71; }
-.rarity-white  { border-left-color: #bdc3c7; }
+.rarity-red {
+  border-left-color: #e74c3c;
+}
+.rarity-orange {
+  border-left-color: #e67e22;
+}
+.rarity-purple {
+  border-left-color: #9b59b6;
+}
+.rarity-blue {
+  border-left-color: #3498db;
+}
+.rarity-green {
+  border-left-color: #2ecc71;
+}
+.rarity-white {
+  border-left-color: #bdc3c7;
+}

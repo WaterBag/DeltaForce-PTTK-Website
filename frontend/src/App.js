@@ -22,11 +22,11 @@ function App() {
    */
   const renderContent = () => {
     switch (currentView) {
-      case 'simulator':
-        return <Simulator />;
-      case 'dataQuery':
-      default:
-        return <DataQuery />;
+    case 'simulator':
+      return <Simulator />;
+    case 'dataQuery':
+    default:
+      return <DataQuery />;
     }
   };
 

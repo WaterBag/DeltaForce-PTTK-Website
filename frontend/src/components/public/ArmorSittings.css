@@ -1,52 +1,52 @@
-.helmet-selector{
-    width: 50%;
+.helmet-selector {
+  width: 50%;
 }
 
-.helmet-option-image{
-    width: 50px;
-    height: auto;
+.helmet-option-image {
+  width: 50px;
+  height: auto;
 }
 
-.helmet-option-name{
-    margin-left: 10px;
-    white-space: nowrap; /* 防止文本换行 */
-    overflow: hidden; /* 隐藏溢出内容 */
-    text-overflow: ellipsis; /* 显示省略号 */
+.helmet-option-name {
+  margin-left: 10px;
+  white-space: nowrap; /* 防止文本换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 显示省略号 */
 }
 
-.armor-selector{
-    width: 50%;
+.armor-selector {
+  width: 50%;
 }
 
-.armor-option-image{
-    width: 50px;
-    height: auto;
+.armor-option-image {
+  width: 50px;
+  height: auto;
 }
 
-.armor-option-name{
-    margin-left: 10px;
-    white-space: nowrap; /* 防止文本换行 */
-    overflow: hidden; /* 隐藏溢出内容 */
-    text-overflow: ellipsis; /* 显示省略号 */
+.armor-option-name {
+  margin-left: 10px;
+  white-space: nowrap; /* 防止文本换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 显示省略号 */
 }
 
 /* 响应式样式 - 平板设备 */
 @media (max-width: 768px) {
-    .helmet-selector,
-    .armor-selector {
-        width: 100%; /* 在平板设备上占满宽度 */
-    }
-    
-    .helmet-option-image,
-    .armor-option-image {
-        width: 45px; /* 减小图片大小 */
-    }
-    
-    .helmet-option-name,
-    .armor-option-name {
-        margin-left: 8px; /* 减小间距 */
-        font-size: 0.9em; /* 减小字体大小 */
-    }
+  .helmet-selector,
+  .armor-selector {
+    width: 100%; /* 在平板设备上占满宽度 */
+  }
+
+  .helmet-option-image,
+  .armor-option-image {
+    width: 45px; /* 减小图片大小 */
+  }
+
+  .helmet-option-name,
+  .armor-option-name {
+    margin-left: 8px; /* 减小间距 */
+    font-size: 0.9em; /* 减小字体大小 */
+  }
 }
 
 /* 响应式样式 - 移动设备 */
@@ -55,7 +55,7 @@
   .armor-option-image {
     width: 40px; /* 进一步减小图片大小 */
   }
-  
+
   .helmet-option-name,
   .armor-option-name {
     margin-left: 6px; /* 进一步减小间距 */
@@ -69,22 +69,21 @@
 }
 
 .level-2 {
-  color: #4CAF50; /* 绿色 - 1级防护 */
+  color: #4caf50; /* 绿色 - 1级防护 */
 }
 
 .level-3 {
-  color: #2196F3; /* 蓝色 - 2级防护 */
+  color: #2196f3; /* 蓝色 - 2级防护 */
 }
 
 .level-4 {
-  color: #9C27B0; /* 紫色 - 3级防护 */
+  color: #9c27b0; /* 紫色 - 3级防护 */
 }
 
 .level-5 {
-  color: #FF9800; /* 橙色 - 4级防护 */
+  color: #ff9800; /* 橙色 - 4级防护 */
 }
 
 .level-6 {
-  color: #F44336; /* 红色 - 5级防护 */
+  color: #f44336; /* 红色 - 5级防护 */
 }
-

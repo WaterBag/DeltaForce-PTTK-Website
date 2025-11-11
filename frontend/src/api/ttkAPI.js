@@ -4,7 +4,7 @@ import { API_BASE_URL } from './config';
  * 根据护甲和头盔配置获取可用枪械列表
  * @param {Object} params - 配置参数对象
  * @param {number} params.helmetLevel - 头盔防护等级
- * @param {number} params.armorLevel - 护甲防护等级  
+ * @param {number} params.armorLevel - 护甲防护等级
  * @param {number} params.helmetDurability - 头盔耐久度值
  * @param {number} params.armorDurability - 护甲耐久度值
  * @param {number} params.chestProtection - 胸部防护值
@@ -20,20 +20,22 @@ export async function fetchAvailableGuns({
   armorDurability,
   chestProtection,
   stomachProtection,
-  armProtection
+  armProtection,
 }) {
   // 验证必需参数
   if (
-    helmetLevel == null || armorLevel == null ||
-    helmetDurability == null || armorDurability == null
+    helmetLevel == null ||
+    armorLevel == null ||
+    helmetDurability == null ||
+    armorDurability == null
   ) {
-    throw new Error("fetchAvailableGuns 参数不完整");
+    throw new Error('fetchAvailableGuns 参数不完整');
   }
-  
+
   const response = await fetch(`${API_BASE_URL}/api/ttk/available-guns`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       helmetLevel,
@@ -42,8 +44,8 @@ export async function fetchAvailableGuns({
       armorDurability,
       chestProtection,
       stomachProtection,
-      armProtection
-    })
+      armProtection,
+    }),
   });
 
   if (!response.ok) {
@@ -75,20 +77,23 @@ export async function fetchGunDetails({
   armorDurability,
   chestProtection,
   stomachProtection,
-  armProtection
+  armProtection,
 }) {
   // 验证必需参数
-  if (!gunName ||
-    helmetLevel == null || armorLevel == null ||
-    helmetDurability == null || armorDurability == null
+  if (
+    !gunName ||
+    helmetLevel == null ||
+    armorLevel == null ||
+    helmetDurability == null ||
+    armorDurability == null
   ) {
-    throw new Error("fetchGunDetails 参数不完整");
+    throw new Error('fetchGunDetails 参数不完整');
   }
-  
+
   const response = await fetch(`${API_BASE_URL}/api/ttk/gun-details`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       gunName,
@@ -98,8 +103,8 @@ export async function fetchGunDetails({
       armorDurability,
       chestProtection,
       stomachProtection,
-      armProtection
-    })
+      armProtection,
+    }),
   });
 
   if (!response.ok) {
@@ -108,4 +113,3 @@ export async function fetchGunDetails({
 
   return await response.json();
 }
-

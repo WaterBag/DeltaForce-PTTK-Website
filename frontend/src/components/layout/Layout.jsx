@@ -1,6 +1,6 @@
-import React from "react";
-import { Header } from "./Header";
-import { Sidebar } from "./Sidebar";
+import React from 'react';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
 import './Layout.css';
 
 /**
@@ -13,15 +13,13 @@ import './Layout.css';
  * @returns {JSX.Element} 布局组件
  */
 export function Layout({ children, currentView, setCurrentView }) {
-    return (
-        <div className="app-layout">
-            <Header />
-            <div className="app-content">
-                <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
-                <main className="main-content">
-                    {children}
-                </main>
-            </div>
-        </div>
-    );
+  return (
+    <div className="app-layout">
+      <Header />
+      <div className="app-content">
+        <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+        <main className="main-content">{children}</main>
+      </div>
+    </div>
+  );
 }

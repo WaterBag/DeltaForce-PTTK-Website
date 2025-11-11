@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import './ComboSelector.css';
 
 export function ComboSelector({ combinations, selectedCombos, onSelectionChange }) {
@@ -14,7 +14,7 @@ export function ComboSelector({ combinations, selectedCombos, onSelectionChange 
             <input
               type="checkbox"
               checked={isChecked}
-              onChange={(e) => {
+              onChange={e => {
                 onSelectionChange(combo, e.target.checked);
               }}
             />

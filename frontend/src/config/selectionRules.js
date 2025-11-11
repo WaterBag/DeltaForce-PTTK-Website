@@ -12,7 +12,7 @@ export const selectionRules = {
    */
   allowedHelmetIds: [
     '0000', // 无头盔
-    
+
     '3001', // H07战术头盔
     '3002', // DAS防弹头盔
     '3003', // MC201头盔

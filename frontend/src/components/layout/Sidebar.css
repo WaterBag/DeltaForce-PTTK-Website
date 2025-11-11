@@ -18,7 +18,9 @@
   cursor: pointer; /* 鼠标悬停时显示小手图标 */
   font-weight: 500;
   color: #42526e;
-  transition: background-color 0.2s ease, color 0.2s ease; /* 添加平滑的过渡效果 */
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease; /* 添加平滑的过渡效果 */
   border-left: 3px solid transparent; /* 左侧的激活指示条，默认为透明 */
 }
 
@@ -117,12 +119,11 @@
   .app-sidebar {
     width: 200px; /* 减小侧边栏宽度 */
   }
-  
+
   .nav-item {
     padding: 10px 16px; /* 减小导航项内边距 */
   }
 }
-
 
 /* 响应式布局 - 移动设备 */
 @media (max-width: 480px) {
@@ -133,41 +134,41 @@
     padding: 8px 0; /* 减小上下内边距 */
     overflow-x: hidden; /* 防止水平滚动 */
   }
-  
+
   .sidebar-nav ul {
     display: flex; /* 水平排列导航项 */
     overflow-x: hidden; /* 防止水平滚动 */
     padding: 0 12px; /* 添加左右内边距 */
     flex-wrap: nowrap; /* 不换行 */
   }
-  
+
   .nav-item {
     padding: 8px 12px; /* 减小导航项内边距 */
     white-space: nowrap; /* 防止文本换行 */
     border-left: none; /* 移除左侧边框 */
     border-bottom: 3px solid transparent; /* 添加底部边框作为激活指示 */
   }
-  
-.nav-item.active {
-  background-color: #e3f2fd; /* 激活状态的背景色 */
-  border-left: 4px solid #2196f3; /* 左侧激活指示条 */
-}
 
-.nav-item button {
-  background: none;
-  border: none;
-  width: 100%;
-  text-align: left;
-  padding: 12px 20px;
-  cursor: pointer;
-  color: inherit;
-  font-size: inherit;
-  font-family: inherit;
-}
+  .nav-item.active {
+    background-color: #e3f2fd; /* 激活状态的背景色 */
+    border-left: 4px solid #2196f3; /* 左侧激活指示条 */
+  }
 
-.nav-item button:hover {
-  background-color: #f5f5f5;
-}
+  .nav-item button {
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    padding: 12px 20px;
+    cursor: pointer;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+  }
+
+  .nav-item button:hover {
+    background-color: #f5f5f5;
+  }
 
   /* 在移动设备上隐藏概率信息 */
   .probability-info {

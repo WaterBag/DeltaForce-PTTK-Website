@@ -1,0 +1,3 @@
+# 忽略大型静态数据文件，避免大量无用变量警告
+src/assets/data/*.js
+src/assets/images/**/*

@@ -19,7 +19,9 @@
   background-color: #ffffff;
   padding: 16px;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -119,7 +121,6 @@
   border: none;
 }
 
-
 /* ============================================= */
 /* 4. 中间面板 (假人)                          */
 /* ============================================= */
@@ -144,7 +145,9 @@
   border: 1px solid #dfe1e6;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .reset-simulation-button:hover {
@@ -183,7 +186,7 @@
   padding-right: 5px;
 }
 
-.mod-group{
+.mod-group {
   margin-bottom: 8px;
 }
 
@@ -295,109 +298,109 @@
   background-color: #ffddd1;
 }
 
-  .right-panel .reset-button:disabled {
-    background-color: #f4f5f7;
-    color: #a5adba;
-    cursor: not-allowed;
-  }
+.right-panel .reset-button:disabled {
+  background-color: #f4f5f7;
+  color: #a5adba;
+  cursor: not-allowed;
+}
 
-  /* 配件效果提示样式 */
+/* 配件效果提示样式 */
+.mod-tooltip {
+  position: fixed;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 250px;
+  max-width: 300px;
+  pointer-events: none;
+}
+
+.mod-tooltip h4 {
+  margin: 0 0 12px 0;
+  color: #091e42;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid #dfe1e6;
+  padding-bottom: 8px;
+}
+
+.mod-effects {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.effect-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.effect-label {
+  color: #5e6c84;
+  font-weight: 500;
+}
+
+.effect-value {
+  font-weight: 600;
+}
+
+.effect-value.positive {
+  color: #36b37e;
+}
+
+.effect-value.negative {
+  color: #ff5630;
+}
+
+.effect-value.special {
+  color: #6554c0;
+  font-style: italic;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
   .mod-tooltip {
-    position: fixed;
-    background-color: #ffffff;
-    border: 1px solid #dfe1e6;
-    border-radius: 6px;
-    padding: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    min-width: 250px;
-    max-width: 300px;
-    pointer-events: none;
+    min-width: 200px;
+    max-width: 250px;
   }
 
   .mod-tooltip h4 {
-    margin: 0 0 12px 0;
-    color: #091e42;
-    font-size: 1rem;
-    font-weight: 600;
-    border-bottom: 1px solid #dfe1e6;
-    padding-bottom: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mod-tooltip {
+    position: fixed;
+    left: 50% !important;
+    top: auto !important;
+    bottom: 20px !important;
+    transform: translateX(-50%);
+    min-width: 280px;
+    max-width: 90vw;
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+
+  .mod-tooltip h4 {
+    font-size: 0.85rem;
+    margin: 0 0 8px 0;
+    padding-bottom: 6px;
   }
 
   .mod-effects {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
   .effect-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
-
-  .effect-label {
-    color: #5e6c84;
-    font-weight: 500;
-  }
-
-  .effect-value {
-    font-weight: 600;
-  }
-
-  .effect-value.positive {
-    color: #36b37e;
-  }
-
-  .effect-value.negative {
-    color: #ff5630;
-  }
-
-  .effect-value.special {
-    color: #6554c0;
-    font-style: italic;
-  }
-
-  /* 响应式调整 */
-  @media (max-width: 768px) {
-    .mod-tooltip {
-      min-width: 200px;
-      max-width: 250px;
-    }
-
-    .mod-tooltip h4 {
-      font-size: 0.9rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .mod-tooltip {
-      position: fixed;
-      left: 50% !important;
-      top: auto !important;
-      bottom: 20px !important;
-      transform: translateX(-50%);
-      min-width: 280px;
-      max-width: 90vw;
-      max-height: 40vh;
-      overflow-y: auto;
-    }
-
-    .mod-tooltip h4 {
-      font-size: 0.85rem;
-      margin: 0 0 8px 0;
-      padding-bottom: 6px;
-    }
-
-    .mod-effects {
-      gap: 6px;
-    }
-
-    .effect-item {
-      font-size: 0.8rem;
-    }
-  }
+}
 
 /* ============================================= */
 /* 6. 统一滚动条样式                           */

@@ -1,14 +1,17 @@
 /* index.css */
 
 /* 1. CSS 重置 (Reset) - 清理浏览器默认样式，让所有元素表现一致 */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box; /* 让 padding 和 border 不会撑大元素的尺寸，极其重要！*/
   margin: 0;
   padding: 0;
 }
 
 /* 2. 根元素样式 - 设定整个应用的基础字体和颜色 */
-html, body {
+html,
+body {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #f4f5f7; /* 一个柔和的灰色背景 */
@@ -29,14 +32,16 @@ html, body {
 
 /* 4. 响应式基础设置 */
 @media (max-width: 768px) {
-  html, body {
+  html,
+  body {
     font-size: 14px; /* 在小屏幕上稍微减小基础字体大小 */
   }
 }
 
 /* 5. 移动设备优化 */
 @media (max-width: 480px) {
-  html, body {
+  html,
+  body {
     font-size: 12px; /* 在更小的屏幕上进一步减小字体大小 */
   }
 }
@@ -44,5 +49,5 @@ html, body {
 /* 6. 视口设置 - 确保适当的缩放 */
 @viewport {
   width: device-width;
-  zoom: 1.0;
+  zoom: 1;
 }

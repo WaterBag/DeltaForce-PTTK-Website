@@ -9,7 +9,7 @@ export function useAlert() {
     isOpen: false,
     message: '',
     type: 'info',
-    autoClose: 3000
+    autoClose: 3000,
   });
 
   /**
@@ -23,7 +23,7 @@ export function useAlert() {
       isOpen: true,
       message,
       type,
-      autoClose
+      autoClose,
     });
   }, []);
 
@@ -39,36 +39,48 @@ export function useAlert() {
    * @param {string} message - 提示消息
    * @param {number} autoClose - 自动关闭时间
    */
-  const showInfo = useCallback((message, autoClose = 3000) => {
-    showAlert(message, 'info', autoClose);
-  }, [showAlert]);
+  const showInfo = useCallback(
+    (message, autoClose = 3000) => {
+      showAlert(message, 'info', autoClose);
+    },
+    [showAlert]
+  );
 
   /**
    * 显示警告提示
    * @param {string} message - 提示消息
    * @param {number} autoClose - 自动关闭时间
    */
-  const showWarning = useCallback((message, autoClose = 3000) => {
-    showAlert(message, 'warning', autoClose);
-  }, [showAlert]);
+  const showWarning = useCallback(
+    (message, autoClose = 3000) => {
+      showAlert(message, 'warning', autoClose);
+    },
+    [showAlert]
+  );
 
   /**
    * 显示错误提示
    * @param {string} message - 提示消息
    * @param {number} autoClose - 自动关闭时间
    */
-  const showError = useCallback((message, autoClose = 3000) => {
-    showAlert(message, 'error', autoClose);
-  }, [showAlert]);
+  const showError = useCallback(
+    (message, autoClose = 3000) => {
+      showAlert(message, 'error', autoClose);
+    },
+    [showAlert]
+  );
 
   /**
    * 显示成功提示
    * @param {string} message - 提示消息
    * @param {number} autoClose - 自动关闭时间
    */
-  const showSuccess = useCallback((message, autoClose = 3000) => {
-    showAlert(message, 'success', autoClose);
-  }, [showAlert]);
+  const showSuccess = useCallback(
+    (message, autoClose = 3000) => {
+      showAlert(message, 'success', autoClose);
+    },
+    [showAlert]
+  );
 
   return {
     alertState,
@@ -77,6 +89,6 @@ export function useAlert() {
     showInfo,
     showWarning,
     showError,
-    showSuccess
+    showSuccess,
   };
 }

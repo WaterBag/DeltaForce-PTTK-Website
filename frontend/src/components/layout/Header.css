@@ -27,7 +27,7 @@
 .bilibili-link {
   display: flex; /* (推荐) 使用Flexbox，能让图标和文字轻松对齐 */
   align-items: center;
-  
+
   color: #4a73b1; /* 使用蓝色，让它看起来像个链接 */
   text-decoration: none; /* 去掉默认的下划线 */
   font-weight: 500;
@@ -50,7 +50,7 @@
   .header {
     padding: 0 16px; /* 减小内边距 */
   }
-  
+
   .logo {
     font-size: 1.3rem; /* 减小logo字体大小 */
   }
@@ -62,15 +62,15 @@
     padding: 0 12px; /* 进一步减小内边距 */
     height: 50px; /* 减小header高度 */
   }
-  
+
   .logo {
     font-size: 1.1rem; /* 进一步减小logo字体大小 */
   }
-  
+
   .bilibili-link span {
     display: none; /* 在移动设备上隐藏文字，只显示图标 */
   }
-  
+
   .nav-icon {
     margin-right: 0; /* 移除图标右侧间距 */
   }
