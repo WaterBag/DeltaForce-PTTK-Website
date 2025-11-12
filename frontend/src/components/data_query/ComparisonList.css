@@ -20,15 +20,17 @@
 .comparison-list-item {
   display: flex;
   align-items: center;
+  border-bottom: 1px solid #f4f5f7;
   padding: 12px 10px;
-  border-bottom: 1px solid #f4f5f7; /* 非常浅的分割线 */
+  padding-right: 40px;
+  position: relative;
   transition: background-color 0.2s ease;
 }
 
-/* 鼠标悬停时，整个列表项变色，并且【删除按钮出现】 */
 .comparison-list-item:hover {
   background-color: #f4f5f7;
 }
+
 .comparison-list-item:hover .remove-button {
   opacity: 1;
 }
@@ -37,18 +39,16 @@
 .color-indicator {
   width: 12px;
   height: 12px;
-  border-radius: 50%; /* 圆形 */
+  border-radius: 50%;
   margin-right: 12px;
   flex-shrink: 0;
-  align-items: center;
 }
 
 /* 曲线名字 */
 .comparison-line-name {
-  flex-grow: 1; /* 占据所有剩余空间 */
+  flex: 1;
   font-weight: 500;
   color: #172b4d;
-  /* (推荐) 防止超长名字溢出 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -60,43 +60,61 @@
   border: none;
   color: #5e6c84;
   cursor: pointer;
-  font-size: 1.5rem; /* 让 × 更大一点 */
+  font-size: 1.5rem;
   line-height: 1;
   padding: 0 5px;
   margin-left: 10px;
   flex-shrink: 0;
-
-  /* 【核心交互】默认情况下，按钮是透明的 */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   opacity: 0;
-  transition:
-    opacity 0.2s ease,
-    color 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 
 .remove-button:hover {
-  color: #de350b; /* 悬停时变为红色 */
+  color: #de350b;
 }
 
+/* 稀有度颜色 */
 .rarity-red {
   color: #e74c3c;
   font-weight: bold;
 }
+
 .rarity-orange {
   color: #e67e22;
   font-weight: bold;
 }
+
 .rarity-purple {
   color: #9b59b6;
   font-weight: bold;
 }
+
 .rarity-blue {
   color: #3498db;
 }
+
 .rarity-green {
   color: #2ecc71;
 }
+
 .rarity-white {
   color: #5e6c84;
+}
+
+/* 配件指示器 */
+.mods-indicator {
+  margin-left: 6px;
+  padding: 2px 6px;
+  background-color: #e7f0ff;
+  color: #0052cc;
+  border-radius: 3px;
+  font-size: 0.75em;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 /* 响应式样式 - 平板设备 */
@@ -108,6 +126,7 @@
 
   .comparison-list-item {
     padding: 10px 8px;
+    padding-right: 35px;
   }
 
   .color-indicator {
@@ -119,8 +138,7 @@
   .remove-button {
     font-size: 1.3rem;
     padding: 0 4px;
-    margin-left: 8px;
-    /* 在平板设备上始终显示删除按钮，提高可用性 */
+    right: 8px;
     opacity: 0.7;
   }
 }
@@ -134,6 +152,11 @@
 
   .comparison-list-item {
     padding: 8px 6px;
+    padding-right: 30px;
+  }
+
+  .comparison-line-name {
+    font-size: 0.9em;
   }
 
   .color-indicator {
@@ -142,15 +165,10 @@
     margin-right: 8px;
   }
 
-  .comparison-line-name {
-    font-size: 0.9em;
-  }
-
   .remove-button {
     font-size: 1.2rem;
     padding: 0 3px;
-    margin-left: 6px;
-    /* 在移动设备上始终显示删除按钮，提高可用性 */
+    right: 6px;
     opacity: 1;
   }
 }

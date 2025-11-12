@@ -70,10 +70,19 @@
   padding: 24px;
   overflow-y: auto;
   /* 让主体内容区自己滚动 */
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  /* 设置各个 section 之间的间距 */
+  flex: 1;
+  /* 允许modal-body占据剩余空间并允许滚动 */
+  min-height: 0;
+  /* 关键：允许flex子元素滚动 */
+}
+
+/* modal-body的内部容器，使用block布局而不是flex */
+.modal-body > .mod-section {
+  margin-bottom: 24px;
+}
+
+.modal-body > .mod-section:last-child {
+  margin-bottom: 0;
 }
 
 /* --- 5. 通用的 Section 样式 --- */
@@ -347,6 +356,12 @@
     width: 100%;
     /* 按钮占满宽度 */
   }
+}
+
+/* --- 命中率控制样式 --- */
+.hit-rate-universal-slider .slider-value-text::after {
+  content: '%';
+  margin-left: 2px;
 }
 
 /* --- 配件效果工具提示样式 --- */

@@ -8,15 +8,27 @@ import { modifications as allModifications } from '../assets/data/modifications.
 import { COLORS } from '../components/data_query/TtkChart.jsx';
 
 /**
- * 期望击杀时间计算器 - 计算基于概率的期望TTK
+ * 期望击杀时间计算器 - 计算基于概率的期望BTK
+ * 
+ * 公式：E(BTK) = Σ(BTK × probability)
+ * 
+ * 命中率调整：
+ * - 当命中率 < 100% 时，需要打更多发子弹才能击杀
+ * - 例：理论需要5发，80%命中率 → 期望需要 5 / 0.8 = 6.25 发
+ * 
  * @param {string} btkDataJsonString - BTK数据的JSON字符串
- * @returns {number|null} 计算出的期望TTK值，如果计算失败返回null
+ * @param {number} hitRate - 命中率 (0-1之间)，默认为1.0（100%命中）
+ * @returns {number|null} 计算出的期望BTK值，如果计算失败返回null
  */
-const EbtkCalculator = btkDataJsonString => {
+const EbtkCalculator = (btkDataJsonString, hitRate = 1.0) => {
   try {
     const btkData = JSON.parse(btkDataJsonString);
-    const Ebtk = btkData.reduce((sum, current) => sum + current.btk * current.probability, 0);
-    return Ebtk;
+    const baseEbtk = btkData.reduce((sum, current) => sum + current.btk * current.probability, 0);
+    
+    // 命中率调整：实际需要的发数 = 理论需要发数 / 命中率
+    const adjustedEbtk = baseEbtk / hitRate;
+    
+    return adjustedEbtk;
   } catch (error) {
     console.error('TTK计算器错误:', error);
     return null;
@@ -95,14 +107,13 @@ const expandStepData = (sparseData, maxRange) => {
  */
 export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay) => {
   if (!comparisonLines || comparisonLines.length === 0) {
-    console.warn('⚠️ 警告: 没有可用的比较线数据，返回空数组。');
     return [];
   }
 
   return comparisonLines
     .map((lineConfig, index) => {
       // --- 准备工作：获取所需信息 ---
-      const { gunName, bulletName, mods, btkDataPoints, displayName } = lineConfig;
+      const { gunName, bulletName, mods, btkDataPoints, displayName, hitRate = 1.0 } = lineConfig;
       const weaponInfo = weaponInfoMap[gunName];
 
       if (!weaponInfo) {
@@ -111,7 +122,6 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
         );
         return { ...lineConfig, data: [] };
       }
-      console.log(`  ✅ 成功找到武器信息 for "${gunName}".`);
 
       if (!lineConfig.btkDataPoints || lineConfig.btkDataPoints.length === 0) {
         console.warn(`  ⚠️ 警告: 曲线 "${lineConfig.name}" 从API接收到的原始数据为空，无法处理。`);
@@ -256,7 +266,7 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
       const sparseTtkData = sortedBtkDataPoints
         .map((point, index) => {
-          const eBtk = EbtkCalculator(point.btk_data);
+          const eBtk = EbtkCalculator(point.btk_data, hitRate);
           if (eBtk === null) return null;
 
           const baseTtk = (eBtk - 1) * (60 / fireRate) * 1000;
@@ -280,8 +290,6 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
         })
         .filter(Boolean); // 过滤掉所有无效的数据点
 
-      console.log(`  - 曲线 "${lineConfig.name}" 的稀疏TTK数据:`, sparseTtkData);
-
       if (sparseTtkData.length === 0) {
         console.warn(`⚠️ 警告: 曲线 "${lineConfig.name}" 的所有数据点都无法计算出有效的TTK。`);
         return { ...lineConfig, data: [] };
@@ -302,7 +310,6 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
       // --- 第一个效果：枪口初速 ---
       if (applyEffect) {
-        console.log(`  - 开关开启，为 ${lineConfig.name} 应用枪口初速效果...`);
         const { muzzleVelocity } = modifiedWeaponInfo;
         if (muzzleVelocity && muzzleVelocity > 0) {
           processedData = processedData.map(point => ({
@@ -314,7 +321,6 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
       // --- 第二个效果：扳机延迟 ---
       if (applyTriggerDelay) {
-        console.log(`  - 开关开启，为 ${lineConfig.name} 应用扳机延迟...`);
         // 从 weaponInfo 中获取扳机延迟，如果不存在，则默认为 0
         const { triggerDelay = 0 } = modifiedWeaponInfo;
         if (triggerDelay > 0) {
@@ -326,10 +332,6 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
       }
 
       // 返回经过所有效果叠加后的最终数据
-      console.log('--- [探头 1] dataProcessor 最终出厂数据 ---', {
-        name: displayName,
-        data: processedData,
-      });
       return {
         id: lineConfig.id,
         gunName: gunName,

@@ -1,7 +1,8 @@
-import { React, useState, useMemo } from 'react';
+import { React, useState, useMemo, useEffect } from 'react';
 import './ModificationModal.css';
 import { BtkDistributionChart } from './BtkDistributionChart';
 import { AmmoSelector } from './AmmoSelector.jsx';
+import { UniversalSlider } from './UniversalSlider';
 import { weapons } from '../../assets/data/weapons';
 import { ammos } from '../../assets/data/ammos';
 
@@ -9,6 +10,12 @@ const weaponInfoMap = weapons.reduce((acc, weapon) => {
   acc[weapon.name] = weapon;
   return acc;
 }, {});
+
+// 生成命中率可选值：30%, 35%, 40%, ..., 95%, 100%
+const HIT_RATE_VALUES = [];
+for (let i = 30; i <= 100; i += 5) {
+  HIT_RATE_VALUES.push(i);
+}
 
 export function ModificationModal({
   isOpen,
@@ -22,6 +29,24 @@ export function ModificationModal({
   const [selectedMods, setSelectedMods] = useState([]);
   const [hoveredMod, setHoveredMod] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [hitRatePercent, setHitRatePercent] = useState(100); // 存储百分比整数 (30-100)
+
+  // 从localStorage加载记忆的命中率
+  useEffect(() => {
+    const savedHitRate = localStorage.getItem('defaultHitRate');
+    if (savedHitRate) {
+      const parsedHitRate = parseFloat(savedHitRate);
+      if (parsedHitRate >= 0.3 && parsedHitRate <= 1.0) {
+        setHitRatePercent(Math.round(parsedHitRate * 100));
+      }
+    }
+  }, []);
+
+  // 保存命中率到localStorage
+  const handleHitRateChange = (newHitRatePercent) => {
+    setHitRatePercent(newHitRatePercent);
+    localStorage.setItem('defaultHitRate', (newHitRatePercent / 100).toString());
+  };
 
   const groupedMods = useMemo(() => {
     if (!availableMods) return {}; // 如果没有配件，返回一个空对象
@@ -158,6 +183,18 @@ export function ModificationModal({
             </div>
 
             <div className="mod-section">
+              <h3>命中率设置</h3>
+              <UniversalSlider
+                label="命中率"
+                values={HIT_RATE_VALUES}
+                value={hitRatePercent}
+                onChange={handleHitRateChange}
+                isDisabled={false}
+                className="hit-rate-universal-slider"
+              />
+            </div>
+
+            <div className="mod-section">
               {Object.keys(groupedMods).map(type => (
                 <div key={type} className="mod-group">
                   <h4 className="mod-group-title">{type}</h4>
@@ -211,12 +248,13 @@ export function ModificationModal({
                     gunName: gunName,
                     bulletName: selectedBullet.name,
                     mods: selectedMods,
+                    hitRate: hitRatePercent / 100, // 转换为0-1之间的小数
                   },
                   currentVariantDetails.allDataPoints
                 );
               }}
             >
-              添加至对比
+              添加至对比 ({hitRatePercent}% 命中率)
             </button>
           </footer>
 

@@ -34,6 +34,7 @@ const ammoInfoMap = ammos.reduce((acc, a) => {
  * @returns {JSX.Element} 对比列表组件
  */
 export function ComparisonList({ lines, onRemoveLine }) {
+
   // 空状态处理：如果没有对比线，显示提示信息
   if (!lines || lines.length === 0) {
     return <div className="comparison-list-empty">请从左侧可用武器中添加配置进行对比</div>;
@@ -51,7 +52,7 @@ export function ComparisonList({ lines, onRemoveLine }) {
         const ammo = ammoInfoMap[ammoKey];
         const ammoRarity = ammo ? ammo.rarity : '';
 
-        // 查找配件的真实名称，用于悬停提示
+        // 查找配件的真实名称,用于悬停提示
         const modNames = (line.mods || []).map(
           modId => modifications.find(m => m.id === modId)?.name || modId
         );

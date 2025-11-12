@@ -1,5 +1,5 @@
 // React核心库
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
 // 组件导入
 import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
@@ -76,15 +76,115 @@ export function DataQuery() {
   /** @type {[boolean, Function]} 是否应用扳机延迟影响 */
   const [applyTriggerDelay, setApplyTriggerDelay] = useState(false);
 
+  // 使用 ref 跟踪护甲配置的前一个值
+  const prevArmorConfigRef = useRef({
+    helmetDurability: null,
+    armorDurability: null,
+  });
+
+  // 使用 ref 跟踪是否正在刷新数据，避免重复刷新
+  const isRefreshingRef = useRef(false);
+  
+  // 使用 ref 存储当前的对比线数据，用于刷新时访问
+  const comparisonLinesRef = useRef([]);
+
+  // 同步 comparisonLines 到 ref
+  useEffect(() => {
+    comparisonLinesRef.current = comparisonLines;
+  }, [comparisonLines]);
+
   /**
    * 处理图表数据变化的副作用
    * 当对比线、枪口初速影响或扳机延迟影响发生变化时，重新处理并更新图表数据
    */
   useEffect(() => {
-    console.log('数据或开关变化，开始处理数据');
     const processedData = processChartData(comparisonLines, applyVelocityEffect, applyTriggerDelay);
     setDisplayedChartData(processedData);
   }, [comparisonLines, applyVelocityEffect, applyTriggerDelay]);
+
+  /**
+   * 重新查询已有对比列表中的武器配置（使用新的护甲耐久值）
+   */
+  const refreshComparisonLines = useCallback(async () => {
+    if (isRefreshingRef.current) {
+      return;
+    }
+
+    if (!selectedHelmet || !selectedArmor || helmetDurability === null || armorDurability === null) {
+      return;
+    }
+
+    isRefreshingRef.current = true;
+    setLoading(true);
+    
+    try {
+      // 从 ref 中获取当前的对比线数据
+      const currentLines = comparisonLinesRef.current.filter(line => !line.isSimulated);
+
+      if (currentLines.length === 0) {
+        isRefreshingRef.current = false;
+        setLoading(false);
+        return;
+      }
+
+      // 为每个对比线重新查询数据
+      const refreshPromises = currentLines.map(async (line) => {
+        try {
+          // 检查当前配置是否使用了伤害变更配件
+          const usedDamageMod = line.mods
+            .map(modId => modifications.find(m => m.id === modId))
+            .find(mod => mod && mod.effects && mod.effects.damageChange);
+
+          // 确定要查询的枪械名称
+          const queryGunName = usedDamageMod 
+            ? usedDamageMod.effects.btkQueryName 
+            : line.gunName;
+
+          // 重新查询BTK数据
+          const gunDetails = await fetchGunDetails({
+            gunName: queryGunName,
+            helmetLevel: selectedHelmet.level,
+            armorLevel: selectedArmor.level,
+            helmetDurability,
+            armorDurability,
+            chestProtection: selectedArmor.chest,
+            stomachProtection: selectedArmor.abdomen,
+            armProtection: selectedArmor.upperArm,
+          });
+
+          // 检查返回的数据结构
+          if (!gunDetails || !gunDetails.allDataPoints) {
+            console.error('刷新失败 - API返回数据格式错误:', line.gunName, line.bulletName);
+            return line;
+          }
+
+          // 直接使用 API 返回的原始数据格式
+          return {
+            ...line,
+            btkDataPoints: gunDetails.allDataPoints,
+          };
+        } catch (err) {
+          console.error('刷新单个配置失败:', line.gunName, line.bulletName, err);
+          return line;
+        }
+      });
+
+      const refreshedLines = await Promise.all(refreshPromises);
+      
+      // 保留模拟数据，只更新后端查询的数据
+      setComparisonLines(prevLines => {
+        const simulatedLines = prevLines.filter(line => line.isSimulated);
+        return [...refreshedLines, ...simulatedLines];
+      });
+
+    } catch (error) {
+      console.error('刷新对比列表失败:', error);
+      showError('刷新数据失败，请稍后再试。');
+    } finally {
+      isRefreshingRef.current = false;
+      setLoading(false);
+    }
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError]);
 
   /**
    * 自动查询可用枪械的副作用
@@ -126,12 +226,56 @@ export function DataQuery() {
     // 只有当所有必需的选项都被选择后，才执行查询
     if (selectedHelmet && selectedArmor && helmetDurability !== null && armorDurability !== null) {
       console.log('依赖项已满足，开始自动查询...');
-      queryGuns();
+      
+      // 检查是否仅仅是耐久值改变（护甲和头盔本身没有改变）
+      const prevConfig = prevArmorConfigRef.current;
+      const isDurabilityOnlyChange = 
+        prevConfig.helmetDurability !== null && 
+        prevConfig.armorDurability !== null &&
+        (prevConfig.helmetDurability !== helmetDurability || 
+         prevConfig.armorDurability !== armorDurability);
+
+      // 更新 ref 为当前值
+      prevArmorConfigRef.current = {
+        helmetDurability,
+        armorDurability,
+      };
+
+      if (isDurabilityOnlyChange) {
+        // 耐久值改变时，使用函数式更新检查是否有数据需要刷新
+        setComparisonLines(prevLines => {
+          const hasSimulatedData = prevLines.some(line => line.isSimulated === true);
+          const hasBackendData = prevLines.some(line => !line.isSimulated);
+          
+          if (hasSimulatedData) {
+            // 有模拟数据时显示警告
+            showError('⚠️ 检测到自定义模拟数据，更改护甲耐久后模拟数据可能不准确，建议重新添加。');
+          }
+          
+          if (hasBackendData) {
+            // 有后端数据时，重新查询这些配置
+            refreshComparisonLines();
+          }
+          
+          return prevLines; // 保持列表不变，refreshComparisonLines 会异步更新
+        });
+        
+        // 更新可用武器列表
+        queryGuns();
+      } else {
+        // 首次设置或护甲/头盔本身改变，直接查询（对比列表已在选择器中清空）
+        queryGuns();
+      }
     } else {
       // 如果有任何一个选项被重置为null，就清空武器列表
       setAvailableGuns([]);
+      // 重置 ref
+      prevArmorConfigRef.current = {
+        helmetDurability: null,
+        armorDurability: null,
+      };
     }
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError]);
 
   /**
    * 可用的头盔列表，根据选择规则过滤
@@ -168,35 +312,86 @@ export function DataQuery() {
   }, [selectedArmor]);
 
   /**
+   * 处理命中率改变事件
+   * @param {string} lineId - 对比线ID
+   * @param {number} newHitRate - 新的命中率 (0-1之间)
+   */
+  
+
+  /**
    * 处理头盔选择事件
    * @param {Object} helmet - 选中的头盔对象
    */
-  const handleHelmetSelect = helmet => {
-    setSelectedHelmet(helmet);
-    if (helmet && helmet.durability > 0) {
-      const newValues = generateDurabilityValues(helmet.durability, 15);
-      setHelmetDurability(newValues[newValues.length - 1]);
+  const handleHelmetSelect = (helmet) => {
+    // 检查是否有模拟数据
+    const hasSimulatedData = comparisonLines.some(line => line.isSimulated === true);
+
+    if (hasSimulatedData) {
+      // 有模拟数据时显示确认框
+      if (window.confirm(
+        '⚠️ 检测到自定义模拟数据\n\n更改护甲配置需要重新计算所有曲线，这将消耗较多计算资源。\n\n是否继续？'
+      )) {
+        setSelectedHelmet(helmet);
+        if (helmet && helmet.durability > 0) {
+          const newValues = generateDurabilityValues(helmet.durability, 15);
+          setHelmetDurability(newValues[newValues.length - 1]);
+        } else {
+          setHelmetDurability(0);
+        }
+        setAvailableGuns([]);
+        setComparisonLines([]);
+      }
+      // 如果用户取消，不进行任何操作
     } else {
-      setHelmetDurability(0);
+      // 没有模拟数据，直接更新护甲配置
+      setSelectedHelmet(helmet);
+      if (helmet && helmet.durability > 0) {
+        const newValues = generateDurabilityValues(helmet.durability, 15);
+        setHelmetDurability(newValues[newValues.length - 1]);
+      } else {
+        setHelmetDurability(0);
+      }
+      setAvailableGuns([]);
+      setComparisonLines([]);
     }
-    setAvailableGuns([]);
-    setComparisonLines([]);
   };
 
   /**
    * 处理护甲选择事件
    * @param {Object} armor - 选中的护甲对象
    */
-  const handleArmorSelect = armor => {
-    setSelectedArmor(armor);
-    if (armor && armor.durability > 0) {
-      const newValues = generateDurabilityValues(armor.durability, 35);
-      setArmorDurability(newValues[newValues.length - 1]);
+  const handleArmorSelect = (armor) => {
+    // 检查是否有模拟数据
+    const hasSimulatedData = comparisonLines.some(line => line.isSimulated === true);
+
+    if (hasSimulatedData) {
+      // 有模拟数据时显示确认框
+      if (window.confirm(
+        '⚠️ 检测到自定义模拟数据\n\n更改护甲配置需要重新计算所有曲线，这将消耗较多计算资源。\n\n是否继续？'
+      )) {
+        setSelectedArmor(armor);
+        if (armor && armor.durability > 0) {
+          const newValues = generateDurabilityValues(armor.durability, 35);
+          setArmorDurability(newValues[newValues.length - 1]);
+        } else {
+          setArmorDurability(0);
+        }
+        setAvailableGuns([]);
+        setComparisonLines([]);
+      }
+      // 如果用户取消，不进行任何操作
     } else {
-      setArmorDurability(0);
+      // 没有模拟数据，直接更新护甲配置
+      setSelectedArmor(armor);
+      if (armor && armor.durability > 0) {
+        const newValues = generateDurabilityValues(armor.durability, 35);
+        setArmorDurability(newValues[newValues.length - 1]);
+      } else {
+        setArmorDurability(0);
+      }
+      setAvailableGuns([]);
+      setComparisonLines([]);
     }
-    setAvailableGuns([]);
-    setComparisonLines([]);
   };
 
   /**
@@ -205,9 +400,7 @@ export function DataQuery() {
    * @param {Array} btkDataPoints - BTK数据点数组
    */
   const handleAddComparison = (config, btkDataPoints) => {
-    console.log('添加新折线配置:', config);
-
-    const { gunName, bulletName, mods } = config;
+    const { gunName, bulletName, mods, hitRate = 1.0 } = config;
 
     const modNames = mods.map(modId => {
       const mod = modifications.find(m => m.id === modId);
@@ -224,6 +417,8 @@ export function DataQuery() {
       bulletName: bulletName,
       mods: mods,
       btkDataPoints: btkDataPoints,
+      hitRate: hitRate, // 添加命中率字段
+      isSimulated: false, // 这些是后端查询数据，不是模拟数据
     };
 
     setComparisonLines(prevLines => [...prevLines, newLine]);
@@ -236,8 +431,6 @@ export function DataQuery() {
    * @param {string} lineIdToRemove - 要删除的对比线ID
    */
   const handleRemoveComparison = lineIdToRemove => {
-    // 删除指定的折线配置
-    console.log('删除折线配置:', lineIdToRemove);
     setComparisonLines(prevLines => prevLines.filter(line => line.id !== lineIdToRemove));
   };
 
@@ -246,7 +439,6 @@ export function DataQuery() {
    * @param {string} gunName - 选中的枪械名称
    */
   const handleGunSelect = async gunName => {
-    console.log('选择了枪械:', gunName);
     setLoading(true);
 
     try {
@@ -260,8 +452,6 @@ export function DataQuery() {
         gunName, // a. 永远包含基础武器本身
         ...damageMods.map(mod => mod.effects.btkQueryName), // b. 包含所有变体的名字
       ];
-
-      console.log('需要预加载BTK数据的枪械变体:', gunVariantsToFetch);
 
       // 3. 【并行】地为所有变体请求BTK数据
       const promises = gunVariantsToFetch.map(variantName =>
@@ -284,8 +474,6 @@ export function DataQuery() {
         gunDetailsMap[variantName] = results[index];
       });
 
-      console.log('已加载的所有变体BTK数据:', gunDetailsMap);
-
       // 5. 将【整个数据字典】存入State，并打开悬浮窗
       setCurrentGunDetails(gunDetailsMap);
       setCurrentEditingGun(gunName);
@@ -303,7 +491,6 @@ export function DataQuery() {
    * 关闭配件选择模态框并重置相关状态
    */
   const handleModelClose = () => {
-    console.log('关闭模型选择器');
     setIsModelOpen(false);
     setCurrentEditingGun(null);
     setCurrentGunDetails(null);
@@ -359,7 +546,10 @@ export function DataQuery() {
             <div className="interactive-column comparison-column">
               <h4>对比列表</h4>
               <div className="comparison-list-container">
-                <ComparisonList lines={displayedChartData} onRemoveLine={handleRemoveComparison} />
+                <ComparisonList 
+                  lines={displayedChartData} 
+                  onRemoveLine={handleRemoveComparison}
+                />
               </div>
             </div>
           </div>
