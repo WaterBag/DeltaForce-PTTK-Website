@@ -37,7 +37,7 @@ export function ConfirmDialog({ isOpen, config, onConfirm, onCancel }) {
               <h3>【自定义模拟配置】</h3>
               <p>当前存在 {simulatedLines.length} 个自定义配置：</p>
               <ul className="config-list">
-                {simulatedLines.map(line => (
+                {simulatedLines.map((line) => (
                   <li key={line.id}>
                     <span className="config-name">
                       {line.displayName || `${line.gunName} - ${line.bulletName}`}
@@ -63,10 +63,10 @@ export function ConfirmDialog({ isOpen, config, onConfirm, onCancel }) {
                   {preQueryResult.successCount > 0 && (
                     <>
                       <p className="info-text">
-                         {preQueryResult.successCount} 个配置可以成功刷新
+                        {preQueryResult.successCount} 个配置可以成功刷新
                       </p>
                       <ul className="config-list success-list">
-                        {preQueryResult.successLines.map(line => (
+                        {preQueryResult.successLines.map((line) => (
                           <li key={line.id}>
                             <span className="config-name success">
                               {line.displayName || `${line.gunName} - ${line.bulletName}`}
@@ -80,10 +80,10 @@ export function ConfirmDialog({ isOpen, config, onConfirm, onCancel }) {
                   {preQueryResult.failedCount > 0 && (
                     <>
                       <p className="warning-text" style={{ marginTop: preQueryResult.successCount > 0 ? '16px' : '0' }}>
-                         {preQueryResult.failedCount} 个配置将被移除(无数据)
+                        {preQueryResult.failedCount} 个配置将被移除(无数据)
                       </p>
                       <ul className="config-list failed-list">
-                        {preQueryResult.failedLines.map(line => (
+                        {preQueryResult.failedLines.map((line) => (
                           <li key={line.id}>
                             <span className="config-name failed">
                               {line.displayName || `${line.gunName} - ${line.bulletName}`}

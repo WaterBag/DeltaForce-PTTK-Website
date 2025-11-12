@@ -254,7 +254,7 @@ export function DataQuery() {
         }
 
         const hasMatchingBullet = gunDetails.allDataPoints.some(
-          point => point.bullet_name === line.bulletName
+          (point) => point.bullet_name === line.bulletName
         );
 
         if (!hasMatchingBullet) {
@@ -263,7 +263,7 @@ export function DataQuery() {
           return null;
         }
 
-        const validDataPoints = gunDetails.allDataPoints.filter(point => {
+        const validDataPoints = gunDetails.allDataPoints.filter((point) => {
           if (!point.btk_data) return false;
           if (typeof point.btk_data === 'string') {
             try {
