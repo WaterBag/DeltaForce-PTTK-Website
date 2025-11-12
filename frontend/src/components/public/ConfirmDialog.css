@@ -1,0 +1,263 @@
+/* ConfirmDialog.css - 确认对话框样式 */
+/* 继承 ModificationModal 的样式设计 */
+
+.confirm-dialog {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(9, 30, 66, 0.25);
+  width: 600px;
+  max-width: 95%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* 警告区域 */
+.warning-section {
+  background-color: #fff4e5;
+  border: 1px solid #ffcc80;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.warning-section h3 {
+  font-size: 0.95rem;
+  color: #e65100;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.warning-section p {
+  margin: 8px 0;
+  color: #5e6c84;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.warning-text {
+  margin-top: 12px !important;
+  padding-top: 12px;
+  border-top: 1px solid #ffcc80;
+}
+
+.warning-text strong {
+  color: #e65100;
+}
+
+/* 信息区域 */
+.info-section {
+  background-color: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.info-section h3 {
+  font-size: 0.95rem;
+  color: #1565c0;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.info-section p {
+  margin: 8px 0;
+  color: #5e6c84;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.info-text {
+  color: #1565c0 !important;
+  font-weight: 500;
+}
+
+/* 配置列表 */
+.config-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.config-list li {
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.config-list li:last-child {
+  margin-bottom: 0;
+}
+
+.config-name {
+  font-size: 0.9rem;
+  color: #172b4d;
+  font-weight: 500;
+}
+
+/* 成功列表样式 */
+.success-list li {
+  border-left: 3px solid #4caf50;
+  background-color: #f1f8f4;
+}
+
+.config-name.success {
+  color: #2e7d32;
+}
+
+.config-name.success::before {
+  content: '✓ ';
+  color: #4caf50;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+/* 失败列表样式 */
+.failed-list li {
+  border-left: 3px solid #f44336;
+  background-color: #ffebee;
+}
+
+.config-name.failed {
+  color: #c62828;
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+.config-name.failed::before {
+  content: '✗ ';
+  color: #f44336;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+/* 按钮样式 */
+.confirm-dialog .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #dfe1e6;
+  background-color: #ffffff;
+}
+
+.cancel-button,
+.confirm-button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.cancel-button {
+  background-color: #f4f5f7;
+  color: #5e6c84;
+  border: 1px solid #dfe1e6;
+}
+
+.cancel-button:hover {
+  background-color: #ebecf0;
+  border-color: #c1c7d0;
+}
+
+.confirm-button {
+  background-color: #0052cc;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #0065ff;
+}
+
+/* 响应式样式 - 平板设备 */
+@media (max-width: 768px) {
+  .confirm-dialog {
+    width: 90%;
+    max-height: 85vh;
+  }
+
+  .warning-section,
+  .info-section {
+    padding: 12px;
+  }
+
+  .warning-section h3,
+  .info-section h3 {
+    font-size: 0.9rem;
+  }
+
+  .config-list li {
+    padding: 6px 10px;
+  }
+
+  .cancel-button,
+  .confirm-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* 响应式样式 - 移动设备 */
+@media (max-width: 480px) {
+  .confirm-dialog {
+    width: 95%;
+    max-height: 80vh;
+  }
+
+  .warning-section,
+  .info-section {
+    padding: 10px;
+  }
+
+  .warning-section h3,
+  .info-section h3 {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+
+  .warning-section p,
+  .info-section p {
+    font-size: 0.85rem;
+  }
+
+  .config-list li {
+    padding: 6px 8px;
+  }
+
+  .config-name {
+    font-size: 0.85rem;
+  }
+
+  .confirm-dialog .modal-footer {
+    padding: 12px 16px;
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .confirm-button {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

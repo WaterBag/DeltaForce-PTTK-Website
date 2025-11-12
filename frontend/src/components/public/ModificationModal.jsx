@@ -101,8 +101,6 @@ export function ModificationModal({
     );
   }, [currentVariantDetails, gunName]);
 
-  console.log(bulletOptions);
-
   const firstRangeBtkData = useMemo(() => {
     if (!currentVariantDetails || !currentVariantDetails.allDataPoints || !selectedBullet) {
       return null;

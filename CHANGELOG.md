@@ -7,6 +7,287 @@
 
 ---
 
+## [1.3.0] - 2025-11-12
+
+### 🎉 重大功能：护甲切换智能确认系统
+
+#### 新增 (Added)
+- ✨ **护甲切换确认对话框** (`ConfirmDialog.jsx`)
+  - 智能检测护甲/头盔切换与耐久值变化
+  - 双区域设计：模拟数据警告区（橙色） + 后端数据信息区（蓝色）
+  - **智能预查询结果显示**：
+    - 显示成功配置列表（绿色边框，✓ 图标）
+    - 显示失败配置列表（红色边框，✗ 图标，删除线效果）
+    - 实时统计：X 个配置将保留，X 个配置将被移除
+  - 两个操作按钮："取消" | "确认切换"
+  - 继承 `ModificationModal` 的设计风格
+
+- ✨ **护甲切换智能检测**
+  - 使用 `prevArmorConfigRef` 跟踪护甲/头盔 ID 变化
+  - 精确区分三种场景：
+    - 首次设置护甲配置
+    - 护甲/头盔切换（触发确认对话框）
+    - 仅耐久值调整（自动刷新）
+  - 避免误触发确认对话框
+
+- ✨ **带数据验证的刷新功能** (`refreshComparisonLinesWithCheck`)
+  - 多层数据有效性检查：
+    - 空响应检测
+    - 子弹匹配验证（检查新护甲下子弹是否可用）
+    - 数据点有效性验证（检查 `btk_data` 格式和内容）
+  - 自动移除无效配置
+  - 返回成功/失败统计信息
+  - 详细的控制台警告日志
+
+- ✨ **智能预查询机制**
+  - 预先查询所有后端配置的数据有效性
+  - **全部成功时直接应用，不弹窗打扰用户**
+  - 仅当有失败配置时才显示确认对话框
+  - 确认时直接使用预查询结果，避免重复查询后端
+  - 大幅提升用户体验，减少不必要的操作步骤
+
+- ✨ **取消切换恢复功能**
+  - 点击"取消"按钮恢复到切换前的护甲/头盔
+  - 同时恢复耐久值设置
+  - 保持对比列表完全不变
+  - 使用 `isRestoringArmorRef` 防止恢复时触发二次弹窗
+
+- 📊 **期望BTK调试输出**
+  - 在控制台输出每个配置的详细BTK数据
+  - 使用 `console.table()` 格式化显示
+  - 显示字段：距离、原始BTK数据、期望BTK、命中率
+  - 便于排查数据计算问题
+
+#### 改进 (Changed)
+- 🔄 **可用武器列表刷新优化**
+  - 提取 `queryAvailableGuns` 为独立的 `useCallback` 函数
+  - 确认切换后自动刷新可用武器列表
+  - 包含完整的武器过滤逻辑（4位数ID、基础武器验证）
+  - 包含护甲部位保护参数
+
+- 🔄 **护甲选择器简化**
+  - 移除 `handleHelmetSelect` 和 `handleArmorSelect` 中的清空逻辑
+  - 移除旧的 `window.confirm` 弹窗
+  - 所有护甲切换处理统一由 `useEffect` 管理
+  - 精简代码，提高可维护性
+
+- 🔄 **数据处理增强** (`dataProcessor.js`)
+  - 添加期望BTK计算的详细日志
+  - 记录每个射程段的原始BTK数据
+  - 显示距离修正信息（配件影响）
+  - 输出命中率应用情况
+
+- 🔄 **扩展 `prevArmorConfigRef` 结构**
+  ```javascript
+  // v1.2.0 (旧)
+  { helmetDurability, armorDurability }
+  
+  // v1.3.0 (新)
+  { helmetId, helmetDurability, armorId, armorDurability }
+  ```
+
+#### 修复 (Fixed)
+- ✅ **修复配置未正确移除的问题**
+  - 增强数据验证逻辑，检查子弹是否在新护甲下可用
+  - 验证 `btk_data` 的有效性（非空、可解析、有数据）
+  - 确保所有无效配置都能被正确识别和移除
+
+- ✅ **修复可用武器列表不刷新问题**
+  - 护甲切换确认后正确调用 `queryAvailableGuns()`
+  - 使用统一的武器查询函数，避免重复代码
+
+- ✅ **修复护甲切换直接清空列表的问题**
+  - 移除选择器中的 `setComparisonLines([])` 调用
+  - 改为通过确认对话框处理数据更新
+
+#### 样式优化 (Styling)
+- 🎨 **新增 `ConfirmDialog.css`**
+  - 警告区域样式（橙色边框和背景）
+  - 信息区域样式（蓝色边框和背景）
+  - **成功配置列表样式**（`.success-list`）
+    - 绿色左边框 (#4caf50)
+    - 浅绿背景 (#f1f8f4)
+    - ✓ 图标前缀
+  - **失败配置列表样式**（`.failed-list`）
+    - 红色左边框 (#f44336)
+    - 浅红背景 (#ffebee)
+    - ✗ 图标前缀
+    - 删除线效果（text-decoration）
+    - 80% 透明度
+  - 配置列表样式（卡片式设计）
+  - 按钮样式（取消灰色、确认蓝色）
+  - 响应式设计（平板、移动端适配）
+  - 淡入动画效果
+
+#### 技术细节 (Technical Details)
+
+**护甲切换检测流程**:
+```
+用户选择新护甲/头盔
+    ↓
+handleArmorSelect / handleHelmetSelect
+    ↓
+更新 selectedArmor / selectedHelmet 状态
+    ↓
+useEffect 检测变化
+    ↓
+prevArmorConfigRef 判断变化类型
+    ↓
+┌─────────────────┬──────────────────┬─────────────────┐
+│  首次设置       │  护甲切换        │  耐久值调整     │
+├─────────────────┼──────────────────┼─────────────────┤
+│ helmetId=null   │ helmetId changed │ 仅 durability   │
+│ armorId=null    │ armorId changed  │ changed         │
+├─────────────────┼──────────────────┼─────────────────┤
+│ 直接查询武器    │ ↓ 智能预查询     │ 自动刷新数据    │
+│                 │ preCheckComparison│                 │
+│                 │ Lines()           │                 │
+│                 │ ↓                 │                 │
+│                 │ 全部成功?         │                 │
+│                 │ Yes → 直接应用    │                 │
+│                 │ No → 显示确认框   │                 │
+└─────────────────┴──────────────────┴─────────────────┘
+```
+
+**智能预查询流程** (新增):
+```
+护甲切换检测
+    ↓
+有模拟数据? → Yes → 直接弹窗（不预查询）
+    ↓ No
+有后端数据? → Yes → 预查询 preCheckComparisonLines()
+    ↓                    ↓
+    No              查询每个配置的数据有效性
+    ↓                    ↓
+直接查询武器          分类：successLines | failedLines
+                      ↓
+                  全部成功 (failedCount=0)?
+                      ↓
+            ┌─────────┴─────────┐
+            │ Yes               │ No
+            ↓                   ↓
+    直接应用结果           显示确认对话框
+    不弹窗打扰用户          ├─ 显示成功配置（绿色✓）
+    setComparisonLines()   ├─ 显示失败配置（红色✗删除线）
+                            └─ 保存预查询结果到 confirmDialogConfig
+                                ↓
+                          用户点击"确认切换"
+                                ↓
+                          直接使用预查询结果
+                          无需重复查询后端
+```
+
+**确认对话框数据流**:
+```
+检测到护甲切换
+    ↓
+筛选模拟数据和后端数据
+    ↓
+┌────────────────────────┬────────────────────────┐
+│ 有模拟数据             │ 仅后端数据             │
+├────────────────────────┼────────────────────────┤
+│ 直接弹窗               │ 预查询后端数据         │
+│ 不预查询               │ preCheckComparisonLines│
+│ (模拟数据无法预验证)   │ ↓                      │
+│                        │ failedCount > 0?       │
+│                        │ ↓                      │
+│                        │ Yes → 弹窗显示结果     │
+│                        │ No → 直接应用不弹窗    │
+└────────────────────────┴────────────────────────┘
+    ↓
+设置 confirmDialogConfig { 
+  simulatedLines,
+  backendLines,
+  preQueryResult: { successLines, failedLines, successCount, failedCount }
+}
+    ↓
+显示 ConfirmDialog
+    ↓
+┌──────────────────────────────┬──────────────────────────┐
+│ 用户点击"确认切换"           │ 用户点击"取消"           │
+├──────────────────────────────┼──────────────────────────┤
+│ handleConfirmArmorSwitch     │ handleCancelArmorSwitch  │
+│ ├─ 检查 preQueryResult       │ ├─ 设置 isRestoringArmorRef│
+│ │   存在? → 直接使用         │ │   = true (防止二次弹窗) │
+│ │   不存在? → 重新查询       │ ├─ 恢复 selectedHelmet   │
+│ ├─ 移除无效配置              │ ├─ 恢复 selectedArmor    │
+│ ├─ 保留模拟数据              │ ├─ 恢复耐久值            │
+│ ├─ 显示统计提示              │ ├─ 恢复 prevArmorConfigRef│
+│ └─ queryAvailableGuns()      │ └─ 保持对比列表不变      │
+└──────────────────────────────┴──────────────────────────┘
+```
+
+**数据验证逻辑**:
+```javascript
+// 1. 空响应检测
+if (!gunDetails?.allDataPoints?.length) return null;
+
+// 2. 子弹匹配检测 (新增!)
+const hasMatchingBullet = gunDetails.allDataPoints.some(
+  point => point.bullet_name === line.bulletName
+);
+if (!hasMatchingBullet) return null;
+
+// 3. 数据点有效性检测 (新增!)
+const validDataPoints = gunDetails.allDataPoints.filter(point => {
+  if (!point.btk_data) return false;
+  // 检查字符串或数组格式
+  if (typeof point.btk_data === 'string') {
+    const parsed = JSON.parse(point.btk_data);
+    return Array.isArray(parsed) && parsed.length > 0;
+  }
+  return Array.isArray(point.btk_data) && point.btk_data.length > 0;
+});
+if (validDataPoints.length === 0) return null;
+```
+
+**期望BTK调试输出**:
+```javascript
+// dataProcessor.js 中添加
+const eBtkDebugData = [];
+sortedBtkDataPoints.map(point => {
+  const eBtk = EbtkCalculator(point.btk_data, hitRate);
+  eBtkDebugData.push({
+    距离: `${point.distance}m (修正后: ${correctDistance}m)`,
+    原始BTK数据: point.btk_data,
+    期望BTK: eBtk.toFixed(2),
+    命中率: `${(hitRate * 100).toFixed(0)}%`,
+  });
+});
+console.log(`📊 [${displayName}] 期望BTK数据:`);
+console.table(eBtkDebugData);
+```
+
+#### 用户体验改进 (UX Improvements)
+- ✅ 护甲切换时不会直接清空对比列表
+- ✅ 显示清晰的确认对话框，用户可选择继续或取消
+- ✅ 取消操作完全恢复之前的状态
+- ✅ **智能预查询：后端数据全部成功时直接应用，不弹窗打扰用户**
+- ✅ **仅在有失败配置时才弹窗，清晰显示成功和失败列表**
+- ✅ **视觉区分：成功配置（绿色✓），失败配置（红色✗删除线）**
+- ✅ **统计信息：实时显示 X 个配置保留，X 个配置移除**
+- ✅ 自动移除无效配置，显示统计信息
+- ✅ 保留模拟数据并显示警告
+- ✅ 详细的控制台日志辅助调试
+
+#### 代码质量 (Code Quality)
+- 🧹 **移除重复代码**
+  - 统一武器查询逻辑到 `queryAvailableGuns`
+  - 移除 `handleArmorSelect` 中的重复清空逻辑
+
+- 🧹 **优化 ESLint 警告**
+  - 修复字符串引号不一致问题
+  - 统一使用单引号
+
+- 📝 **完善注释和文档**
+  - 添加数据验证逻辑的详细注释
+  - 添加控制台日志的上下文说明
+
+#### 已知问题 (Known Issues)
+- ⚠️ 模拟数据在护甲切换后无法自动重新计算（需 Phase 3 前端模拟功能）
+
+---
+
 ## [1.2.0] - 2025-11-12
 
 ### 🎉 重大功能：命中率系统与护甲耐久自动刷新

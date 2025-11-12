@@ -264,6 +264,9 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
       // 确保数据点是按原始距离排序的
       const sortedBtkDataPoints = [...bulletBtkPoints].sort((a, b) => a.distance - b.distance);
 
+      // 用于存储期望BTK数据，用于调试输出
+      const eBtkDebugData = [];
+
       const sparseTtkData = sortedBtkDataPoints
         .map((point, index) => {
           const eBtk = EbtkCalculator(point.btk_data, hitRate);
@@ -286,9 +289,23 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
             return null; // 如果找不到对应的射程分界，则该点无效
           }
 
+          // 收集调试数据
+          eBtkDebugData.push({
+            距离: `${point.distance}m (修正后: ${correctDistance}m)`,
+            原始BTK数据: point.btk_data,
+            期望BTK: eBtk.toFixed(2),
+            命中率: `${(hitRate * 100).toFixed(0)}%`,
+          });
+
           return { distance: correctDistance, pttk: baseTtk };
         })
         .filter(Boolean); // 过滤掉所有无效的数据点
+
+      // 输出期望BTK调试信息
+      if (eBtkDebugData.length > 0) {
+        console.log(`📊 [${displayName}] 期望BTK数据:`);
+        console.table(eBtkDebugData);
+      }
 
       if (sparseTtkData.length === 0) {
         console.warn(`⚠️ 警告: 曲线 "${lineConfig.name}" 的所有数据点都无法计算出有效的TTK。`);
