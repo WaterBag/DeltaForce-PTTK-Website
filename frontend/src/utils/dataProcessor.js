@@ -267,7 +267,18 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
       // 用于存储期望BTK数据，用于调试输出
       const eBtkDebugData = [];
 
-      const sparseTtkData = sortedBtkDataPoints
+      // 去重：基于原始距离去重，避免重复的数据点
+      const uniqueBtkDataPoints = [];
+      const seenDistances = new Set();
+      
+      for (const point of sortedBtkDataPoints) {
+        if (!seenDistances.has(point.distance)) {
+          seenDistances.add(point.distance);
+          uniqueBtkDataPoints.push(point);
+        }
+      }
+
+      const sparseTtkData = uniqueBtkDataPoints
         .map((point, index) => {
           const eBtk = EbtkCalculator(point.btk_data, hitRate);
           if (eBtk === null) return null;
@@ -280,7 +291,8 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
             // 第一个数据点 (index 0)，其跳变点在 0 米处
             correctDistance = 0;
           } else {
-            // 第二个点 (index 1) 及以后，其跳变点由【上一个】射程档位决定
+            // 第 n 个点 (index = n)，其跳变点由第 n 个射程档位的结束位置决定
+            // 例如：index=1 对应 range1 的结束位置
             const rangeKey = `range${index}`;
             correctDistance = modifiedWeaponInfo[rangeKey];
           }
@@ -291,7 +303,9 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
           // 收集调试数据
           eBtkDebugData.push({
-            距离: `${point.distance}m (修正后: ${correctDistance}m)`,
+            索引: index,
+            原始距离: `${point.distance}m`,
+            修正后距离: `${correctDistance}m`,
             原始BTK数据: point.btk_data,
             期望BTK: eBtk.toFixed(2),
             命中率: `${(hitRate * 100).toFixed(0)}%`,
