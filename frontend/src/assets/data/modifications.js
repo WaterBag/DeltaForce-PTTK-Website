@@ -736,6 +736,17 @@ export const modifications = [
       rangeModifier: 0.18,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.18,
+      damageChange: true,
+      btkQueryName: {
+        'M4A1': 'M4A1-AR特勤一体消音组合',
+        'M16A4': 'M16A4-AR特勤一体消音组合',
+        'CAR-15': 'CAR-15-AR特勤一体消音组合',
+      },
+      dataQueryName: {
+        'M4A1': 'M4A1-AR特勤一体消音组合',
+        'M16A4': 'M16A4-AR特勤一体消音组合',
+        'CAR-15': 'CAR-15-AR特勤一体消音组合',
+      },
     },
   },
   {
@@ -791,6 +802,20 @@ export const modifications = [
       rangeModifier: 0,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0,
+    },
+  },
+  {
+    id: 'ASh12BattleAxeHeavyBarrel',
+    name: 'ASh-12战斧重型枪管',
+    type: ['枪管'],
+    appliesTo: ['ASh-12'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0,
+      damageChange: true,
+      btkQueryName: 'ASh-12-战斧重型枪管',
+      dataQueryName: 'ASh-12-战斧重型枪管',
     },
   },
   {
@@ -1345,6 +1370,20 @@ export const modifications = [
     },
   },
   {
+    id: 'MK4DeepChromeBarrel',
+    name: 'MK4深空镀铬枪管',
+    type: ['枪管'],
+    appliesTo: ['MK4'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0,
+      damageChange: true,
+      btkQueryName: 'MK4-深空镀铬枪管',
+      dataQueryName: 'MK4-深空镀铬枪管',
+    },
+  },
+  {
     id: 'P90HeavyAssaultLongBarrel',
     name: 'P90重攻长枪管',
     type: ['枪管'],
@@ -1597,6 +1636,17 @@ export const modifications = [
       rangeModifier: 0.18,
       fireRateModifier: 0,
       muzzleVelocityModifier: 0.18,
+    },
+  },
+  {
+    id: 'SG552HoundLightBarrel',
+    name: 'SG552猎犬轻型枪管',
+    type: ['枪管'],
+    appliesTo: ['SG552'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0,
     },
   },
   {

@@ -347,31 +347,37 @@ export function Simulator() {
    * 包括BTK（击杀所需命中次数）和TTK（击杀所需时间）
    */
   useEffect(() => {
-    // 1. 检查是否造成了击杀 (血量小于等于0)
-    // 2. 检查是否已经记录过本次击杀 (避免重复添加击杀日志)
-    const isAlreadyKilled = hitLog.some(log => log.type === 'kill');
+    if (targetHp <= 0) {
+      // 使用函数式更新来访问最新的 hitLog 状态
+      setHitLog(prev => {
+        // 检查是否已经记录过击杀 (避免重复添加击杀日志)
+        const isAlreadyKilled = prev.some(log => typeof log === 'string' && log.includes('造成击杀'));
+        
+        if (isAlreadyKilled) {
+          return prev; // 如果已经记录过击杀，直接返回原数组，不做任何修改
+        }
 
-    if (targetHp <= 0 && !isAlreadyKilled) {
-      // a. 计算 BTK (Bullets To Kill - 击杀所需子弹数)
-      // BTK = 日志中 'hit' 类型的条目数量
-      const btk = hitLog.length;
+        // a. 计算 BTK (Bullets To Kill - 击杀所需子弹数)
+        // BTK = 日志中非击杀消息的条目数量
+        const btk = prev.length;
 
-      // b. 计算 TTK (Time To Kill - 击杀所需时间)
-      let ttk = 0;
-      if (btk > 1 && configuredWeapon?.fireRate > 0) {
-        const timeBetweenShots = (60 * 1000) / configuredWeapon.fireRate;
-        ttk = (btk - 1) * timeBetweenShots;
-      }
+        // b. 计算 TTK (Time To Kill - 击杀所需时间)
+        let ttk = 0;
+        if (btk > 1 && configuredWeapon?.fireRate > 0) {
+          const timeBetweenShots = (60 * 1000) / configuredWeapon.fireRate;
+          ttk = (btk - 1) * timeBetweenShots;
+        }
 
-      // c. 创建击杀日志
-      const killMessage = `造成击杀,BTK: ${btk} | TTK: ${Math.round(ttk)} ms(若枪械无全自动模式则TTK不准确)`;
+        // c. 创建击杀日志
+        const killMessage = `造成击杀,BTK: ${btk} | TTK: ${Math.round(ttk)} ms(若枪械无全自动模式则TTK不准确)`;
 
-      // d. 更新日志状态，将击杀日志添加到最前面
-      setHitLog(prev => [killMessage, ...prev]);
+        // d. 将击杀日志添加到最前面
+        return [killMessage, ...prev];
+      });
     }
 
-    // 依赖项数组：当 targetHp 或 configuredWeapon (影响TTK计算) 变化时，执行此 effect
-  }, [targetHp, configuredWeapon, hitLog]);
+    // 依赖项数组：只依赖 targetHp 和 configuredWeapon，不依赖 hitLog 避免无限循环
+  }, [targetHp, configuredWeapon]);
 
   /**
    * 处理命中事件 - 核心模拟逻辑

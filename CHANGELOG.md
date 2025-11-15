@@ -7,6 +7,142 @@
 
 ---
 
+## [S7 阿萨拉赛季更新] - 2025-01-15
+
+### 🎉 重大更新：S7 阿萨拉赛季内容同步
+
+#### 新增武器 (Added Weapons)
+- ✨ **MK4 冲锋枪** (`weapons.js`, id: `1011`)
+  - 口径：4.6×30mm
+  - 射速：950 RPM
+  - 初速：720 m/s
+  - 射程：23m / 58m / 999m
+  - 部位倍率：头部 4.2x，胸部 1.0x，腹部 0.65x，四肢 0.5x
+  - 弹容量：40发
+  
+- ✨ **MK4 - 深空镀铬枪管变体** (`weapons.js`, id: `10111`)
+  - isModification: true
+  - 射速提升：950 → 1000 RPM
+  - 初速提升：720 → 760 m/s
+  - 射程扩展：23/58/999 → 25/65/999
+
+#### 新增武器配件 (Added Modifications)
+- ✨ **MK4 深空镀铬枪管** (`modifications.js`)
+  - 效果：damageChange (切换到深空镀铬枪管变体)
+  - 技术实现：dataQueryName/btkQueryName 映射到变体ID '10111'
+
+- ✨ **ASh-12 战斧重型枪管** (`modifications.js`)
+  - 效果：damageChange (切换到战斧重型枪管变体)
+  - 对应变体 (`weapons.js`, id: `30051`)：
+    - 胸部倍率：1.0 → 1.15x
+    - 腹部倍率：1.0 → 0.9x
+
+- ✨ **SG552 猎犬轻型枪管** (`modifications.js`)
+  - 效果：无特殊效果（基础配件）
+  - 为未来扩展预留
+
+#### 武器平衡调整 (Balance Changes)
+- 🔄 **沙漠之鹰 (Desert Eagle)** (`weapons.js`, id: `2003`)
+  - 爆头倍率提升：2.46x → 2.8x (+13.8%)
+  - 有效射程缩短：35/77m → 15/30m
+
+- 🔄 **AR 特勤一体消音组合** (`modifications.js`)
+  - 新增效果：damageChange (增强爆头倍率)
+  - 新增3个武器变体 (`weapons.js`)：
+    - **M4A1 - AR特勤变体** (id: `30011`): headMultiplier 1.9 → 2.5
+    - **M16A4 - AR特勤变体** (id: `30071`): headMultiplier 1.9 → 2.5
+    - **CAR-15 - AR特勤变体** (id: `30151`): headMultiplier 1.9 → 2.5
+  - 配件技术实现：
+    - damageChange: true
+    - dataQueryName/btkQueryName 武器名映射
+
+#### 新增弹药 (Added Ammo)
+- ✨ **独头 APX** (`ammos.js`, id: `508`, 口径: 12 Gauge)
+  - 肉伤系数：5.3
+  - 用途：霰弹枪高伤害独头弹
+
+- ✨ **BT +P** (`ammos.js`, id: `706`, 口径: 5.45×39mm)
+  - 肉伤系数：1.1
+  - 用途：5.45 步枪增强弹药
+
+#### 弹药转为正式服 (Ammo Released)
+- 🔄 **.45 ACP Super** (id: `307`)
+  - 移除"测试服"标记
+  - 肉伤系数：1.3（保持不变）
+
+- 🔄 **.50 AE AP** (id: `404`)
+  - 移除"测试服"标记
+  - 穿透系数调整：
+    - 次级穿透：1.0 → 0.75
+    - 同级穿透：0.8 → 0.5
+  - 设计意图：降低护甲穿透能力，平衡性调整
+
+- 🔄 **4.6×30mm Ultra SX** (id: `1304`)
+  - 移除弹药
+  - 修复 ID 重复问题（之前 id 与其他弹药冲突）
+
+#### 技术改进 (Technical Improvements)
+- 📝 **数据使用原理文档** (`frontend/docs/data-usage.md`)
+  - 完整的数据驱动架构说明
+  - 变体系统设计原则与使用规范
+  - 配件效果处理流程详解
+  - 常见错误与调试指南
+  - 实战示例与最佳实践
+
+- 🔄 **变体数据优化**
+  - 移除变体中预计算的属性值（遵循 Minimal Variant 原则）
+  - 确保所有修正值在运行时动态应用
+  - 提升数据维护性和一致性
+
+#### Bug 修复 (Bug Fixes)
+- ✅ **修复 M250 - 钛金长枪管变体** (`weapons.js`, id: `40021`)
+  - 问题：腹部倍率重复叠加配件效果
+  - 修正：abdomenMultiplier: 0.9 → 0.7（移除预计算值）
+
+- ✅ **修复 SR25 - 瞬息短枪管变体** (`weapons.js`, id: `60031`)
+  - 问题：射速和初速包含预计算修正值
+  - 修正：
+    - fireRate: 448 → 364（-15%应由配件应用）
+    - muzzleVelocity: 625 → 550（-12%应由配件应用）
+
+- ✅ **修复 Marlin 杠杆步枪 - 犀牛杠杆** (`weapons.js`, id: `60091`)
+  - 问题：射速预计算了配件效果
+  - 修正：fireRate: 75 → 100（+33%应由配件应用）
+
+- ✅ **修复 Marlin 杠杆步枪 - 蜂鸟杠杆** (`weapons.js`, id: `60092`)
+  - 问题：射速预计算了配件效果
+  - 修正：fireRate: 200 → 100（+100%应由配件应用）
+
+#### 数据文件变更统计 (File Changes)
+- **frontend/src/assets/data/weapons.js**
+  - 新增：6条变体数据 + 1条基础武器
+  - 修改：5条变体数据修正 + 1条基础武器平衡调整
+
+- **frontend/src/assets/data/modifications.js**
+  - 新增：3个配件条目
+  - 修改：1个配件增强（AR特勤）
+
+- **frontend/src/assets/data/ammos.js**
+  - 新增：2种弹药
+  - 修改：3种弹药状态更新
+
+- **frontend/docs/data-usage.md**
+  - 新建：完整的技术文档（约200行）
+
+#### 设计说明 (Design Notes)
+- 🎯 **变体系统使用原则**：
+  - 变体只存储差异属性（Minimal Variant Principle）
+  - 配件通过 damageChange/specialRange 引用变体
+  - 所有百分比修正在运行时由 dataProcessor.js 动态应用
+  - 公式：finalValue = baseValue × (1 + totalModifier)
+
+- 🎯 **数据一致性保证**：
+  - 修复历史遗留的预计算问题
+  - 统一数据处理流程
+  - 提升未来维护效率
+
+---
+
 ## [1.3.1] - 2025-11-12
 
 ### 🐛 数据处理修复
