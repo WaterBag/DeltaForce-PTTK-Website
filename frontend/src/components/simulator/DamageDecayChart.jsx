@@ -56,7 +56,8 @@ export function DamageDecayChart({ weaponData }) {
     ];
 
     segments.forEach(seg => {
-      if (seg.range > 0 && seg.range < 999 && seg.nextDecay !== undefined) {
+      // 超过500的射程段视为无限，不添加到图表中
+      if (seg.range > 0 && seg.range < 500 && seg.nextDecay !== undefined) {
         points.push({ distance: seg.range, decay: seg.nextDecay });
       }
     });

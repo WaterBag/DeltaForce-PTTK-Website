@@ -36,6 +36,13 @@ export function Sidebar({ currentView, setCurrentView }) {
           >
             伤害模拟器
           </li>
+
+          <li
+            className={`nav-item ${currentView === 'dataLibrary' ? 'active' : ''}`}
+            onClick={() => setCurrentView('dataLibrary')}
+          >
+            数据图鉴
+          </li>
         </ul>
       </nav>
 

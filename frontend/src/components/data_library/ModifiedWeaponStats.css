@@ -1,0 +1,92 @@
+/* 修改后属性显示 */
+.modified-weapon-stats {
+  padding: 0;
+}
+
+.modified-stats-title {
+  display: none;
+}
+
+.modified-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modified-stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modified-stat-item:last-child {
+  border-bottom: none;
+}
+
+.modified-stat-item.stat-item-chart {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border-bottom: none;
+}
+
+.stat-chart-container {
+  margin-top: 8px;
+  width: 100%;
+  height: 200px;
+}
+
+.stat-item-chart {
+  display: block;
+}
+
+.modified-stat-item .stat-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.modified-stat-item .stat-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modified-stat-item .stat-value-small {
+  font-size: 13px;
+}
+
+.stat-change {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.stat-item-chart .stat-label {
+  margin-bottom: 0;
+}
+
+/* 属性变化颜色 */
+.stat-increase .stat-change {
+  color: #4caf50;
+  background-color: #e8f5e9;
+}
+
+.stat-decrease .stat-change {
+  color: #f44336;
+  background-color: #ffebee;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .modified-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

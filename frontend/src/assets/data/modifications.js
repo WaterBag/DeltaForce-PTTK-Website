@@ -8,6 +8,7 @@ const general = [
   'KC17',
   'K416',
   'MP7',
+  'MK4',
   'Vector',
   'SR-25',
   'MK47',
@@ -46,9 +47,26 @@ const general = [
   'SR9',
 ];
 const russia = ['PKM', 'SR-3M', 'AK-12', 'AKM', 'KC17', 'SKS', 'AKS-74U', 'MK47'];
-const smg = ['MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', '野牛', 'UZI'];
+const smg = ['MK4','MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', '野牛', 'UZI'];
 
-export const modifications = [
+// 变体武器映射: 变体武器名 -> { base: 原版武器, excludeTypes: [不能使用的配件类型] }
+const variantWeapons = {
+  'AKM-性能枪管组合': { base: 'AKM', excludeTypes: ['枪管', '前握把'] },
+  'CAR-15-AR特勤一体消音组合': { base: 'CAR-15', excludeTypes: ['枪管', '枪口'] },
+  'M16A4-AR特勤一体消音组合': { base: 'M16A4', excludeTypes: ['枪管', '枪口'] },
+  'M4A1-AR特勤一体消音组合': { base: 'M4A1', excludeTypes: ['枪管', '枪口'] },
+  'ASh-12-战斧重型枪管': { base: 'ASh-12', excludeTypes: ['枪管'] },
+  'M250-钛金长枪管': { base: 'M250', excludeTypes: ['枪管'] },
+  'M7-堤风超长枪管': { base: 'M7', excludeTypes: ['枪管'] },
+  'MK47-余烬枪管': { base: 'MK47', excludeTypes: ['枪管'] },
+  'MK47-鏖战枪管': { base: 'MK47', excludeTypes: ['枪管'] },
+  'MK4-深空镀铬枪管': { base: 'MK4', excludeTypes: ['枪管'] },
+  'SR-25-短枪管': { base: 'SR-25', excludeTypes: ['枪管'] },
+  'Marlin杠杆步枪-犀牛杠杆': { base: 'Marlin杠杆步枪', excludeTypes: ['杠杆'] },
+  'Marlin杠杆步枪-蜂鸟杠杆': { base: 'Marlin杠杆步枪', excludeTypes: ['杠杆'] },
+};
+
+const baseModifications = [
   {
     id: '725CowboySuppressor',
     name: '725双管霰弹枪牛仔消音器',
@@ -811,8 +829,8 @@ export const modifications = [
     appliesTo: ['ASh-12'],
     effects: {
       rangeModifier: 0,
-      fireRateModifier: 0,
-      muzzleVelocityModifier: 0,
+      fireRateModifier: -0.2,
+      muzzleVelocityModifier: 0.47,
       damageChange: true,
       btkQueryName: 'ASh-12-战斧重型枪管',
       dataQueryName: 'ASh-12-战斧重型枪管',
@@ -1348,6 +1366,17 @@ export const modifications = [
     },
   },
   {
+    id: 'MP7MoonShadowBarrel',
+    name: 'MP7月影镀铬枪管组合',
+    type: ['枪管'],
+    appliesTo: ['MP7'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.3,
+    },
+  },
+  {
     id: 'MP7LightBarrel',
     name: 'MP7狼牙轻枪管',
     type: ['枪管'],
@@ -1376,11 +1405,23 @@ export const modifications = [
     appliesTo: ['MK4'],
     effects: {
       rangeModifier: 0,
-      fireRateModifier: 0,
-      muzzleVelocityModifier: 0,
+      fireRateModifier: 0.1,
+      muzzleVelocityModifier: 0.21,
       damageChange: true,
+      specialRange: true,
       btkQueryName: 'MK4-深空镀铬枪管',
       dataQueryName: 'MK4-深空镀铬枪管',
+    },
+  },
+  {
+    id: 'MK4FencerBarrel',
+    name: 'MK4击剑手枪管',
+    type: ['枪管'],
+    appliesTo: ['MK4'],
+    effects: {
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0.3,
     },
   },
   {
@@ -2120,3 +2161,38 @@ const oldModifications = [
     },
   },
 ];
+
+// 为变体武器扩展配件兼容性
+// 对于每个配件,如果它适用于某个原版武器,则将对应的变体武器也添加到appliesTo中
+// 但要排除变体武器已占用的配件类型
+function expandModificationsForVariants(mods) {
+  return mods.map(mod => {
+    const newAppliesTo = [...mod.appliesTo];
+    
+    // 检查配件类型是否包含多个类型(如 ['枪管', '枪口'])
+    const modTypes = mod.type;
+    
+    // 遍历配件适用的每个原版武器
+    mod.appliesTo.forEach(weapon => {
+      // 查找所有以这个原版武器为基础的变体武器
+      Object.entries(variantWeapons).forEach(([variantName, variantInfo]) => {
+        if (variantInfo.base === weapon) {
+          // 检查当前配件类型是否与变体武器排除的类型有重叠
+          const hasExcludedType = modTypes.some(type => variantInfo.excludeTypes.includes(type));
+          
+          // 如果配件类型不在排除列表中,则添加变体武器
+          if (!hasExcludedType && !newAppliesTo.includes(variantName)) {
+            newAppliesTo.push(variantName);
+          }
+        }
+      });
+    });
+    
+    return {
+      ...mod,
+      appliesTo: newAppliesTo
+    };
+  });
+}
+
+export const modifications = expandModificationsForVariants(baseModifications);

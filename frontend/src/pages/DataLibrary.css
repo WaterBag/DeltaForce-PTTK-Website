@@ -1,0 +1,163 @@
+/* 数据图鉴容器 */
+.data-library-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  color: #333;
+  overflow: hidden;
+}
+
+/* Tab切换栏 */
+.data-library-tabs {
+  display: flex;
+  gap: 0;
+  background-color: #ffffff;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab-button {
+  padding: 16px 40px;
+  background-color: transparent;
+  color: #666;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.tab-button.active {
+  color: #4a9eff;
+  background-color: #f8f9fa;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4a9eff, #357ae8);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Tab内容区域 */
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+  background-color: #f4f5f7;
+  border-radius: 0 0 8px 8px;
+}
+
+/* 筛选工具栏 */
+.filter-toolbar {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 16px 24px;
+  margin: 16px 16px 0 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.search-input,
+.filter-select {
+  padding: 9px 14px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  color: #333;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input {
+  min-width: 200px;
+}
+
+.filter-select {
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.search-input:hover,
+.filter-select:hover {
+  border-color: #9ca3af;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.12);
+  background-color: #ffffff;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.result-count {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 14px;
+  background-color: #f3f4f6;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .filter-toolbar {
+    gap: 10px;
+  }
+  
+  .search-input {
+    min-width: 150px;
+  }
+  
+  .filter-select {
+    min-width: 120px;
+  }
+  
+  .result-count {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+}

@@ -4,13 +4,15 @@
   display: flex;
   flex-direction: column; /* 1. 垂直排列：Header 在上，app-content 在下 */
   width: 100%;
-  min-height: 100%;
+  height: 100vh; /* 使用视口高度 */
 }
 
 .app-content {
   display: flex;
   flex-direction: row; /* 2. 水平排列：Sidebar 在左，main-content 在右 */
-  flex-grow: 1; /* 关键！让这个区域"成长"，撑满Header之外的所有剩余垂直空间 */
+  flex: 1; /* 关键！让这个区域"成长"，撑满Header之外的所有剩余垂直空间 */
+  overflow: hidden; /* 防止在这一层产生滚动条 */
+  min-height: 0; /* 允许flex子元素收缩 */
 }
 
 .main-content {

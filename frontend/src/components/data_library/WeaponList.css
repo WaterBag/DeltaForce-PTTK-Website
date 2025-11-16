@@ -1,0 +1,327 @@
+/* 武器列表容器 */
+.weapon-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  border-radius: 0 0 8px 8px;
+  background-color: #f4f5f7;
+}
+
+.weapon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 单个武器条目 */
+.weapon-item-wrapper {
+  background-color: #ffffff;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.weapon-item-wrapper:hover {
+  border-color: #4a9eff;
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.weapon-item-wrapper.expanded {
+  border-color: #4a9eff;
+  box-shadow: 0 6px 16px rgba(74, 158, 255, 0.2);
+}
+
+.weapon-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  cursor: pointer;
+  position: relative;
+}
+
+.weapon-item:hover {
+  background-color: #f9f9f9;
+}
+
+/* 武器基本信息区 */
+.weapon-basic-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  flex-shrink: 0;
+}
+
+.weapon-image {
+  width: 80px;
+  height: 50px;
+  object-fit: contain;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 4px;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.weapon-name-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.weapon-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.weapon-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.weapon-caliber {
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: #f0f8ff;
+  border: 1px solid #4a9eff;
+  border-radius: 4px;
+  color: #4a9eff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.weapon-caliber:hover {
+  background-color: #4a9eff;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(74, 158, 255, 0.3);
+}
+
+.trigger-delay {
+  font-size: 11px;
+  color: #ff9800;
+  font-weight: 500;
+  padding: 2px 6px;
+  background-color: #fff3e0;
+  border-radius: 3px;
+  border: 1px solid #ffe0b2;
+}
+
+/* 武器属性区 */
+.weapon-stats {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.stat-item {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  grid-column: 1;
+  grid-row: 1;
+  line-height: 1.4;
+}
+
+.stat-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  grid-column: 2;
+  grid-row: 1;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.stat-label-secondary {
+  font-size: 11px;
+  color: #4a9eff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  grid-column: 1;
+  grid-row: 2;
+  line-height: 1.4;
+}
+
+.stat-value-secondary {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a9eff;
+  grid-column: 2;
+  grid-row: 2;
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* 深色变体（初速、胸部、手部） */
+.stat-label-secondary.stat-label-dark {
+  color: #666;
+}
+
+.stat-value-secondary.stat-value-dark {
+  color: #333;
+}
+
+/* 高亮属性（DPS） */
+.stat-item.highlight .stat-label {
+  color: #4a9eff;
+}
+
+.stat-item.highlight .stat-value {
+  color: #4a9eff;
+  font-size: 16px;
+}
+
+/* 警告属性（扳机延迟） */
+.stat-item.warning .stat-label {
+  color: #ff9800;
+}
+
+.stat-item.warning .stat-value {
+  color: #ff9800;
+}
+
+/* 图表区域 */
+.weapon-chart {
+  margin-left: auto;
+}
+
+/* 展开指示器 */
+.expand-indicator {
+  margin-left: 10px;
+  padding: 0 5px;
+}
+
+.expand-indicator .arrow {
+  font-size: 12px;
+  color: #999;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.expand-indicator .arrow.up {
+  transform: rotate(180deg);
+}
+
+/* 展开内容区 */
+.weapon-expanded-content {
+  display: grid;
+  grid-template-columns: 30% 20% 50%;
+  gap: 0;
+  padding: 15px;
+  background-color: #fafafa;
+  border-top: 1px solid #e0e0e0;
+  min-height: 250px;
+}
+
+.expanded-left-section {
+  padding-right: 10px;
+  border-right: 1px solid #e0e0e0;
+  overflow: visible;
+}
+
+.expanded-middle-section {
+  padding: 0 10px;
+  border-right: 1px solid #e0e0e0;
+  overflow: auto;
+}
+
+.expanded-right-section {
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* 空列表提示 */
+.empty-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: #999;
+  font-size: 16px;
+}
+
+/* 滚动条样式 */
+.weapon-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.weapon-list-container::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.weapon-list-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.weapon-list-container::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .weapon-item {
+    flex-wrap: wrap;
+  }
+  
+  .weapon-chart {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 10px;
+  }
+  
+  .weapon-chart .range-decay-chart-mini {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .weapon-basic-info {
+    min-width: 180px;
+  }
+  
+  .weapon-image {
+    width: 60px;
+    height: 40px;
+  }
+  
+  .weapon-name {
+    font-size: 14px;
+  }
+  
+  .stat-item {
+    min-width: 70px;
+  }
+  
+  .stat-value {
+    font-size: 13px;
+  }
+}

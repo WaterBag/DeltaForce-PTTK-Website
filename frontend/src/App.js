@@ -7,13 +7,14 @@ import React, { useState } from 'react';
 import { Layout } from './components/layout/Layout';
 import { DataQuery } from './pages/DataQuery';
 import { Simulator } from './pages/Simulator';
+import { DataLibrary } from './pages/DataLibrary';
 
 /**
  * 主应用组件
  * @returns {JSX.Element} 渲染的应用界面
  */
 function App() {
-  // 当前视图状态：'dataQuery' 或 'simulator'
+  // 当前视图状态：'dataQuery'、'simulator' 或 'dataLibrary'
   const [currentView, setCurrentView] = useState('dataQuery');
 
   /**
@@ -24,6 +25,8 @@ function App() {
     switch (currentView) {
     case 'simulator':
       return <Simulator />;
+    case 'dataLibrary':
+      return <DataLibrary />;
     case 'dataQuery':
     default:
       return <DataQuery />;

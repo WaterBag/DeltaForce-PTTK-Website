@@ -941,7 +941,7 @@ export const ammos = [
   {
     id: 1106,
     caliber: '9*19mm',
-    name: '7N21(仅存在于靶场)',
+    name: '7N21 红鼠窝',
     rarity: '橙',
     penetration: 5,
     secondaryPenetration: 0.75,

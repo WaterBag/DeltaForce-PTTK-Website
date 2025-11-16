@@ -1,0 +1,155 @@
+/* 配件面板容器 */
+.weapon-mod-panel {
+  padding: 15px;
+  background-color: #fafafa;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 滚动条样式 */
+.weapon-mod-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.weapon-mod-panel::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.weapon-mod-panel::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.weapon-mod-panel::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+.no-mods-message {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* 面板头部 */
+.mod-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.mod-panel-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mod-panel-header h4::before {
+  content: "🔧";
+  font-size: 16px;
+}
+
+.reset-mods-button {
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #666;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-mods-button:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.reset-mods-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 配件分组 */
+.mod-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mod-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mod-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a9eff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #4a9eff;
+  display: inline-block;
+}
+
+/* 配件选项 */
+.mod-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mod-option {
+  padding: 8px 14px;
+  background-color: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  white-space: nowrap;
+}
+
+.mod-option:hover {
+  border-color: #4a9eff;
+  background-color: #f0f8ff;
+}
+
+.mod-option.selected {
+  background-color: #e6f0ff;
+  border-color: #4a9eff;
+  color: #4a9eff;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(74, 158, 255, 0.2);
+}
+
+.mod-option.selected:hover {
+  background-color: #dbe9fe;
+  border-color: #3a8eef;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .mod-options {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  .mod-option {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}

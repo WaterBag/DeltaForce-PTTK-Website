@@ -1,0 +1,19 @@
+/* 完整尺寸射程衰减图 */
+.range-decay-chart-full {
+  width: 100%;
+  height: 200px;
+  min-height: 200px;
+}
+
+/* 确保Recharts容器正确渲染 */
+.range-decay-chart-full > div {
+  width: 100% !important;
+  height: 200px !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .range-decay-chart-full {
+    min-height: 150px;
+  }
+}
