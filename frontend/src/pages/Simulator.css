@@ -26,6 +26,7 @@
   flex-direction: column;
   gap: 20px;
   min-height: 0;
+  overflow-y: auto;
   /* 关键属性，确保 flex 子项能正确收缩 */
 }
 
@@ -33,11 +34,18 @@
 /* 3. 左侧面板 (目标配置区) - 内部样式         */
 /* ============================================= */
 .left-panel .config-section,
-.left-panel .simulation-controls,
+.left-panel .simulation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
 .left-panel .target-status {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex-shrink: 0;
 }
 
 .left-panel h3 {
@@ -75,12 +83,27 @@
   font-size: 1em;
 }
 
+.hit-log-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  flex-shrink: 1;
+  overflow: hidden;
+}
+
+.hit-log-container h4 {
+  margin: 0 0 8px 0;
+  color: #091e42;
+  font-size: 1em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
 .hit-log-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  /* 关键：给日志列表一个固定的高度 */
-  height: 180px;
+  flex: 1;
   overflow-y: auto;
   /* 内容超出时自动显示滚动条 */
   background-color: #fafbfc;
@@ -175,9 +198,9 @@
 .mod-section {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  max-height: 230px;
+  min-height: 180px;
+  flex-shrink: 1;
+  overflow: hidden;
 }
 
 .mod-list-wrapper {
@@ -253,6 +276,7 @@
 .summary-panel {
   border-top: 1px solid #dfe1e6;
   padding-top: 16px;
+  flex-shrink: 0;
 }
 
 .stats-table {
