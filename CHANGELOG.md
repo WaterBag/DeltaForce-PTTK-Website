@@ -7,6 +7,45 @@
 
 ---
 
+## [1.4.3] - 2025-11-27
+
+### ✨ 新增功能 (Features)
+
+#### 🔫 数据更新
+- **新增变体武器**：
+  - AS Val - 刺客高级枪管
+- **新增武器配件**：
+  - **沙漠之鹰**：瞳线长枪管、竞技枪管
+  - **勇士**：海狸枪管、战术枪管
+  - **腾龙**：蛟龙战术长枪管、雪豹短枪管、高速/稳固导气箍
+  - **野牛**：打击者标准枪管、伞兵短枪管、刀锋超长枪管
+  - **QCQ171**：高速枪机、稳固枪机
+  - **QJB201**：高速导气箍、稳固导气箍
+  - **Marlin**：犀牛杠杆、蜂鸟杠杆
+
+### 📝 文档 (Docs)
+- 优化了 1.4.2 版本日志中关于“变体配件适配多把枪”Bug 修复的描述，补充了技术细节。
+
+## [1.4.2] - 2025-11-23
+
+### 🐛 Bug 修复
+
+#### 修复 (Fixed)
+- ✅ 修复“变体配件适配多把枪”导致的后端 SQL 语法错误：
+  - 原因：`effects.btkQueryName/dataQueryName` 写成对象映射时，前端将该对象直接作为 `gunName` 发送到接口，MySQL 驱动会把对象展开为 ``key = value`` 语法，引发 SQL 语法错误。
+  - 处理：前端在运行时按“基础武器名”解析映射对象，始终向后端传递字符串形式的 `gunName`。
+  - 影响文件：`frontend/src/pages/DataQuery.js`、`frontend/src/utils/dataProcessor.js`
+
+### 📝 文档
+- 补充说明 `effects.dataQueryName`/`effects.btkQueryName` 支持“{ 基础武器名: 变体名 }”的映射写法，前端会在运行时解析为字符串后再使用，避免把映射对象传给后端。
+  - 文件：`frontend/docs/data-usage.md`
+
+### 🎨 样式/UI
+- 将模拟器页面中与配件相关的样式作用域化，避免污染 `ModificationModal`：
+  - 为 `.mod-*` 相关选择器添加 `.right-panel` 前缀
+  - 为 `.mod-tooltip` 及子元素添加 `.simulator-layout` 前缀
+  - 文件：`frontend/src/pages/Simulator.css`
+
 ## [1.4.1] - 2025-11-16
 
 ### 🐛 Bug 修复

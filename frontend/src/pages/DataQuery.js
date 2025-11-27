@@ -38,6 +38,14 @@ import './DataQuery.css';
  * @returns {JSX.Element} 数据查询页面组件
  */
 export function DataQuery() {
+  // 辅助：解析配件的 btkQueryName（可能为对象映射）
+  const resolveBtkQueryName = useCallback((mod, baseGunName) => {
+    const v = mod?.effects?.btkQueryName;
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      return v[baseGunName];
+    }
+    return v;
+  }, []);
   // Alert hook
   const { alertState, showError, closeAlert } = useAlert();
 
@@ -151,7 +159,7 @@ export function DataQuery() {
 
           // 确定要查询的枪械名称
           const queryGunName = usedDamageMod 
-            ? usedDamageMod.effects.btkQueryName 
+            ? resolveBtkQueryName(usedDamageMod, line.gunName)
             : line.gunName;
 
           // 重新查询BTK数据
@@ -231,7 +239,7 @@ export function DataQuery() {
 
         // 确定要查询的枪械名称
         const queryGunName = usedDamageMod 
-          ? usedDamageMod.effects.btkQueryName 
+          ? resolveBtkQueryName(usedDamageMod, line.gunName)
           : line.gunName;
 
         // 查询BTK数据
@@ -825,7 +833,10 @@ export function DataQuery() {
       // 2. 构建一个需要请求的所有“枪械变体”的名字列表
       const gunVariantsToFetch = [
         gunName, // a. 永远包含基础武器本身
-        ...damageMods.map(mod => mod.effects.btkQueryName), // b. 包含所有变体的名字
+        // b. 按当前基础武器解析每个 damageChange 配件的变体名
+        ...damageMods
+          .map(mod => resolveBtkQueryName(mod, gunName))
+          .filter(Boolean),
       ];
 
       // 3. 【并行】地为所有变体请求BTK数据

@@ -57,6 +57,8 @@
 - `specialRange: true` 表示射程（及衰减）也应当从变体读取。
 - `btkQueryName` 用于后端 BTK 查询键（若前后端协作需要）。
 
+扩展：当同一配件适配多把基础武器且各自的变体名不同，`effects.dataQueryName`/`effects.btkQueryName` 也可以写成映射对象：`{ 基础武器名: 变体名 }`。前端在运行时会按当前基础武器自动解析为字符串，并且只把解析后的字符串提交给后端，避免把整张映射作为 `gunName` 发送导致 SQL 错误。
+
 ## 前端计算流程（核心逻辑）
 位置：`frontend/src/utils/dataProcessor.js`。
 

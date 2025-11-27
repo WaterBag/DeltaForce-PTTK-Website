@@ -195,7 +195,7 @@
   font-size: 1.1em;
 }
 
-.mod-section {
+.right-panel .mod-section {
   display: flex;
   flex-direction: column;
   min-height: 180px;
@@ -203,30 +203,30 @@
   overflow: hidden;
 }
 
-.mod-list-wrapper {
+.right-panel .mod-list-wrapper {
   flex: 1;
   overflow-y: auto;
   padding-right: 5px;
 }
 
-.mod-group {
+.right-panel .mod-group {
   margin-bottom: 8px;
 }
 
-.mod-group-title {
+.right-panel .mod-group-title {
   color: #5e6c84;
   font-size: 0.85em;
   font-weight: 600;
   text-transform: uppercase;
 }
 
-.mod-options-grid {
+.right-panel .mod-options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 8px;
 }
 
-.mod-option {
+.right-panel .mod-option {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -243,14 +243,14 @@
   color: #172b4d;
 }
 
-.mod-option:hover {
+.right-panel .mod-option:hover {
   /* ▼▼▼ 【核心修正 3】悬停时显示灰色边框 ▼▼▼ */
   border-color: #dfe1e6;
   background-color: #f4f5f7;
 }
 
 /* ▼▼▼ 【核心修正 4】为 .selected 类添加高亮样式 ▼▼▼ */
-.mod-option.selected {
+.right-panel .mod-option.selected {
   background-color: #e6f0ff;
   /* 浅蓝色背景 */
   border-color: #0052cc;
@@ -258,13 +258,13 @@
   font-weight: 600;
 }
 
-.mod-option.selected:hover {
+.right-panel .mod-option.selected:hover {
   background-color: #dbe9fe;
   /* 选中状态下悬停，颜色稍深 */
   border-color: #0041a3;
 }
 
-.placeholder-text {
+.right-panel .placeholder-text {
   color: #5e6c84;
   font-style: italic;
   padding: 20px 10px;
@@ -273,32 +273,32 @@
   height: 100%;
 }
 
-.summary-panel {
+.right-panel .summary-panel {
   border-top: 1px solid #dfe1e6;
   padding-top: 16px;
   flex-shrink: 0;
 }
 
-.stats-table {
+.right-panel .stats-table {
   margin-bottom: 10px;
 }
 
-.stats-table table {
+.right-panel .stats-table table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.stats-table td {
+.right-panel .stats-table td {
   padding: 8px 0;
   border-bottom: 1px solid #f0f2f5;
   font-size: 0.9em;
 }
 
-.stats-table td:first-child {
+.right-panel .stats-table td:first-child {
   color: #5e6c84;
 }
 
-.stats-table td:last-child {
+.right-panel .stats-table td:last-child {
   color: #172b4d;
   text-align: right;
   font-weight: 600;
@@ -329,7 +329,7 @@
 }
 
 /* 配件效果提示样式 */
-.mod-tooltip {
+.simulator-layout .mod-tooltip {
   position: fixed;
   background-color: #ffffff;
   border: 1px solid #dfe1e6;
@@ -342,7 +342,7 @@
   pointer-events: none;
 }
 
-.mod-tooltip h4 {
+.simulator-layout .mod-tooltip h4 {
   margin: 0 0 12px 0;
   color: #091e42;
   font-size: 1rem;
@@ -351,55 +351,55 @@
   padding-bottom: 8px;
 }
 
-.mod-effects {
+.simulator-layout .mod-effects {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.effect-item {
+.simulator-layout .effect-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
 }
 
-.effect-label {
+.simulator-layout .effect-label {
   color: #5e6c84;
   font-weight: 500;
 }
 
-.effect-value {
+.simulator-layout .effect-value {
   font-weight: 600;
 }
 
-.effect-value.positive {
+.simulator-layout .effect-value.positive {
   color: #36b37e;
 }
 
-.effect-value.negative {
+.simulator-layout .effect-value.negative {
   color: #ff5630;
 }
 
-.effect-value.special {
+.simulator-layout .effect-value.special {
   color: #6554c0;
   font-style: italic;
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
-  .mod-tooltip {
+  .simulator-layout .mod-tooltip {
     min-width: 200px;
     max-width: 250px;
   }
 
-  .mod-tooltip h4 {
+  .simulator-layout .mod-tooltip h4 {
     font-size: 0.9rem;
   }
 }
 
 @media (max-width: 480px) {
-  .mod-tooltip {
+  .simulator-layout .mod-tooltip {
     position: fixed;
     left: 50% !important;
     top: auto !important;
@@ -411,17 +411,17 @@
     overflow-y: auto;
   }
 
-  .mod-tooltip h4 {
+  .simulator-layout .mod-tooltip h4 {
     font-size: 0.85rem;
     margin: 0 0 8px 0;
     padding-bottom: 6px;
   }
 
-  .mod-effects {
+  .simulator-layout .mod-effects {
     gap: 6px;
   }
 
-  .effect-item {
+  .simulator-layout .effect-item {
     font-size: 0.8rem;
   }
 }

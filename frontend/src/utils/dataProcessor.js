@@ -42,6 +42,17 @@ const weaponInfoMap = weapons.reduce((acc, weapon) => {
   return acc;
 }, {});
 
+// 将可能为对象映射的变体名解析为字符串
+// 允许 effects.dataQueryName/btkQueryName 是：
+// - 字符串：直接返回
+// - 映射对象：{ 基础武器名: 变体名 }，按 baseGunName 取值
+const resolveVariantName = (maybeMapOrString, baseGunName) => {
+  if (maybeMapOrString && typeof maybeMapOrString === 'object' && !Array.isArray(maybeMapOrString)) {
+    return maybeMapOrString[baseGunName];
+  }
+  return maybeMapOrString;
+};
+
 /**
  * 辅助函数：根据武器信息和数据库最大距离，动态查找有效的射程终点
  * @param {object} weaponInfo - 单个武器的完整信息对象
@@ -152,7 +163,7 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
       //    如果找到了特殊配件（如口径转换套件）...
       if (damageMod) {
-        const variantName = damageMod.effects.dataQueryName;
+        const variantName = resolveVariantName(damageMod.effects.dataQueryName, gunName);
         // ...就从总武器列表里找到那个变体的数据
         const weaponVariant = weapons.find(w => w.name === variantName);
         if (weaponVariant) {
@@ -165,7 +176,7 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
       //    如果找到了specialRange配件...
       if (specialRangeMod) {
-        const variantName = specialRangeMod.effects.dataQueryName;
+        const variantName = resolveVariantName(specialRangeMod.effects.dataQueryName, gunName);
         // ...就从总武器列表里找到那个变体的数据
         const weaponVariant = weapons.find(w => w.name === variantName);
         if (weaponVariant) {
