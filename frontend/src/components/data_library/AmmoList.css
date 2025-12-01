@@ -195,28 +195,67 @@
 }
 
 @media (max-width: 768px) {
+  .ammo-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
   .ammo-basic-info {
-    min-width: 180px;
+    min-width: 100%;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
   }
   
   .ammo-image {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
   }
   
   .ammo-name {
-    font-size: 14px;
+    font-size: 15px;
   }
   
   .ammo-core-stats {
-    gap: 10px;
+    width: 100%;
+    justify-content: space-around;
+    background-color: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
   }
   
   .stat-item {
-    min-width: 60px;
+    min-width: 0;
+    align-items: center;
   }
   
   .armor-damage-values {
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap; /* 允许换行 */
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .armor-stat {
+    flex: 1 0 30%; /* 每行3个 */
+    background-color: #f5f7fa;
+    padding: 4px;
+    border-radius: 4px;
+    align-items: center;
+  }
+
+  .ammo-armor-damage {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .armor-stat {
+    flex: 1 0 45%; /* 极小屏每行2个 */
+  }
+  
+  .ammo-core-stats {
+    gap: 15px;
   }
 }

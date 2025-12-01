@@ -51,3 +51,276 @@ body {
   width: device-width;
   zoom: 1;
 }
+
+/* ===========================
+   全局移动端适配覆盖（不改变功能，只调整显示）
+   断点：992 / 768 / 480
+   =========================== */
+
+/* <= 992px - 平板小屏与横向手机 */
+@media (max-width: 992px) {
+  /* 将侧边栏收拢到顶部，主内容纵向排列 */
+  .app-content {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e6ebf0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+
+  .sidebar-nav {
+    width: 100%;
+  }
+
+  .sidebar-nav ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 16px;
+    text-align: center;
+    flex: 1;
+    white-space: nowrap;
+  }
+
+  .nav-item.active {
+    border-left: none;
+    border-bottom-color: #0052cc;
+    background-color: transparent;
+  }
+
+  /* 移动端隐藏侧边栏底部的概率信息和ICP备案 */
+  .probability-info,
+  .icp-info {
+    display: none;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+
+  /* 页面主布局调整：DataQuery / Simulator 等 */
+  .data-query-layout,
+  .simulator-layout {
+    flex-direction: column;
+    gap: 12px;
+    height: auto;
+  }
+
+  .sittings-panel,
+  .results-panel,
+  .simulator-panel,
+  .left-panel,
+  .right-panel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* 弹窗提示在小屏时改为底部托盘式 */
+  .simulator-layout .mod-tooltip,
+  .mod-tooltip {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 220px;
+    max-width: 92%;
+    pointer-events: auto;
+    z-index: 1200;
+  }
+}
+
+/* <= 768px - 常见平板与大屏手机 */
+@media (max-width: 768px) {
+  /* 缩减页头与侧边栏文字，减少占用空间 */
+  .header {
+    padding: 0 12px;
+    height: 56px;
+  }
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  /* 调整选择器触发高度，避免过高占位 */
+  .selector-trigger {
+    min-height: 56px;
+    padding: 8px;
+  }
+
+  /* 图表区与结果区高度在移动端限制为更友好的高度 */
+  .results-panel {
+    padding: 10px;
+  }
+
+  /* 武器配件面板、配件列表等限制高度，保证页面不被单个滚动块撑开 */
+  .weapon-mod-panel {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  /* 弹窗与确认框在移动端更具可滚动性 */
+  .modal-content,
+  .confirm-dialog,
+  .modal-overlay .modal-content {
+    width: 95% !important;
+    max-width: 95% !important;
+    max-height: 85vh !important;
+    overflow: auto !important;
+  }
+
+  /* 表单控件、按钮增加触控友好尺寸 */
+  button,
+  .add-comparison-button,
+  .confirm-button,
+  .cancel-button {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+
+  /* 卡片/列表项缩小内边距 */
+  .comparison-list li,
+  .config-list li {
+    padding: 8px 10px;
+    font-size: 0.95rem;
+  }
+
+  /* 头像/图片缩小 */
+  .helmet-option-image,
+  .armor-option-image {
+    width: 36px;
+    height: auto;
+  }
+
+  /* DataLibrary 适配 - 紧凑版 */
+  .filter-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 两列布局 */
+    gap: 8px;
+    padding: 8px;
+    margin: 8px;
+    background: #fff; /* 纯白背景减少视觉干扰 */
+  }
+
+  /* 搜索组：独占一行 */
+  .filter-group:nth-child(1) {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* 口径和排序组：并排显示 (自动利用 grid 1fr 1fr) */
+  .filter-group {
+    display: flex;
+    flex-direction: column; /* 标签在上方或隐藏 */
+    width: 100%;
+    margin: 0;
+  }
+
+  /* 隐藏所有标签 Label 以节省空间 */
+  .filter-group label {
+    display: none;
+  }
+
+  /* 输入控件样式微调 */
+  .search-input,
+  .filter-select {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    height: 36px; /* 适中的触控高度 */
+  }
+
+  /* 结果统计：独占一行，样式弱化 */
+  .result-count {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    padding: 4px 0;
+    text-align: center;
+    font-size: 11px;
+    background: transparent;
+    color: #999;
+    border: none;
+  }
+}
+
+/* <= 480px - 小屏手机（竖屏）优化 */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 8px;
+  }
+
+  /* 更紧凑的选择器、滑块和面板 */
+  .sittings-panel {
+    gap: 10px;
+  }
+
+  .config-section,
+  .interactive-section {
+    padding: 8px;
+  }
+
+  .chart-controls {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  /* 确保操作按钮在竖屏下占满宽度，便于触控 */
+  .add-comparison-button,
+  .confirm-button,
+  .cancel-button {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+
+  /* Modal 底部按钮垂直排列 */
+  .confirm-dialog .modal-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* 降低图表高度以避免遮挡内容 */
+  .results-panel .chart-wrap,
+  .simulator-panel .chart-wrap {
+    height: 240px;
+  }
+
+  /* 防止元素横向溢出 */
+  .data-query-layout,
+  .simulator-layout,
+  .sittings-panel,
+  .results-panel {
+    overflow-x: hidden;
+    min-width: 0;
+  }
+  
+  .tab-button {
+    padding: 12px 20px;
+    font-size: 14px;
+    flex: 1;
+  }
+}
+
+/* 轻微增强：确保所有主容器在小屏时允许正确收缩 */
+@media (max-width: 992px) {
+  .app-content, .main-content, .data-query-layout, .simulator-layout {
+    min-height: 0;
+  }
+}

@@ -296,6 +296,8 @@
     width: 100%;
     margin-left: 0;
     margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
   }
   
   .weapon-chart .range-decay-chart-mini {
@@ -304,8 +306,16 @@
 }
 
 @media (max-width: 768px) {
+  .weapon-item {
+    padding: 10px;
+    gap: 10px;
+  }
+
   .weapon-basic-info {
-    min-width: 180px;
+    min-width: 100%; /* 占满一行 */
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
   }
   
   .weapon-image {
@@ -314,14 +324,68 @@
   }
   
   .weapon-name {
-    font-size: 14px;
+    font-size: 15px;
+  }
+
+  /* 属性区域改为网格布局，更整齐 */
+  .weapon-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3列 */
+    gap: 8px;
+    width: 100%;
   }
   
   .stat-item {
-    min-width: 70px;
+    min-width: 0; /* 允许缩小 */
+    padding: 4px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
   }
   
-  .stat-value {
+  .stat-value, .stat-value-secondary {
     font-size: 13px;
+  }
+  
+  .stat-label, .stat-label-secondary {
+    font-size: 10px;
+  }
+
+  /* 展开内容改为单列 */
+  .weapon-expanded-content {
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 15px;
+  }
+
+  .expanded-left-section,
+  .expanded-middle-section {
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding-right: 0;
+    padding-bottom: 15px;
+  }
+
+  .expanded-right-section {
+    padding-left: 0;
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .weapon-stats {
+    grid-template-columns: repeat(2, 1fr); /* 小屏改为2列 */
+  }
+
+  .weapon-meta {
+    gap: 4px;
+  }
+
+  .weapon-caliber {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .trigger-delay {
+    font-size: 10px;
   }
 }
