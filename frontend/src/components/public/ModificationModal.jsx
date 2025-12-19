@@ -27,6 +27,7 @@ export function ModificationModal({
 }) {
   const [selectedBullet, setSelectedBullet] = useState(null);
   const [selectedMods, setSelectedMods] = useState([]);
+  const [usePreviousData, setUsePreviousData] = useState(false);
   const [hoveredMod, setHoveredMod] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [hitRatePercent, setHitRatePercent] = useState(100); // 存储百分比整数 (30-100)
@@ -75,20 +76,50 @@ export function ModificationModal({
       .map(id => availableMods.find(m => m.id === id))
       .find(mod => mod?.effects.damageChange);
 
-    return damageMod ? damageMod.effects.btkQueryName : gunName;
+    if (!damageMod) return gunName;
+    const v = damageMod.effects.btkQueryName;
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      return v[gunName];
+    }
+    return v;
   }, [selectedMods, availableMods, gunName]);
 
   const currentVariantDetails = gunDetailsMap ? gunDetailsMap[currentVariantName] : null; // 【数据源切换】从 gunDetails 这个“数据字典”中，取出当前变体的数据
 
+  // 当切换到没有“次新数据”的变体时，自动回退到“最新数据”
+  useEffect(() => {
+    if (!currentVariantDetails?.hasPrevious && usePreviousData) {
+      setUsePreviousData(false);
+    }
+  }, [currentVariantName]);
+
+  const isPreviousEnabled = !!currentVariantDetails?.hasPrevious;
+  const activeDetails = useMemo(() => {
+    if (usePreviousData && isPreviousEnabled) {
+      return {
+        availableBullets: currentVariantDetails.previousAvailableBullets,
+        allDataPoints: currentVariantDetails.previousAllDataPoints,
+        createdAt: currentVariantDetails.previousCreatedAt,
+        dataVersion: 'previous',
+      };
+    }
+
+    return {
+      availableBullets: currentVariantDetails?.availableBullets,
+      allDataPoints: currentVariantDetails?.allDataPoints,
+      createdAt: currentVariantDetails?.latestCreatedAt,
+      dataVersion: 'latest',
+    };
+  }, [usePreviousData, isPreviousEnabled, currentVariantDetails]);
+
   const bulletOptions = useMemo(() => {
     // 【实时联动】后续的所有 useMemo，都依赖于这个【动态切换】的数据源
 
-    if (!currentVariantDetails || !currentVariantDetails.availableBullets) {
-      // 1. 【安全检查】我们只检查 currentVariantDetails 和它内部的 availableBullets
+    if (!activeDetails || !activeDetails.availableBullets) {
       return [];
     }
 
-    const availableBulletNames = currentVariantDetails.availableBullets; //后端API已经为我们准备好了干净、去重的 availableBullets 数组
+    const availableBulletNames = activeDetails.availableBullets;
 
     const weaponInfo = weaponInfoMap[gunName]; //根据枪械名找到口径
     if (!weaponInfo) return [];
@@ -99,14 +130,23 @@ export function ModificationModal({
         ammo // 4. 用【口径】和【可用弹药名】，去我们的“弹药总列表”中，进行精确查找
       ) => ammo.caliber === weaponCaliber && availableBulletNames.includes(ammo.name)
     );
-  }, [currentVariantDetails, gunName]);
+  }, [activeDetails, gunName]);
+
+  // 仅在“当前已选弹药在新数据源/变体下不可用”时才清空
+  useEffect(() => {
+    if (!selectedBullet) return;
+    const stillAvailable = bulletOptions.some(opt => opt.name === selectedBullet.name);
+    if (!stillAvailable) {
+      setSelectedBullet(null);
+    }
+  }, [bulletOptions, selectedBullet]);
 
   const firstRangeBtkData = useMemo(() => {
-    if (!currentVariantDetails || !currentVariantDetails.allDataPoints || !selectedBullet) {
+    if (!activeDetails || !activeDetails.allDataPoints || !selectedBullet) {
       return null;
     }
     // 1. 先筛选出所有属于当前选中子弹的数据点
-    const bulletPoints = currentVariantDetails.allDataPoints.filter(
+    const bulletPoints = activeDetails.allDataPoints.filter(
       p => p.bullet_name === selectedBullet.name
     );
     // 2. 如果没有该子弹的数据，返回null
@@ -115,7 +155,7 @@ export function ModificationModal({
     return bulletPoints.reduce((minDistPoint, currentPoint) => {
       return currentPoint.distance < minDistPoint.distance ? currentPoint : minDistPoint;
     });
-  }, [currentVariantDetails, selectedBullet]);
+  }, [activeDetails, selectedBullet]);
 
   const handleModChange = (modId, isSelected) => {
     // modId: 用户刚刚操作的那个配件的ID
@@ -192,6 +232,44 @@ export function ModificationModal({
               />
             </div>
 
+            {(() => {
+              const otherOptionItems = [];
+
+              if (isPreviousEnabled) {
+                otherOptionItems.push(
+                  <label
+                    key="usePreviousData"
+                    style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={usePreviousData}
+                      onChange={(e) => setUsePreviousData(e.target.checked)}
+                    />
+                    显示上版本数据
+                  </label>
+                );
+              }
+
+              if (otherOptionItems.length === 0) return null;
+
+              return (
+                <div className="mod-section">
+                  <h3>其他选项</h3>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {otherOptionItems}
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="mod-section">
               {Object.keys(groupedMods).map(type => (
                 <div key={type} className="mod-group">
@@ -247,8 +325,9 @@ export function ModificationModal({
                     bulletName: selectedBullet.name,
                     mods: selectedMods,
                     hitRate: hitRatePercent / 100, // 转换为0-1之间的小数
+                    dataVersion: activeDetails.dataVersion,
                   },
-                  currentVariantDetails.allDataPoints
+                  activeDetails.allDataPoints
                 );
               }}
             >

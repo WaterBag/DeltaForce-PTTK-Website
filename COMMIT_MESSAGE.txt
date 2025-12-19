@@ -105,3 +105,16 @@ feat: 实现命中率控制和护甲耐久自动刷新功能
 - [ ] 实现数据完整性检查对话框
 - [ ] Phase 3: 前端模拟计算功能
 - [ ] Phase 3: PD12 特殊处理逻辑
+feat(ttk): 支持查看“上版本”数据并切换展示
+
+变更说明：
+- 后端 `/api/ttk/gun-details`：基于 create_at/created_at 的历史记录，按 bullet_name 聚合并计算“最新版本/上版本”（仅当同一子弹数据内容发生变化且时间不同才视为新版本），返回 `previousAllDataPoints` 等字段供前端切换。
+- 前端改装弹窗：新增“其他选项”区块（仅在存在上版本数据时显示），提供“显示上版本数据”勾选；切换/变体变更时仅在弹药不可用才清空选择。
+- 对比线：保存 dataVersion（latest/previous），刷新/预检查时按该版本取后端对应数据。
+- 数据修复：调整 `frontend/src/assets/data/ammos.js` 中 BT +P 稀有度配置。
+
+影响范围：
+- backend/routes/ttk.js
+- frontend/src/components/public/ModificationModal.jsx
+- frontend/src/pages/DataQuery.js
+- frontend/src/assets/data/ammos.js

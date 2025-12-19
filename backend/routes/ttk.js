@@ -62,9 +62,8 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
         armProtection
     } = req.body;
     const gun_name = gunName;
-    
-    const [rows] = await db.query(
-        `SELECT DISTINCT bullet_name, distance, btk_data
+
+    const whereSql = `
         FROM btk_list_results
         WHERE gun_name = ?
             AND helmet_protection_grade = ?
@@ -73,15 +72,207 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
             AND armor_durability = ?
             AND protects_chest = ?
             AND protects_abdominal = ?
-            AND protects_upper_arm = ?`,
-        [gun_name, helmetLevel, armorLevel, helmetDurability, armorDurability, chestProtection, stomachProtection, armProtection]
+            AND protects_upper_arm = ?
+    `;
+
+    const whereParams = [
+        gun_name,
+        helmetLevel,
+        armorLevel,
+        helmetDurability,
+        armorDurability,
+        chestProtection,
+        stomachProtection,
+        armProtection,
+    ];
+
+    // 0) 兼容字段名：created_at / create_at
+    const [timeColRows] = await db.query(
+        `SELECT COLUMN_NAME
+         FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = 'btk_list_results'
+           AND COLUMN_NAME IN ('created_at', 'create_at')
+         LIMIT 1`
     );
-    console.log("查询到数据:", rows);
-    const availableBullets = [...new Set(rows.map(row => row.bullet_name))];
-    const responseData = {
-        availableBullets: availableBullets,
-        allDataPoints: rows
+
+    const timeColumn = timeColRows && timeColRows.length > 0 ? timeColRows[0].COLUMN_NAME : null;
+
+    // 如果找不到时间列，则退化为旧行为：只返回最新(allDataPoints)一套（无法区分次新）
+    if (!timeColumn) {
+        const [legacyRows] = await db.query(
+            `SELECT DISTINCT bullet_name, distance, btk_data
+             ${whereSql}
+             ORDER BY bullet_name ASC, distance ASC`,
+            whereParams
+        );
+
+        const availableBullets = [...new Set(legacyRows.map(row => row.bullet_name))];
+        res.json({
+            availableBullets,
+            allDataPoints: legacyRows,
+            latestCreatedAt: null,
+            hasPrevious: false,
+            previousAvailableBullets: [],
+            previousAllDataPoints: [],
+            previousCreatedAt: null,
+        });
+        return;
+    }
+
+    // 1) 拉取该枪+护甲条件下的所有数据点
+    // 版本判定规则（按你的定义）：
+    // - 不同子弹的时间不同不代表不同版本
+    // - 只有在“相同 bullet_name + 其它条件一致”时，出现“数据内容不同且时间不同”，才视为新旧两个版本
+    const [allRows] = await db.query(
+        `SELECT bullet_name, distance, btk_data, \`${timeColumn}\` AS created_at
+         ${whereSql}
+         ORDER BY bullet_name ASC, \`${timeColumn}\` DESC, distance ASC`,
+        whereParams
+    );
+
+    if (!allRows || allRows.length === 0) {
+        res.json({
+            availableBullets: [],
+            allDataPoints: [],
+            latestCreatedAt: null,
+            hasPrevious: false,
+            previousAvailableBullets: [],
+            previousAllDataPoints: [],
+            previousCreatedAt: null,
+            latestCreatedAtByBullet: {},
+            previousCreatedAtByBullet: {},
+        });
+        return;
+    }
+
+    const normalizeBtkData = (btkData) => {
+        if (btkData == null) return null;
+        try {
+            const parsed = typeof btkData === 'string' ? JSON.parse(btkData) : btkData;
+            if (!Array.isArray(parsed)) return String(btkData);
+            const sorted = [...parsed].sort((a, b) => {
+                const ab = Number(a?.btk) || 0;
+                const bb = Number(b?.btk) || 0;
+                if (ab !== bb) return ab - bb;
+                const ap = Number(a?.probability) || 0;
+                const bp = Number(b?.probability) || 0;
+                return ap - bp;
+            });
+            return JSON.stringify(sorted);
+        } catch {
+            return String(btkData);
+        }
     };
+
+    const toTs = (v) => {
+        if (v instanceof Date) return v.getTime();
+        const d = new Date(v);
+        const t = d.getTime();
+        return Number.isFinite(t) ? t : 0;
+    };
+
+    const toIsoOrString = (v) => {
+        if (v instanceof Date) return v.toISOString();
+        const d = new Date(v);
+        const t = d.getTime();
+        return Number.isFinite(t) ? d.toISOString() : String(v);
+    };
+
+    // bullet -> createdKey -> { ts, createdAtRaw, rows: [] }
+    const bulletMap = new Map();
+    for (const row of allRows) {
+        const bullet = row.bullet_name;
+        const createdKey = toIsoOrString(row.created_at);
+        const ts = toTs(row.created_at);
+
+        if (!bulletMap.has(bullet)) bulletMap.set(bullet, new Map());
+        const byTime = bulletMap.get(bullet);
+        if (!byTime.has(createdKey)) {
+            byTime.set(createdKey, { ts, createdAtRaw: row.created_at, rows: [] });
+        }
+        byTime.get(createdKey).rows.push(row);
+    }
+
+    const latestPoints = [];
+    const previousPoints = [];
+    const latestCreatedAtByBullet = {};
+    const previousCreatedAtByBullet = {};
+    let hasPrevious = false;
+
+    // 逐子弹计算“版本”：相同内容的连续时间戳合并
+    for (const [bullet, timeMap] of bulletMap.entries()) {
+        const snapshots = Array.from(timeMap.entries()).map(([createdKey, v]) => {
+            const sortedRows = [...v.rows].sort((a, b) => a.distance - b.distance);
+            const signature = JSON.stringify(
+                sortedRows.map(r => ({
+                    d: r.distance,
+                    b: normalizeBtkData(r.btk_data),
+                }))
+            );
+            return {
+                createdKey,
+                ts: v.ts,
+                createdAtRaw: v.createdAtRaw,
+                rows: sortedRows,
+                signature,
+            };
+        });
+
+        snapshots.sort((a, b) => b.ts - a.ts);
+
+        const versions = [];
+        for (const snap of snapshots) {
+            if (versions.length === 0 || versions[versions.length - 1].signature !== snap.signature) {
+                versions.push(snap);
+            }
+            if (versions.length >= 2) {
+                // 已经拿到最新+次新版本即可（更老的无需处理）
+                break;
+            }
+        }
+
+        const latest = versions[0];
+        const prev = versions[1] || null;
+
+        latestCreatedAtByBullet[bullet] = toIsoOrString(latest.createdAtRaw);
+        latestPoints.push(...latest.rows);
+
+        if (prev) {
+            hasPrevious = true;
+            previousCreatedAtByBullet[bullet] = toIsoOrString(prev.createdAtRaw);
+            previousPoints.push(...prev.rows);
+        } else {
+            // 没有次新版本：次新集合沿用最新，保证“整套数据”按子弹齐全
+            previousCreatedAtByBullet[bullet] = toIsoOrString(latest.createdAtRaw);
+            previousPoints.push(...latest.rows);
+        }
+    }
+
+    const availableBullets = Array.from(bulletMap.keys());
+    const responseData = {
+        // 兼容字段：默认仍返回“最新数据”（按子弹聚合后的最新版本集合）
+        availableBullets,
+        allDataPoints: latestPoints,
+
+        // 新增：提供“次新数据”（按子弹聚合后的次新版本集合）
+        latestCreatedAt: null,
+        hasPrevious,
+        previousAvailableBullets: availableBullets,
+        previousAllDataPoints: previousPoints,
+        previousCreatedAt: null,
+        latestCreatedAtByBullet,
+        previousCreatedAtByBullet,
+    };
+
+    console.log(
+        "查询到按子弹聚合后的数据点(最新/次新):",
+        latestPoints.length,
+        "/",
+        previousPoints.length,
+        "hasPrevious=",
+        hasPrevious
+    );
     res.json(responseData);
 }));
 

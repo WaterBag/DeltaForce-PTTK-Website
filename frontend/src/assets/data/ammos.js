@@ -602,7 +602,7 @@ export const ammos = [
     id: 706,
     caliber: '5.45*39mm',
     name: 'BT +P',
-    rarity: '橙',
+    rarity: '紫',
     penetration: 4,
     secondaryPenetration: 0.75,
     sameLevelPenetration: 0.5,

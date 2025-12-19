@@ -181,9 +181,15 @@ export function DataQuery() {
           }
 
           // 直接使用 API 返回的原始数据格式
+          const shouldUsePrevious = line.dataVersion === 'previous' && gunDetails?.hasPrevious;
+          const chosenPoints = shouldUsePrevious
+            ? gunDetails.previousAllDataPoints
+            : gunDetails.allDataPoints;
+
           return {
             ...line,
-            btkDataPoints: gunDetails.allDataPoints,
+            btkDataPoints: chosenPoints,
+            dataVersion: shouldUsePrevious ? 'previous' : 'latest',
           };
         } catch (err) {
           console.error('刷新单个配置失败:', line.gunName, line.bulletName, err);
@@ -254,14 +260,19 @@ export function DataQuery() {
           armProtection: selectedArmor.upperArm,
         });
 
+        const shouldUsePrevious = line.dataVersion === 'previous' && gunDetails?.hasPrevious;
+        const chosenPoints = shouldUsePrevious
+          ? gunDetails.previousAllDataPoints
+          : gunDetails.allDataPoints;
+
         // 严格检查数据有效性
-        if (!gunDetails || !gunDetails.allDataPoints || gunDetails.allDataPoints.length === 0) {
+        if (!gunDetails || !chosenPoints || chosenPoints.length === 0) {
           failedCount++;
           failedLines.push(line);
           return null;
         }
 
-        const hasMatchingBullet = gunDetails.allDataPoints.some(
+        const hasMatchingBullet = chosenPoints.some(
           (point) => point.bullet_name === line.bulletName
         );
 
@@ -271,7 +282,7 @@ export function DataQuery() {
           return null;
         }
 
-        const validDataPoints = gunDetails.allDataPoints.filter((point) => {
+        const validDataPoints = chosenPoints.filter((point) => {
           if (!point.btk_data) return false;
           if (typeof point.btk_data === 'string') {
             try {
@@ -294,6 +305,7 @@ export function DataQuery() {
         const updatedLine = {
           ...line,
           btkDataPoints: validDataPoints,
+          dataVersion: shouldUsePrevious ? 'previous' : 'latest',
         };
         successLines.push(updatedLine);
         return updatedLine;
@@ -364,26 +376,31 @@ export function DataQuery() {
             armProtection: selectedArmor.upperArm,
           });
 
+          const shouldUsePrevious = line.dataVersion === 'previous' && gunDetails?.hasPrevious;
+          const chosenPoints = shouldUsePrevious
+            ? gunDetails.previousAllDataPoints
+            : gunDetails.allDataPoints;
+
           // 严格检查返回的数据结构和有效性
-          if (!gunDetails || !gunDetails.allDataPoints || gunDetails.allDataPoints.length === 0) {
+          if (!gunDetails || !chosenPoints || chosenPoints.length === 0) {
             console.warn('配置无数据(空响应):', line.gunName, line.bulletName);
             failedCount++;
             return null; // 返回 null 表示需要移除
           }
 
           // 检查返回的数据点是否包含当前使用的子弹
-          const hasMatchingBullet = gunDetails.allDataPoints.some(
+          const hasMatchingBullet = chosenPoints.some(
             point => point.bullet_name === line.bulletName
           );
 
           if (!hasMatchingBullet) {
-            console.warn('配置无数据(子弹不匹配):', line.gunName, line.bulletName, '可用子弹:', gunDetails.allDataPoints.map(p => p.bullet_name));
+            console.warn('配置无数据(子弹不匹配):', line.gunName, line.bulletName, '可用子弹:', chosenPoints.map(p => p.bullet_name));
             failedCount++;
             return null; // 子弹不匹配,移除该配置
           }
 
           // 检查数据点的有效性
-          const validDataPoints = gunDetails.allDataPoints.filter(point => {
+          const validDataPoints = chosenPoints.filter(point => {
             // 确保 btk_data 存在且有效
             if (!point.btk_data) return false;
             
@@ -412,6 +429,7 @@ export function DataQuery() {
           return {
             ...line,
             btkDataPoints: validDataPoints,
+            dataVersion: shouldUsePrevious ? 'previous' : 'latest',
           };
         } catch (err) {
           console.error('查询失败:', line.gunName, line.bulletName, err);
@@ -783,14 +801,14 @@ export function DataQuery() {
    * @param {Array} btkDataPoints - BTK数据点数组
    */
   const handleAddComparison = (config, btkDataPoints) => {
-    const { gunName, bulletName, mods, hitRate = 1.0 } = config;
+    const { gunName, bulletName, mods, hitRate = 1.0, dataVersion = 'latest' } = config;
 
     const modNames = mods.map(modId => {
       const mod = modifications.find(m => m.id === modId);
       return mod ? mod.name : '未知配件';
     });
 
-    const uniqueId = `${gunName}-${bulletName}-${mods.join('_')}-${Date.now()}`;
+    const uniqueId = `${gunName}-${bulletName}-${dataVersion}-${mods.join('_')}-${Date.now()}`;
     const displayName = `${gunName} - ${bulletName} (${mods.length > 0 ? modNames.join(', ') : '无改装'})`;
 
     const newLine = {
@@ -801,6 +819,7 @@ export function DataQuery() {
       mods: mods,
       btkDataPoints: btkDataPoints,
       hitRate: hitRate, // 添加命中率字段
+      dataVersion: dataVersion, // 'latest' | 'previous'
       isSimulated: false, // 这些是后端查询数据，不是模拟数据
     };
 
