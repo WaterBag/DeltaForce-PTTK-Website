@@ -809,7 +809,8 @@ export function DataQuery() {
     });
 
     const uniqueId = `${gunName}-${bulletName}-${dataVersion}-${mods.join('_')}-${Date.now()}`;
-    const displayName = `${gunName} - ${bulletName} (${mods.length > 0 ? modNames.join(', ') : '无改装'})`;
+    const versionSuffix = dataVersion === 'previous' ? ' [上版本]' : '';
+    const displayName = `${gunName} - ${bulletName} (${mods.length > 0 ? modNames.join(', ') : '无改装'})${versionSuffix}`;
 
     const newLine = {
       id: uniqueId,

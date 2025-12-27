@@ -1,83 +1,17 @@
-feat: 实现命中率控制和护甲耐久自动刷新功能
+fix: 对比图上版本曲线避免覆盖重合
 
-## 核心功能
+## 背景
+- 图表按曲线 `displayName` 合并数据；当“最新/上版本”名称相同，会互相覆盖，视觉上表现为两条线重合/消失。
 
-### 1. 命中率系统集成
-- 将命中率控制从对比列表移至配件选择弹窗
-- 使用 UniversalSlider 组件保持 UI 风格统一
-- 实现 localStorage 记忆功能，保存用户最后设置的命中率
-- 命中率范围：30%-100%，步进 5%
-- 添加至对比按钮显示当前命中率百分比
+## 变更
+- 对比线名称仅在 `dataVersion === 'previous'` 时追加后缀 ` [上版本]`。
+- 最新版本名称不追加任何标注，保持用户期望的显示效果。
 
-### 2. 护甲耐久自动刷新
-- 实现护甲耐久值变化时自动重新查询 BTK 数据
-- 使用 useRef + useCallback 解决异步闭包陷阱
-- 使用防重入锁避免重复刷新
-- 自动区分耐久调整 vs 护甲切换场景
-- 保留武器配置（枪械、子弹、配件），仅更新 BTK 数据
-
-### 3. 对比列表简化
-- 恢复简洁的列表样式
-- 移除所有命中率显示和控制 UI
-- 优化删除按钮位置（绝对定位）
-- 保留：颜色指示、武器名、子弹稀有度、配件数量
-
-## 技术实现
-
-### 数据流优化
-- 引入 `comparisonLinesRef` 同步最新对比线数据
-- 引入 `prevArmorConfigRef` 追踪护甲配置变化
-- 引入 `isRefreshingRef` 防止重复刷新
-
-### API 数据结构统一
-- 修复刷新功能的数据结构不匹配问题
-- 统一使用 `allDataPoints` 格式：
-  ```js
-  {
-    availableBullets: ['BP', 'SP6'],
-    allDataPoints: [
-      {bullet_name: 'BP', distance: 10, btk_data: '[...]'},
-      ...
-    ]
-  }
-  ```
-
-### 命中率计算逻辑
-- 在 `dataProcessor.js` 中集成命中率调整
-- 使用公式：`adjustedEbtk = baseEbtk / hitRate`
-- 例：5发击杀，80%命中率 → 6.25发期望
-
-### 模拟数据保护
-- 检测模拟数据存在时显示警告
-- 切换护甲/头盔时弹出确认框
-- 保留模拟数据但提示可能不准确
-
-## 代码质量
-
-### 调试日志清理
-- 移除所有非错误的 console.log
-- 保留关键错误日志用于问题追踪
-- 清理 ComparisonList、ModificationModal、DataQuery、dataProcessor 中的调试代码
-
-### 布局优化
-- ModificationModal 改用 block 布局 + margin-bottom
-- 修复弹窗滚动问题
-- 修复移动端元素压缩问题
-
-### 样式改进
-- 统一命中率滑块样式（添加 % 后缀）
-- 优化配件提示工具 tooltip 样式
-- 改进响应式设计
-
-## 新增文件
-
-- `frontend/src/assets/data/gameConstants.js`
-  - 游戏常量配置（玩家血量、命中概率、PD12 钝伤系数等）
-  - 为 Phase 3 前端模拟功能预留接口
+## 影响
+- 同一枪械/子弹/配件在“最新 vs 上版本”同时加入对比时，两条曲线 key 唯一，不再互相覆盖。
 
 ## 改动文件
-
-### Frontend
+- `frontend/src/pages/DataQuery.js`
 - `src/components/data_query/ComparisonList.jsx` - 简化列表显示
 - `src/components/data_query/ComparisonList.css` - 优化样式
 - `src/components/public/ModificationModal.jsx` - 集成命中率控制
