@@ -5,13 +5,16 @@ import { AmmoSelector } from './AmmoSelector.jsx';
 import { UniversalSlider } from './UniversalSlider';
 import { weapons } from '../../assets/data/weapons';
 import { ammos } from '../../assets/data/ammos';
+import { buildModsById, computeUnlockedSlots, isModSelectable, toggleModSelection } from '../../utils/modSelectionUtils';
 
+// weaponInfoMap: { [weaponName]: weapon }，用于快速从枪名取口径/基础属性
 const weaponInfoMap = weapons.reduce((acc, weapon) => {
   acc[weapon.name] = weapon;
   return acc;
 }, {});
 
 // 生成命中率可选值：30%, 35%, 40%, ..., 95%, 100%
+// HIT_RATE_VALUES: 命中率滑条可选离散值（整数百分比）
 const HIT_RATE_VALUES = [];
 for (let i = 30; i <= 100; i += 5) {
   HIT_RATE_VALUES.push(i);
@@ -25,12 +28,26 @@ export function ModificationModal({
   onAddComparison,
   availableMods,
 }) {
+  // selectedBullet: 当前弹窗选中的弹药对象
   const [selectedBullet, setSelectedBullet] = useState(null);
+  // selectedMods: 当前弹窗选中的配件 id 列表
   const [selectedMods, setSelectedMods] = useState([]);
+  // usePreviousData: 是否切换显示“上版本”数据（如果该变体支持）
   const [usePreviousData, setUsePreviousData] = useState(false);
+  // hoveredMod: 当前鼠标悬停的配件对象（用于 tooltip 详情展示）
   const [hoveredMod, setHoveredMod] = useState(null);
+  // tooltipPosition: tooltip 的屏幕坐标
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  // hitRatePercent: 命中率百分比整数（30-100），用于期望 BTK/TTK 调整
   const [hitRatePercent, setHitRatePercent] = useState(100); // 存储百分比整数 (30-100)
+
+  // modsById: { [id]: mod }，用于快速取配件对象
+  const modsById = useMemo(() => buildModsById(availableMods || []), [availableMods]);
+  // unlockedSlots: 当前已选配件解锁出来的槽位集合（用于 requiresSlots 禁用状态）
+  const unlockedSlots = useMemo(
+    () => computeUnlockedSlots(selectedMods, modsById),
+    [selectedMods, modsById]
+  );
 
   // 从localStorage加载记忆的命中率
   useEffect(() => {
@@ -49,6 +66,7 @@ export function ModificationModal({
     localStorage.setItem('defaultHitRate', (newHitRatePercent / 100).toString());
   };
 
+  // groupedMods: { [slotTypeName]: Mod[] }，用于按配件槽位分类渲染
   const groupedMods = useMemo(() => {
     if (!availableMods) return {}; // 如果没有配件，返回一个空对象
 
@@ -72,6 +90,7 @@ export function ModificationModal({
 
   // 根据已选配件，动态决定当前应该使用哪个枪械变体的数据
   const currentVariantName = useMemo(() => {
+    // damageMod: 变体配件（damageChange）决定后端查询/显示哪把“变体武器”
     const damageMod = selectedMods
       .map(id => availableMods.find(m => m.id === id))
       .find(mod => mod?.effects.damageChange);
@@ -84,6 +103,7 @@ export function ModificationModal({
     return v;
   }, [selectedMods, availableMods, gunName]);
 
+  // currentVariantDetails: 当前变体在 gunDetailsMap 中对应的详情（含 bullets/dataPoints/previous 版本等）
   const currentVariantDetails = gunDetailsMap ? gunDetailsMap[currentVariantName] : null; // 【数据源切换】从 gunDetails 这个“数据字典”中，取出当前变体的数据
 
   // 当切换到没有“次新数据”的变体时，自动回退到“最新数据”
@@ -93,7 +113,9 @@ export function ModificationModal({
     }
   }, [currentVariantName]);
 
+  // isPreviousEnabled: 当前变体是否支持“上版本数据”切换
   const isPreviousEnabled = !!currentVariantDetails?.hasPrevious;
+  // activeDetails: 当前用于渲染/计算的数据源（latest 或 previous）
   const activeDetails = useMemo(() => {
     if (usePreviousData && isPreviousEnabled) {
       return {
@@ -112,6 +134,7 @@ export function ModificationModal({
     };
   }, [usePreviousData, isPreviousEnabled, currentVariantDetails]);
 
+  // bulletOptions: 当前变体 + 当前数据版本下“可选弹药”列表（还会按口径过滤）
   const bulletOptions = useMemo(() => {
     // 【实时联动】后续的所有 useMemo，都依赖于这个【动态切换】的数据源
 
@@ -119,10 +142,13 @@ export function ModificationModal({
       return [];
     }
 
+    // availableBulletNames: 后端返回的该变体可用子弹名列表
     const availableBulletNames = activeDetails.availableBullets;
 
+    // weaponInfo: 基础枪信息（用于取口径）
     const weaponInfo = weaponInfoMap[gunName]; //根据枪械名找到口径
     if (!weaponInfo) return [];
+    // weaponCaliber: 当前枪的口径
     const weaponCaliber = weaponInfo.caliber;
 
     return ammos.filter(
@@ -141,6 +167,7 @@ export function ModificationModal({
     }
   }, [bulletOptions, selectedBullet]);
 
+  // firstRangeBtkData: 当前选中弹药在“最近距离点”的 btk 分布（用于一段射程分布图）
   const firstRangeBtkData = useMemo(() => {
     if (!activeDetails || !activeDetails.allDataPoints || !selectedBullet) {
       return null;
@@ -158,36 +185,15 @@ export function ModificationModal({
   }, [activeDetails, selectedBullet]);
 
   const handleModChange = (modId, isSelected) => {
-    // modId: 用户刚刚操作的那个配件的ID
-    // isSelected: 这个配件现在是否被选中
-    if (!isSelected) {
-      // 如果取消选择，直接从 selectedMods 中移除
-      setSelectedMods(selectedMods.filter(id => id !== modId));
-      return;
-    }
-
-    // 如果是选择操作，先检查是否已经有同类型的配件被选中
-    const mod = availableMods.find(m => m.id === modId);
-    if (!mod || !mod.type) return; // 安全检查：确保 mod 和 mod.type 存在
-
-    const newModSlots = mod.type; //获取配件占用的所有槽位
-
-    setSelectedMods(prevSelectedIds => {
-      // a. 先从之前的已选列表中，过滤掉所有与新配件冲突的旧配件
-      const nonConflictingMods = prevSelectedIds.filter(oldModId => {
-        const oldMod = availableMods.find(m => m.id === oldModId);
-        if (!oldMod) return false; // 如果找不到旧配件信息，也移除
-
-        // 检查 oldMod.type 和 newModSlots 这两个数组，是否有任何一个共同的元素
-        const hasConflict = oldMod.type.some(slot => newModSlots.includes(slot));
-
-        // 如果没有冲突，就保留这个旧配件
-        return !hasConflict;
-      });
-
-      // b. 最后，将【新勾选】的配件ID，添加到这个不冲突的列表末尾
-      return [...nonConflictingMods, modId];
-    });
+    // 使用通用工具处理互斥槽位/解锁槽位/级联移除
+    setSelectedMods(prevSelectedIds =>
+      toggleModSelection({
+        modId,
+        isSelected,
+        selectedModIds: prevSelectedIds,
+        availableMods: availableMods || [],
+      })
+    );
   };
 
   if (!isOpen) return null;
@@ -282,9 +288,12 @@ export function ModificationModal({
                       <div
                         key={mod.id}
                         // 2. 根据 selectedMods 中是否包含 mod.id，动态添加 'selected' 类
-                        className={`mod-option ${selectedMods.includes(mod.id) ? 'selected' : ''}`}
+                        className={`mod-option ${selectedMods.includes(mod.id) ? 'selected' : ''} ${
+                          isModSelectable(mod, unlockedSlots) ? '' : 'disabled'
+                        }`}
                         // 3. 将点击事件直接绑定在 div 上
                         onClick={() => {
+                          if (!isModSelectable(mod, unlockedSlots)) return;
                           // 4. 在点击时，手动切换选择状态
                           const isCurrentlySelected = selectedMods.includes(mod.id);
                           handleModChange(mod.id, !isCurrentlySelected);

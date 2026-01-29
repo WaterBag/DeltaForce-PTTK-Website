@@ -10,6 +10,7 @@
  * @param {Function} next - Express next函数
  */
 const notFoundHandler = (req, res, next) => {
+  // error: 统一封装的 404 错误对象（交给全局错误处理中间件）
   const error = new Error(`未找到路由 - ${req.originalUrl}`);
   error.status = 404;
   next(error);
@@ -24,6 +25,7 @@ const notFoundHandler = (req, res, next) => {
  */
 const globalErrorHandler = (err, req, res, next) => {
   // 设置HTTP状态码
+  // statusCode: 优先使用 err.status/err.statusCode，否则默认 500
   const statusCode = err.status || err.statusCode || 500;
   
   // 记录错误日志
@@ -42,6 +44,7 @@ const globalErrorHandler = (err, req, res, next) => {
     error: {
       status: statusCode,
       path: req.path,
+      // timestamp: 便于前端/日志按时间定位错误
       timestamp: new Date().toISOString(),
       // 开发环境下返回详细的错误堆栈信息
       ...(process.env.NODE_ENV === 'development' && { stack: err.stack })

@@ -4,6 +4,7 @@ import { weapons } from '../assets/data/weapons';
 import { ammos } from '../assets/data/ammos';
 import { WeaponList } from '../components/data_library/WeaponList';
 import { AmmoList } from '../components/data_library/AmmoList';
+import { modifications } from '../assets/data/modifications';
 
 /**
  * 数据图鉴页面组件 - 显示所有静态游戏数据
@@ -15,19 +16,26 @@ export function DataLibrary() {
   const [activeTab, setActiveTab] = useState('weapons');
   
   // 武器列表状态
+  // weaponSearchText: 武器名称搜索关键字（大小写不敏感）
   const [weaponSearchText, setWeaponSearchText] = useState('');
+  // weaponCaliberFilter: 武器口径筛选（'all' 表示不筛选）
   const [weaponCaliberFilter, setWeaponCaliberFilter] = useState('all');
+  // weaponSortBy: 武器排序字段（name/armorDPS/fleshDPS/fireRate...）
   const [weaponSortBy, setWeaponSortBy] = useState('name'); // name, armorDPS, fleshDPS, fireRate, etc.
   
   // 弹药列表状态
+  // ammoSearchText: 弹药名称搜索关键字
   const [ammoSearchText, setAmmoSearchText] = useState('');
+  // ammoCaliberFilter: 弹药口径筛选
   const [ammoCaliberFilter, setAmmoCaliberFilter] = useState('all');
+  // ammoSortBy: 弹药排序字段
   const [ammoSortBy, setAmmoSortBy] = useState('name');
 
   /**
    * 获取所有可用口径列表
    */
   const availableCalibers = useMemo(() => {
+    // calibers: 用 Set 去重收集所有武器口径
     const calibers = new Set();
     weapons.forEach(w => calibers.add(w.caliber));
     return ['all', ...Array.from(calibers).sort()];
@@ -39,16 +47,53 @@ export function DataLibrary() {
    * 排除霰弹枪
    */
   const weaponsWithDPS = useMemo(() => {
-    // 霰弹枪列表
+    // shotguns: 霰弹枪列表（图鉴 DPS 口径/机制不同，当前选择排除）
     const shotguns = ['725双管', 'M870', 'S12K', 'M1014'];
+
+    // weaponByName: 用于 O(1) 通过 name 查找武器对象
+    const weaponByName = new Map(weapons.map(w => [w.name, w]));
+
+    // findBaseWeaponForVariant: 通过“指向变体武器的变体配件”反推基础武器
+    // 用于 Minimal Variant 回退：变体条目只写差异字段，其余从基础武器补齐
+    const findBaseWeaponForVariant = (variantWeapon) => {
+      if (!variantWeapon?.isModification) return null;
+
+      // mod: 指向该变体武器的变体配件（effects.dataQueryName 包含 variantWeapon.name）
+      const mod = modifications.find(m => {
+        const v = m?.effects?.dataQueryName;
+        if (typeof v === 'string') return v === variantWeapon.name;
+        if (v && typeof v === 'object' && !Array.isArray(v)) {
+          return Object.values(v).includes(variantWeapon.name);
+        }
+        return false;
+      });
+
+      // baseName: 约定 appliesTo[0] 为基础武器名
+      const baseName = mod?.appliesTo?.[0];
+      if (!baseName) return null;
+      return weaponByName.get(baseName) || null;
+    };
     
     return weapons
       .filter(w => !shotguns.includes(w.name)) // 排除霰弹枪
-      .map(weapon => ({
-        ...weapon,
-        armorDPS: weapon.armorDamage * (weapon.fireRate / 60),
-        fleshDPS: weapon.damage * (weapon.fireRate / 60),
-      }));
+      .map(weapon => {
+        // Minimal Variant 回退：变体只写差异字段，其余字段从基础武器补齐
+        // baseWeapon: 变体对应的基础武器（如果 weapon 本身不是变体则为 null）
+        const baseWeapon = findBaseWeaponForVariant(weapon);
+        // merged: 合并后的展示/计算对象（基础字段 + 变体覆写字段）
+        const merged = baseWeapon ? { ...baseWeapon, ...weapon } : weapon;
+
+        // 数值字段统一做 Number() 兜底，避免字符串/空值导致 NaN
+        const fireRate = Number(merged.fireRate) || 0;
+        const armorDamage = Number(merged.armorDamage) || 0;
+        const damage = Number(merged.damage) || 0;
+
+        return {
+          ...merged,
+          armorDPS: armorDamage * (fireRate / 60),
+          fleshDPS: damage * (fireRate / 60),
+        };
+      });
   }, []);
 
   /**
@@ -70,6 +115,7 @@ export function DataLibrary() {
     }
 
     // 排序
+    // sort: 返回新的数组，避免直接排序 state/memo 的引用
     filtered = [...filtered].sort((a, b) => {
       switch (weaponSortBy) {
         case 'name':

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import './ModifiedWeaponStats.css';
 import { modifications } from '../../assets/data/modifications';
-import { weapons } from '../../assets/data/weapons';
 import { RangeDecayChartFull } from './RangeDecayChartFull';
 
 /**
@@ -24,25 +23,30 @@ export function ModifiedWeaponStats({ weapon, selectedMods, showOnlyStats = fals
     
     // 首先确定基础数据和基础修改器
     // 如果是变体武器,需要先应用其对应配件的修改器作为基准
+    // baseFireRate/baseMuzzleVelocity: 作为“叠加起点”的基础值（变体武器会先叠加自身基础修改器）
     let baseFireRate = weapon.fireRate;
     let baseMuzzleVelocity = weapon.muzzleVelocity;
+    // baseRange*: 射程档位的基础值
     let baseRange1 = weapon.range1;
     let baseRange2 = weapon.range2;
     let baseRange3 = weapon.range3;
     let baseRange4 = weapon.range4;
     let baseRange5 = weapon.range5;
+    // baseDecay*: 衰减倍率（通常不随百分比修正变化）
     let baseDecay1 = weapon.decay1;
     let baseDecay2 = weapon.decay2;
     let baseDecay3 = weapon.decay3;
     let baseDecay4 = weapon.decay4;
     let baseDecay5 = weapon.decay5;
     
+    // base*Modifier: 变体武器对应的“变体配件”提供的基础百分比修正
     let baseFireRateModifier = 0;
     let baseMuzzleVelocityModifier = 0;
     let baseRangeModifier = 0;
 
     // 如果是变体武器,查找其对应的配件并应用基础修改器
     if (weapon.isModification) {
+      // variantMod: 指向该变体武器的变体配件（effects.dataQueryName 命中 weapon.name）
       const variantMod = modifications.find(m => {
         if (typeof m.effects?.dataQueryName === 'string') {
           return m.effects.dataQueryName === weapon.name;
@@ -53,6 +57,7 @@ export function ModifiedWeaponStats({ weapon, selectedMods, showOnlyStats = fals
       });
 
       if (variantMod && variantMod.effects) {
+        // 从变体配件上取“基础修正”（这部分在图鉴中视为该变体武器自带）
         baseFireRateModifier = variantMod.effects.fireRateModifier || 0;
         baseMuzzleVelocityModifier = variantMod.effects.muzzleVelocityModifier || 0;
         baseRangeModifier = variantMod.effects.rangeModifier || 0;
@@ -91,6 +96,7 @@ export function ModifiedWeaponStats({ weapon, selectedMods, showOnlyStats = fals
 
     // 有选择额外配件,需要在基础上叠加这些配件的效果
     // 累加所有选择的配件的百分比效果
+    // total*Modifier: 总百分比修正 = 变体基础修正 + 用户额外选择的配件修正
     let totalFireRateModifier = baseFireRateModifier;
     let totalRangeModifier = baseRangeModifier;
     let totalMuzzleVelocityModifier = baseMuzzleVelocityModifier;
@@ -105,6 +111,7 @@ export function ModifiedWeaponStats({ weapon, selectedMods, showOnlyStats = fals
     });
 
     // 从原始武器数据应用所有累积的修改器
+    // final*: 最终展示用数值（按 value *= (1 + modifier) 计算）
     const finalFireRate = weapon.fireRate * (1 + totalFireRateModifier);
     const finalMuzzleVelocity = weapon.muzzleVelocity * (1 + totalMuzzleVelocityModifier);
     const finalRange1 = weapon.range1 * (1 + totalRangeModifier);
@@ -157,6 +164,7 @@ export function ModifiedWeaponStats({ weapon, selectedMods, showOnlyStats = fals
   // 构造用于图表的武器对象
   const chartWeapon = {
     ...weapon,
+    // chartWeapon: 仅替换射程/衰减数据，用于射程衰减图表渲染
     range1: modifiedStats.range1,
     range2: modifiedStats.range2,
     range3: modifiedStats.range3,
@@ -172,9 +180,11 @@ export function ModifiedWeaponStats({ weapon, selectedMods, showOnlyStats = fals
   // 只显示射速和初速
   if (showOnlyStats) {
     // 计算每10m距离的飞行时间(ms)
+    // timePerTenMeters: 10m 飞行时间（ms），用于直观展示初速差异
     const timePerTenMeters = (10000 / modifiedStats.muzzleVelocity).toFixed(1);
     
     // 计算每秒伤害
+    // armorDPS/fleshDPS: 基于“修改后射速”的 DPS（/60 把 RPM 转为每秒发数）
     const armorDPS = (weapon.armorDamage * modifiedStats.fireRate / 60).toFixed(1);
     const fleshDPS = (weapon.damage * modifiedStats.fireRate / 60).toFixed(1);
     

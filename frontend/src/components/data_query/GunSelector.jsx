@@ -28,7 +28,12 @@ export function GunSelector({ guns, onGunSelect }) {
   const sortedGuns = guns
     .map(gunName => weaponDetailsMap[gunName])
     .filter(weapon => weapon) // 确保 weapon 对象存在
+    .filter(weapon => !weapon.isModification) // 过滤变体武器（仅作为配件/变体数据源）
     .sort((a, b) => a.id - b.id); // 2. 按武器ID从小到大排序
+
+  if (sortedGuns.length === 0) {
+    return <div className="comparison-list-empty">当前条件下无可用基础枪械</div>;
+  }
   return (
     <div className="gun-selector">
       {sortedGuns.map(weapon => {
@@ -39,7 +44,9 @@ export function GunSelector({ guns, onGunSelect }) {
             key={weapon.id} // 使用武器ID作为唯一键
           >
             {/* 武器图片和名称显示 */}
-            <img src={weapon.image} alt={weapon.name} className="gun-item-image" />
+            {weapon.image ? (
+              <img src={weapon.image} alt={weapon.name} className="gun-item-image" />
+            ) : null}
             <span className="gun-item-name">{weapon.name}</span>
           </div>
         );

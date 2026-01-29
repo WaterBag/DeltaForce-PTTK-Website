@@ -40,6 +40,7 @@ import './DataQuery.css';
 export function DataQuery() {
   // 辅助：解析配件的 btkQueryName（可能为对象映射）
   const resolveBtkQueryName = useCallback((mod, baseGunName) => {
+    // v: btkQueryName，允许是 string 或 { [baseGunName]: variantName } 的映射对象
     const v = mod?.effects?.btkQueryName;
     if (v && typeof v === 'object' && !Array.isArray(v)) {
       return v[baseGunName];
@@ -94,6 +95,7 @@ export function DataQuery() {
   const [applyTriggerDelay, setApplyTriggerDelay] = useState(false);
 
   // 使用 ref 跟踪护甲配置的前一个值 (包含ID用于检测护甲切换)
+  // prevArmorConfigRef: 记录上一次护甲配置（用于检测“发生切换”与恢复/确认弹窗逻辑）
   const prevArmorConfigRef = useRef({
     helmetId: null,
     helmetDurability: null,
@@ -102,12 +104,13 @@ export function DataQuery() {
   });
 
   // 使用 ref 跟踪是否正在刷新数据，避免重复刷新
+  // isRefreshingRef: 防抖/互斥锁，避免同一时间触发多次刷新请求
   const isRefreshingRef = useRef(false);
   
-  // 使用 ref 标记是否正在恢复护甲配置(取消切换时)
+  // isRestoringArmorRef: 标记是否处于“取消切换后的恢复流程”，避免重复弹窗/重复刷新
   const isRestoringArmorRef = useRef(false);
   
-  // 使用 ref 存储当前的对比线数据，用于刷新时访问
+  // comparisonLinesRef: 保存最新 comparisonLines（用于异步回调里拿到最新值，避免闭包旧值）
   const comparisonLinesRef = useRef([]);
 
   // 同步 comparisonLines 到 ref
@@ -141,6 +144,7 @@ export function DataQuery() {
     
     try {
       // 从 ref 中获取当前的对比线数据
+      // currentLines: 仅刷新“后端查询得到”的线；模拟线不需要请求后端
       const currentLines = comparisonLinesRef.current.filter(line => !line.isSimulated);
 
       if (currentLines.length === 0) {
@@ -153,11 +157,13 @@ export function DataQuery() {
       const refreshPromises = currentLines.map(async (line) => {
         try {
           // 检查当前配置是否使用了伤害变更配件
+          // usedDamageMod: 当前配置中是否使用了 damageChange 变体配件（决定查询哪把枪）
           const usedDamageMod = line.mods
             .map(modId => modifications.find(m => m.id === modId))
             .find(mod => mod && mod.effects && mod.effects.damageChange);
 
           // 确定要查询的枪械名称
+          // queryGunName: 发送给后端的枪名（若装了变体配件则替换为变体名）
           const queryGunName = usedDamageMod 
             ? resolveBtkQueryName(usedDamageMod, line.gunName)
             : line.gunName;
@@ -181,6 +187,7 @@ export function DataQuery() {
           }
 
           // 直接使用 API 返回的原始数据格式
+          // shouldUsePrevious: 当前线是否选择“上版本数据”，且后端确实提供 previous 数据
           const shouldUsePrevious = line.dataVersion === 'previous' && gunDetails?.hasPrevious;
           const chosenPoints = shouldUsePrevious
             ? gunDetails.previousAllDataPoints
@@ -201,6 +208,7 @@ export function DataQuery() {
       
       // 保留模拟数据,只更新后端查询的数据
       setComparisonLines(prevLines => {
+        // simulatedLines: 本地模拟得到的线，不随护甲切换重新请求后端
         const simulatedLines = prevLines.filter(line => line.isSimulated);
         return [...refreshedLines, ...simulatedLines];
       });
@@ -1020,7 +1028,9 @@ export function DataQuery() {
 
               const hasDamageChange = mod.effects.damageChange === true;
 
-              return hasRealEffect || hasDamageChange;
+              const hasUnlockSlots = Array.isArray(mod.effects.unlockSlots) && mod.effects.unlockSlots.length > 0;
+
+              return hasRealEffect || hasDamageChange || hasUnlockSlots;
             })
             : []
         }

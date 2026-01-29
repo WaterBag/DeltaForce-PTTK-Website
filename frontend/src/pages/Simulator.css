@@ -249,6 +249,16 @@
   background-color: #f4f5f7;
 }
 
+.right-panel .mod-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.right-panel .mod-option.disabled:hover {
+  border-color: transparent;
+  background-color: #fafbfc;
+}
+
 /* ▼▼▼ 【核心修正 4】为 .selected 类添加高亮样式 ▼▼▼ */
 .right-panel .mod-option.selected {
   background-color: #e6f0ff;

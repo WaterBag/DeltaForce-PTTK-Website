@@ -6,7 +6,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-// 创建MySQL连接池配置
+// pool: MySQL 连接池（回调版），由 mysql2 创建
 const pool = mysql.createPool({
     host: process.env.DB_HOST,           // 数据库主机地址
     user: process.env.DB_USER,           // 数据库用户名
@@ -17,7 +17,7 @@ const pool = mysql.createPool({
     queueLimit: 0                        // 无限制的排队请求
 });
 
-// 将连接池转换为Promise版本以便使用async/await
+// promisePool: Promise 版连接池（支持 async/await）
 const promisePool = pool.promise();
 
 /**
@@ -26,6 +26,7 @@ const promisePool = pool.promise();
  */
 async function testConnection() {
     try {
+        // rows: 测试查询返回行
         const [rows] = await promisePool.query('SELECT 1 + 1 AS solution');
         console.log(`✅ 数据库连接成功: 1 + 1 = ${rows[0].solution}`);
     } catch (err) {

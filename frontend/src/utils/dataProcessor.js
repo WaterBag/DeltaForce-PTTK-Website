@@ -22,10 +22,13 @@ import { COLORS } from '../components/data_query/TtkChart.jsx';
  */
 const EbtkCalculator = (btkDataJsonString, hitRate = 1.0) => {
   try {
+    // btkData: [{btk, probability}] 概率分布数组
     const btkData = JSON.parse(btkDataJsonString);
+    // baseEbtk: 理论期望发数（100% 命中）
     const baseEbtk = btkData.reduce((sum, current) => sum + current.btk * current.probability, 0);
     
     // 命中率调整：实际需要的发数 = 理论需要发数 / 命中率
+    // adjustedEbtk: 考虑命中率后的期望发数（命中率越低，需要发数越高）
     const adjustedEbtk = baseEbtk / hitRate;
     
     return adjustedEbtk;
@@ -47,6 +50,7 @@ const weaponInfoMap = weapons.reduce((acc, weapon) => {
 // - 字符串：直接返回
 // - 映射对象：{ 基础武器名: 变体名 }，按 baseGunName 取值
 const resolveVariantName = (maybeMapOrString, baseGunName) => {
+  // maybeMapOrString: 允许是 string 或 { [baseGunName]: variantName } 映射
   if (maybeMapOrString && typeof maybeMapOrString === 'object' && !Array.isArray(maybeMapOrString)) {
     return maybeMapOrString[baseGunName];
   }
@@ -124,7 +128,13 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
   return comparisonLines
     .map((lineConfig, index) => {
       // --- 准备工作：获取所需信息 ---
+      // gunName: 基础枪名（对比线的“基准武器名”）
+      // bulletName: 子弹名
+      // mods: 已选配件 id 列表
+      // btkDataPoints: 后端返回的 BTK 数据点（按距离）
+      // hitRate: 命中率（0-1）
       const { gunName, bulletName, mods, btkDataPoints, displayName, hitRate = 1.0 } = lineConfig;
+      // weaponInfo: 基础武器信息（来自静态 weapons.js，用于射速/射程/初速等）
       const weaponInfo = weaponInfoMap[gunName];
 
       if (!weaponInfo) {
@@ -146,19 +156,23 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
 
       // a. 查找是否有名为 "damageChange" 的特殊配件被选中
       //    这类配件会完全改变武器的伤害属性（如口径转换）
+      // damageMod: 当前配置中第一个“改变伤害模板”的变体配件
       const damageMod = mods
         ?.map(modId => allModifications.find(m => m.id === modId)) // 将id数组转为配件对象数组
         ?.find(mod => mod?.effects?.damageChange === true); // 找到第一个带 damageChange 的配件
 
       // b. 查找是否有名为 "specialRange" 的特殊配件被选中
       //    这类配件会使用变体武器的射程数据
+      // specialRangeMod: 当前配置中第一个“改变射程模板”的变体配件
       const specialRangeMod = mods
         ?.map(modId => allModifications.find(m => m.id === modId))
         ?.find(mod => mod?.effects?.specialRange === true);
 
       // c. 决定使用哪个武器作为"基础模板"
       //    默认使用用户选择的原始武器数据
+      // baseWeaponProfile: 用于提供伤害/倍率等“伤害模板”的武器数据
       let baseWeaponProfile = weaponInfo;
+      // rangeWeaponProfile: 用于提供 range/decay 等“射程模板”的武器数据
       let rangeWeaponProfile = weaponInfo;
 
       //    如果找到了特殊配件（如口径转换套件）...
@@ -188,9 +202,13 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
       }
 
       // 初始化"效果累加器"
+      // totalFireRateModifier: 射速百分比修正累加
       let totalFireRateModifier = 0;
+      // totalRangeModifier: 射程百分比修正累加
       let totalRangeModifier = 0;
+      // totalMuzzleVelocityModifier: 初速百分比修正累加
       let totalMuzzleVelocityModifier = 0;
+      // totalTriggerDelay: 扳机延迟毫秒数累加（叠加到基础 triggerDelay 上）
       let totalTriggerDelay = 0;
 
       // 遍历配件，只进行"累加"操作
@@ -219,31 +237,34 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
       // d. 创建一个最终属性对象，它的伤害相关属性来自正确的"基础模板"
       //    射程和射程衰减倍率属性来自"射程模板"，其他属性仍然来自【原始】的 weaponInfo
       //    这种分离确保配件只影响它们应该影响的属性
+      // finalWeaponStats: 基于“基础枪 + 变体模板”合成出的武器属性（尚未应用百分比累加器）
       let finalWeaponStats = {
         ...weaponInfo, // 初始继承所有原始武器的属性
         // 用"基础模板"的伤害数据覆盖（处理口径转换等特殊情况）
-        damage: baseWeaponProfile.damage,
-        armorDamage: baseWeaponProfile.armorDamage,
-        headMultiplier: baseWeaponProfile.headMultiplier,
-        abdomenMultiplier: baseWeaponProfile.abdomenMultiplier,
-        upperArmMultiplier: baseWeaponProfile.upperArmMultiplier,
-        lowerArmMultiplier: baseWeaponProfile.lowerArmMultiplier,
-        thighMultiplier: baseWeaponProfile.thighMultiplier,
-        calfMultiplier: baseWeaponProfile.calfMultiplier,
+        // 允许“Minimal Variant”：变体只写差异字段，其余字段回退到原始武器
+        damage: baseWeaponProfile.damage ?? weaponInfo.damage,
+        armorDamage: baseWeaponProfile.armorDamage ?? weaponInfo.armorDamage,
+        headMultiplier: baseWeaponProfile.headMultiplier ?? weaponInfo.headMultiplier,
+        abdomenMultiplier: baseWeaponProfile.abdomenMultiplier ?? weaponInfo.abdomenMultiplier,
+        upperArmMultiplier: baseWeaponProfile.upperArmMultiplier ?? weaponInfo.upperArmMultiplier,
+        lowerArmMultiplier: baseWeaponProfile.lowerArmMultiplier ?? weaponInfo.lowerArmMultiplier,
+        thighMultiplier: baseWeaponProfile.thighMultiplier ?? weaponInfo.thighMultiplier,
+        calfMultiplier: baseWeaponProfile.calfMultiplier ?? weaponInfo.calfMultiplier,
         // 用"射程模板"的射程和射程衰减倍率数据覆盖（处理specialRange配件）
-        range1: rangeWeaponProfile.range1,
-        range2: rangeWeaponProfile.range2,
-        range3: rangeWeaponProfile.range3,
-        range4: rangeWeaponProfile.range4,
-        range5: rangeWeaponProfile.range5,
-        decay1: rangeWeaponProfile.decay1,
-        decay2: rangeWeaponProfile.decay2,
-        decay3: rangeWeaponProfile.decay3,
-        decay4: rangeWeaponProfile.decay4,
-        decay5: rangeWeaponProfile.decay5,
+        range1: rangeWeaponProfile.range1 ?? weaponInfo.range1,
+        range2: rangeWeaponProfile.range2 ?? weaponInfo.range2,
+        range3: rangeWeaponProfile.range3 ?? weaponInfo.range3,
+        range4: rangeWeaponProfile.range4 ?? weaponInfo.range4,
+        range5: rangeWeaponProfile.range5 ?? weaponInfo.range5,
+        decay1: rangeWeaponProfile.decay1 ?? weaponInfo.decay1,
+        decay2: rangeWeaponProfile.decay2 ?? weaponInfo.decay2,
+        decay3: rangeWeaponProfile.decay3 ?? weaponInfo.decay3,
+        decay4: rangeWeaponProfile.decay4 ?? weaponInfo.decay4,
+        decay5: rangeWeaponProfile.decay5 ?? weaponInfo.decay5,
       };
 
       // 最终计算 - 应用百分比效果
+      // modifiedWeaponInfo: 应用全部百分比修正与扳机延迟后的“最终用于曲线计算”的武器属性
       const modifiedWeaponInfo = {
         ...finalWeaponStats, // 使用已经处理过特殊配件的最终属性
 
@@ -256,12 +277,27 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
         // 计算最终的扳机延迟（基础值加上配件修改）
         triggerDelay: (finalWeaponStats.triggerDelay || 0) + totalTriggerDelay,
 
-        // 计算最终的各个射程档位（如果specialRange配件存在，这些已经是变体武器的射程）
-        range1: finalWeaponStats.range1 ? finalWeaponStats.range1 * (1 + totalRangeModifier) : 0,
-        range2: finalWeaponStats.range2 ? finalWeaponStats.range2 * (1 + totalRangeModifier) : 0,
-        range3: finalWeaponStats.range3 ? finalWeaponStats.range3 * (1 + totalRangeModifier) : 0,
-        range4: finalWeaponStats.range4 ? finalWeaponStats.range4 * (1 + totalRangeModifier) : 0,
-        range5: finalWeaponStats.range5 ? finalWeaponStats.range5 * (1 + totalRangeModifier) : 0,
+        // 计算最终的各个射程档位（如果 specialRange 配件存在，这些已经是变体武器的射程）
+        range1:
+          finalWeaponStats.range1 === 999
+            ? 999
+            : (finalWeaponStats.range1 ? finalWeaponStats.range1 * (1 + totalRangeModifier) : 0),
+        range2:
+          finalWeaponStats.range2 === 999
+            ? 999
+            : (finalWeaponStats.range2 ? finalWeaponStats.range2 * (1 + totalRangeModifier) : 0),
+        range3:
+          finalWeaponStats.range3 === 999
+            ? 999
+            : (finalWeaponStats.range3 ? finalWeaponStats.range3 * (1 + totalRangeModifier) : 0),
+        range4:
+          finalWeaponStats.range4 === 999
+            ? 999
+            : (finalWeaponStats.range4 ? finalWeaponStats.range4 * (1 + totalRangeModifier) : 0),
+        range5:
+          finalWeaponStats.range5 === 999
+            ? 999
+            : (finalWeaponStats.range5 ? finalWeaponStats.range5 * (1 + totalRangeModifier) : 0),
       };
 
       const { fireRate } = modifiedWeaponInfo; // 从【改装后】的武器信息中获取射速

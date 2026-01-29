@@ -139,6 +139,16 @@
   border-color: #0052cc;
 }
 
+.mod-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mod-option.disabled:hover {
+  border-color: #dfe1e6;
+  box-shadow: none;
+}
+
 .mod-option input[type='checkbox'] {
   margin-right: 10px;
   width: 16px;

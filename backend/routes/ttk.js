@@ -16,6 +16,7 @@ const router = express.Router();
  */
 router.post('/available-guns', asyncHandler(async (req, res) => {
     console.log("收到请求枪械参数:", req.body);
+    // 请求体参数：防护等级/耐久/覆盖部位，用于筛选可用枪械
     const {
         helmetLevel,
         armorLevel,
@@ -51,6 +52,7 @@ router.post('/available-guns', asyncHandler(async (req, res) => {
  */
 router.post('/gun-details', asyncHandler(async (req, res) => {
     console.log("收到请求枪械和子弹参数:", req.body);
+    // 请求体参数：枪名 + 防护配置
     const {
         gunName,
         helmetLevel,
@@ -61,8 +63,10 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
         stomachProtection,
         armProtection
     } = req.body;
+    // gun_name: 数据库字段对应的枪名（与前端 gunName 同值）
     const gun_name = gunName;
 
+    // whereSql: 公共 WHERE 片段（用于多个查询复用）
     const whereSql = `
         FROM btk_list_results
         WHERE gun_name = ?
@@ -75,6 +79,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
             AND protects_upper_arm = ?
     `;
 
+    // whereParams: 对应 whereSql 的占位符参数数组（顺序必须与 SQL 一致）
     const whereParams = [
         gun_name,
         helmetLevel,
@@ -87,6 +92,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
     ];
 
     // 0) 兼容字段名：created_at / create_at
+    // timeColRows: 检测表内时间列名（兼容 created_at / create_at）
     const [timeColRows] = await db.query(
         `SELECT COLUMN_NAME
          FROM INFORMATION_SCHEMA.COLUMNS
@@ -96,10 +102,12 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
          LIMIT 1`
     );
 
+    // timeColumn: 实际存在的时间列名（不存在则为 null，退化为旧逻辑）
     const timeColumn = timeColRows && timeColRows.length > 0 ? timeColRows[0].COLUMN_NAME : null;
 
     // 如果找不到时间列，则退化为旧行为：只返回最新(allDataPoints)一套（无法区分次新）
     if (!timeColumn) {
+        // legacyRows: 不区分版本时的旧返回（仅一套 allDataPoints）
         const [legacyRows] = await db.query(
             `SELECT DISTINCT bullet_name, distance, btk_data
              ${whereSql}
@@ -107,6 +115,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
             whereParams
         );
 
+        // availableBullets: 去重后的可用子弹列表
         const availableBullets = [...new Set(legacyRows.map(row => row.bullet_name))];
         res.json({
             availableBullets,
@@ -124,6 +133,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
     // 版本判定规则（按你的定义）：
     // - 不同子弹的时间不同不代表不同版本
     // - 只有在“相同 bullet_name + 其它条件一致”时，出现“数据内容不同且时间不同”，才视为新旧两个版本
+    // allRows: 拉取该枪+护甲条件下的所有数据点（包含时间列用于版本判定）
     const [allRows] = await db.query(
         `SELECT bullet_name, distance, btk_data, \`${timeColumn}\` AS created_at
          ${whereSql}
@@ -146,6 +156,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
         return;
     }
 
+    // normalizeBtkData: 将 btk_data 归一化为“稳定字符串签名”（用于判断内容是否相同）
     const normalizeBtkData = (btkData) => {
         if (btkData == null) return null;
         try {
@@ -165,6 +176,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
         }
     };
 
+    // toTs: 将时间值转换为毫秒时间戳（无法解析则返回 0）
     const toTs = (v) => {
         if (v instanceof Date) return v.getTime();
         const d = new Date(v);
@@ -172,6 +184,7 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
         return Number.isFinite(t) ? t : 0;
     };
 
+    // toIsoOrString: 将时间值转换为 ISO 字符串（无法解析则退回字符串）
     const toIsoOrString = (v) => {
         if (v instanceof Date) return v.toISOString();
         const d = new Date(v);
@@ -179,7 +192,8 @@ router.post('/gun-details', asyncHandler(async (req, res) => {
         return Number.isFinite(t) ? d.toISOString() : String(v);
     };
 
-    // bullet -> createdKey -> { ts, createdAtRaw, rows: [] }
+    // bulletMap: bullet -> createdKey -> { ts, createdAtRaw, rows: [] }
+    // 用于把所有数据点按“子弹 + 时间快照”分组，后续做版本合并/挑选
     const bulletMap = new Map();
     for (const row of allRows) {
         const bullet = row.bullet_name;

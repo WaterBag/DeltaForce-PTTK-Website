@@ -14,6 +14,7 @@ import { weapons } from '../../assets/data/weapons';
  */
 export const WeaponSelector = ({ selectedWeapon, onSelect }) => {
   // 过滤武器列表，只选择不是变体的武器 (isModification 不为 true)
+  // selectableWeapons: 模拟器里可被直接选择的“基础武器”列表（变体武器仅作为模板/数据源）
   const selectableWeapons = weapons.filter(weapon => !weapon.isModification);
 
   return (
@@ -25,7 +26,9 @@ export const WeaponSelector = ({ selectedWeapon, onSelect }) => {
       className="weapon-selector"
       renderSelected={weapon => (
         <>
-          <img src={weapon.image} alt={weapon.name} className="weapon-option-image" />
+          {weapon.image ? (
+            <img src={weapon.image} alt={weapon.name} className="weapon-option-image" />
+          ) : null}
           <span className="weapon-option-name">{weapon.name}</span>
         </>
       )}

@@ -14,7 +14,9 @@ import { modifications } from '../../assets/data/modifications';
  * @returns {JSX.Element} 武器列表组件
  */
 export function WeaponList({ weapons, onCaliberClick }) {
+  // expandedWeaponId: 当前展开的武器卡片 id（用于显示配件面板/对比面板）
   const [expandedWeaponId, setExpandedWeaponId] = React.useState(null);
+  // weaponMods: { [weaponId]: string[] }，记录每把武器在图鉴里选择的配件 id 列表
   const [weaponMods, setWeaponMods] = React.useState({});
 
   /**
@@ -25,7 +27,7 @@ export function WeaponList({ weapons, onCaliberClick }) {
   const getRangeModifier = (weapon) => {
     if (!weapon.isModification) return 0;
     
-    // 根据武器名称查找对应的配件
+    // mod: 指向该变体武器的变体配件（用于拿到 rangeModifier 展示）
     const mod = modifications.find(m => {
       if (typeof m.effects?.dataQueryName === 'string') {
         return m.effects.dataQueryName === weapon.name;
@@ -46,10 +48,18 @@ export function WeaponList({ weapons, onCaliberClick }) {
   const getDisplayWeaponStats = (weapon) => {
     // 如果不是变体武器,直接返回原始属性
     if (!weapon.isModification) {
-      return weapon;
+      // fireRate/armorDamage/damage: 做 Number() 兜底，避免数据字段为字符串/空值导致 NaN
+      const fireRate = Number(weapon.fireRate) || 0;
+      const armorDamage = Number(weapon.armorDamage) || 0;
+      const damage = Number(weapon.damage) || 0;
+      return {
+        ...weapon,
+        armorDPS: weapon.armorDPS ?? (armorDamage * fireRate) / 60,
+        fleshDPS: weapon.fleshDPS ?? (damage * fireRate) / 60,
+      };
     }
 
-    // 查找对应的配件
+    // mod: 该变体武器对应的变体配件（其 effects.* 作为“变体的基础修改器”）
     const mod = modifications.find(m => {
       if (typeof m.effects?.dataQueryName === 'string') {
         return m.effects.dataQueryName === weapon.name;
@@ -63,18 +73,27 @@ export function WeaponList({ weapons, onCaliberClick }) {
       return weapon;
     }
 
+    // Minimal Variant 回退：变体缺字段时，从其基础武器补齐
+    const baseName = mod?.appliesTo?.[0];
+    const baseWeapon = baseName ? weapons.find(w => w.name === baseName) : null;
+    // mergedWeapon: Minimal Variant 回退后的完整字段对象（基础字段 + 变体覆写字段）
+    const mergedWeapon = baseWeapon ? { ...baseWeapon, ...weapon } : weapon;
+
     // 应用配件修改器
+    // fireRateModifier/muzzleVelocityModifier: 该变体配件提供的基础百分比修正
     const fireRateModifier = mod.effects.fireRateModifier || 0;
     const muzzleVelocityModifier = mod.effects.muzzleVelocityModifier || 0;
 
     // 计算修改后的属性
-    const modifiedFireRate = weapon.fireRate * (1 + fireRateModifier);
-    const modifiedMuzzleVelocity = weapon.muzzleVelocity * (1 + muzzleVelocityModifier);
-    const modifiedArmorDPS = (weapon.armorDamage * modifiedFireRate) / 60;
-    const modifiedFleshDPS = (weapon.damage * modifiedFireRate) / 60;
+    // modifiedFireRate/modifiedMuzzleVelocity: 应用变体配件基础修正后的展示值
+    const modifiedFireRate = (Number(mergedWeapon.fireRate) || 0) * (1 + fireRateModifier);
+    const modifiedMuzzleVelocity = (Number(mergedWeapon.muzzleVelocity) || 0) * (1 + muzzleVelocityModifier);
+    // modifiedArmorDPS/modifiedFleshDPS: 基于修改后射速计算的 DPS（/60 把 RPM 转为 RPS）
+    const modifiedArmorDPS = ((Number(mergedWeapon.armorDamage) || 0) * modifiedFireRate) / 60;
+    const modifiedFleshDPS = ((Number(mergedWeapon.damage) || 0) * modifiedFireRate) / 60;
 
     return {
-      ...weapon,
+      ...mergedWeapon,
       fireRate: modifiedFireRate,
       muzzleVelocity: modifiedMuzzleVelocity,
       armorDPS: modifiedArmorDPS,
@@ -123,8 +142,11 @@ export function WeaponList({ weapons, onCaliberClick }) {
     <div className="weapon-list-container">
       <div className="weapon-list">
         {weapons.map((weapon) => {
+          // isExpanded: 当前卡片是否展开
           const isExpanded = expandedWeaponId === weapon.id;
+          // selectedMods: 当前武器在图鉴里选择的配件 id 列表
           const selectedMods = weaponMods[weapon.id] || [];
+          // displayWeapon: 用于卡片展示/图表的“补齐字段 + 应用变体基础修改器”的武器对象
           const displayWeapon = getDisplayWeaponStats(weapon);
           
           return (
@@ -135,11 +157,9 @@ export function WeaponList({ weapons, onCaliberClick }) {
               >
                 {/* 武器图片和名称 */}
                 <div className="weapon-basic-info">
-                  <img 
-                    src={weapon.image} 
-                    alt={weapon.name} 
-                    className="weapon-image"
-                  />
+                  {weapon.image ? (
+                    <img src={weapon.image} alt={weapon.name} className="weapon-image" />
+                  ) : null}
                   <div className="weapon-name-section">
                     <span className="weapon-name" style={{ fontSize: getFontSize(weapon.name) }}>
                       {weapon.name}
@@ -147,13 +167,13 @@ export function WeaponList({ weapons, onCaliberClick }) {
                     <div className="weapon-meta">
                       <button 
                         className="weapon-caliber"
-                        onClick={(e) => { e.stopPropagation(); onCaliberClick(weapon.caliber); }}
+                        onClick={(e) => { e.stopPropagation(); onCaliberClick(displayWeapon.caliber); }}
                         title="点击查看该口径的弹药"
                       >
-                        {weapon.caliber}
+                        {displayWeapon.caliber}
                       </button>
-                      {weapon.triggerDelay && weapon.triggerDelay > 0 && (
-                        <span className="trigger-delay">扳机延迟 {weapon.triggerDelay} ms</span>
+                      {displayWeapon.triggerDelay && displayWeapon.triggerDelay > 0 && (
+                        <span className="trigger-delay">扳机延迟 {displayWeapon.triggerDelay} ms</span>
                       )}
                     </div>
                   </div>
@@ -163,15 +183,15 @@ export function WeaponList({ weapons, onCaliberClick }) {
                 <div className="weapon-stats">
                   <div className="stat-item">
                     <span className="stat-label">甲伤</span>
-                    <span className="stat-value">{weapon.armorDamage.toFixed(1)}</span>
+                    <span className="stat-value">{(Number(displayWeapon.armorDamage) || 0).toFixed(1)}</span>
                     <span className="stat-label-secondary">每秒甲伤</span>
-                    <span className="stat-value-secondary">{displayWeapon.armorDPS.toFixed(1)}</span>
+                    <span className="stat-value-secondary">{(Number(displayWeapon.armorDPS) || 0).toFixed(1)}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">肉伤</span>
-                    <span className="stat-value">{weapon.damage.toFixed(1)}</span>
+                    <span className="stat-value">{(Number(displayWeapon.damage) || 0).toFixed(1)}</span>
                     <span className="stat-label-secondary">每秒肉伤</span>
-                    <span className="stat-value-secondary">{displayWeapon.fleshDPS.toFixed(1)}</span>
+                    <span className="stat-value-secondary">{(Number(displayWeapon.fleshDPS) || 0).toFixed(1)}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">射速</span>
@@ -181,21 +201,21 @@ export function WeaponList({ weapons, onCaliberClick }) {
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">头部</span>
-                    <span className="stat-value">{(weapon.damage * weapon.headMultiplier).toFixed(1)} (×{weapon.headMultiplier.toFixed(1)})</span>
+                    <span className="stat-value">{((Number(displayWeapon.damage) || 0) * (Number(displayWeapon.headMultiplier) || 0)).toFixed(1)} (×{(Number(displayWeapon.headMultiplier) || 0).toFixed(1)})</span>
                     <span className="stat-label-secondary stat-label-dark">胸部</span>
-                    <span className="stat-value-secondary stat-value-dark">{(weapon.damage * weapon.chestMultiplier).toFixed(1)} (×{weapon.chestMultiplier.toFixed(1)})</span>
+                    <span className="stat-value-secondary stat-value-dark">{((Number(displayWeapon.damage) || 0) * (Number(displayWeapon.chestMultiplier) || 0)).toFixed(1)} (×{(Number(displayWeapon.chestMultiplier) || 0).toFixed(1)})</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">腹部</span>
-                    <span className="stat-value">{(weapon.damage * weapon.abdomenMultiplier).toFixed(1)} (×{weapon.abdomenMultiplier.toFixed(1)})</span>
+                    <span className="stat-value">{((Number(displayWeapon.damage) || 0) * (Number(displayWeapon.abdomenMultiplier) || 0)).toFixed(1)} (×{(Number(displayWeapon.abdomenMultiplier) || 0).toFixed(1)})</span>
                     <span className="stat-label-secondary stat-label-dark">手部</span>
-                    <span className="stat-value-secondary stat-value-dark">{(weapon.damage * weapon.upperArmMultiplier).toFixed(1)} (×{weapon.upperArmMultiplier.toFixed(1)})</span>
+                    <span className="stat-value-secondary stat-value-dark">{((Number(displayWeapon.damage) || 0) * (Number(displayWeapon.upperArmMultiplier) || 0)).toFixed(1)} (×{(Number(displayWeapon.upperArmMultiplier) || 0).toFixed(1)})</span>
                   </div>
                 </div>
 
                 {/* 射程衰减图 */}
                 <div className="weapon-chart">
-                  <RangeDecayChart weapon={weapon} rangeModifier={getRangeModifier(weapon)} />
+                  <RangeDecayChart weapon={displayWeapon} rangeModifier={getRangeModifier(weapon)} />
                 </div>
                 
                 {/* 展开指示器 */}

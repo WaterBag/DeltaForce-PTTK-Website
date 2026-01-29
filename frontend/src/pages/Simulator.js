@@ -16,6 +16,7 @@ import { DamageDecayChart } from '../components/simulator/DamageDecayChart';
 import { TargetDummy } from '../components/simulator/TargetDummy';
 import { calculateSingleHit } from '../utils/simulationUtils';
 import { TargetStatus } from '../components/simulator/TargetStatus'; // 导入新组件
+import { buildModsById, computeUnlockedSlots, isModSelectable, toggleModSelection } from '../utils/modSelectionUtils';
 
 /**
  * 模拟器页面组件 - 用于武器和护甲配置的交互式模拟
@@ -101,19 +102,23 @@ export function Simulator() {
 
     // a. 查找是否有名为 "damageChange" 的特殊配件被选中
     //    这类配件会完全改变武器的伤害属性（如口径转换）
+    // damageMod: 已选配件中第一个“改变伤害模型”的变体配件（口径/伤害模板切换）
     const damageMod = selectedMods
       .map(modId => modifications.find(m => m.id === modId)) // 将id数组转为配件对象数组
       .find(mod => mod?.effects?.damageChange === true); // 找到第一个带 damageChange 的配件
 
     // b. 查找是否有名为 "specialRange" 的特殊配件被选中
     //    这类配件会使用变体武器的射程数据
+    // specialRangeMod: 已选配件中第一个“改变射程模板”的变体配件（用变体武器射程/衰减）
     const specialRangeMod = selectedMods
       .map(modId => modifications.find(m => m.id === modId))
       .find(mod => mod?.effects?.specialRange === true);
 
     // c. 决定使用哪个武器作为"基础模板"
     //    默认使用用户选择的原始武器数据
+    // baseWeaponProfile: 用于提供伤害/倍率等“伤害模板”的武器数据（默认=原武器）
     let baseWeaponProfile = selectedWeapon;
+    // rangeWeaponProfile: 用于提供 range/decay 等“射程模板”的武器数据（默认=原武器）
     let rangeWeaponProfile = selectedWeapon;
 
     //    如果找到了特殊配件（如口径转换套件）...
@@ -145,35 +150,40 @@ export function Simulator() {
     // d. 创建一个最终属性对象，它的伤害相关属性来自正确的"基础模板"
     //    射程和射程衰减倍率属性来自"射程模板"，其他属性仍然来自【原始】的 selectedWeapon
     //    这种分离确保配件只影响它们应该影响的属性
+    // finalWeaponStats: 最终用于模拟计算的武器属性（在原武器基础上叠加变体模板 + 百分比修正）
     let finalWeaponStats = {
       ...selectedWeapon, // 初始继承所有原始武器的属性
       // 用"基础模板"的伤害数据覆盖（处理口径转换等特殊情况）
-      damage: baseWeaponProfile.damage,
-      armorDamage: baseWeaponProfile.armorDamage,
-      headMultiplier: baseWeaponProfile.headMultiplier,
-      abdomenMultiplier: baseWeaponProfile.abdomenMultiplier,
-      upperArmMultiplier: baseWeaponProfile.upperArmMultiplier,
-      lowerArmMultiplier: baseWeaponProfile.lowerArmMultiplier,
-      thighMultiplier: baseWeaponProfile.thighMultiplier,
-      calfMultiplier: baseWeaponProfile.calfMultiplier,
+      // 允许“Minimal Variant”：变体只写差异字段，其余字段回退到原始武器
+      damage: baseWeaponProfile.damage ?? selectedWeapon.damage,
+      armorDamage: baseWeaponProfile.armorDamage ?? selectedWeapon.armorDamage,
+      headMultiplier: baseWeaponProfile.headMultiplier ?? selectedWeapon.headMultiplier,
+      abdomenMultiplier: baseWeaponProfile.abdomenMultiplier ?? selectedWeapon.abdomenMultiplier,
+      upperArmMultiplier: baseWeaponProfile.upperArmMultiplier ?? selectedWeapon.upperArmMultiplier,
+      lowerArmMultiplier: baseWeaponProfile.lowerArmMultiplier ?? selectedWeapon.lowerArmMultiplier,
+      thighMultiplier: baseWeaponProfile.thighMultiplier ?? selectedWeapon.thighMultiplier,
+      calfMultiplier: baseWeaponProfile.calfMultiplier ?? selectedWeapon.calfMultiplier,
       // 用"射程模板"的射程和射程衰减倍率数据覆盖（处理specialRange配件）
-      range1: rangeWeaponProfile.range1,
-      range2: rangeWeaponProfile.range2,
-      range3: rangeWeaponProfile.range3,
-      range4: rangeWeaponProfile.range4,
-      range5: rangeWeaponProfile.range5,
-      decay1: rangeWeaponProfile.decay1,
-      decay2: rangeWeaponProfile.decay2,
-      decay3: rangeWeaponProfile.decay3,
-      decay4: rangeWeaponProfile.decay4,
-      decay5: rangeWeaponProfile.decay5,
+      range1: rangeWeaponProfile.range1 ?? selectedWeapon.range1,
+      range2: rangeWeaponProfile.range2 ?? selectedWeapon.range2,
+      range3: rangeWeaponProfile.range3 ?? selectedWeapon.range3,
+      range4: rangeWeaponProfile.range4 ?? selectedWeapon.range4,
+      range5: rangeWeaponProfile.range5 ?? selectedWeapon.range5,
+      decay1: rangeWeaponProfile.decay1 ?? selectedWeapon.decay1,
+      decay2: rangeWeaponProfile.decay2 ?? selectedWeapon.decay2,
+      decay3: rangeWeaponProfile.decay3 ?? selectedWeapon.decay3,
+      decay4: rangeWeaponProfile.decay4 ?? selectedWeapon.decay4,
+      decay5: rangeWeaponProfile.decay5 ?? selectedWeapon.decay5,
     };
 
     // --- 步骤 2: 应用通用属性修改 (百分比修正) ---
 
     // a. 初始化效果累加器
+    // totalFireRateModifier: 所有已选配件的射速百分比修正累加（例如 0.064 表示 +6.4%）
     let totalFireRateModifier = 0;
+    // totalRangeModifier: 所有已选配件的射程百分比修正累加
     let totalRangeModifier = 0;
+    // totalMuzzleVelocityModifier: 所有已选配件的初速百分比修正累加
     let totalMuzzleVelocityModifier = 0;
 
     // b. 遍历【所有】已选配件，累加它们的百分比效果
@@ -187,13 +197,16 @@ export function Simulator() {
     });
 
     // c. 将累加后的百分比效果应用到最终属性上
+    // 将累加后的效果应用到最终属性：按 value *= (1 + modifier) 的约定
     finalWeaponStats.fireRate *= 1 + totalFireRateModifier;
     finalWeaponStats.muzzleVelocity *= 1 + totalMuzzleVelocityModifier;
-    finalWeaponStats.range1 *= 1 + totalRangeModifier;
-    finalWeaponStats.range2 *= 1 + totalRangeModifier;
-    finalWeaponStats.range3 *= 1 + totalRangeModifier;
-    finalWeaponStats.range4 *= 1 + totalRangeModifier;
-    finalWeaponStats.range5 *= 1 + totalRangeModifier;
+    // applyRangeModifier: 射程上限哨兵值 999 不参与比例缩放（避免 999 被放大）
+    const applyRangeModifier = (v) => (v === 999 ? 999 : v * (1 + totalRangeModifier));
+    finalWeaponStats.range1 = applyRangeModifier(finalWeaponStats.range1);
+    finalWeaponStats.range2 = applyRangeModifier(finalWeaponStats.range2);
+    finalWeaponStats.range3 = applyRangeModifier(finalWeaponStats.range3);
+    finalWeaponStats.range4 = applyRangeModifier(finalWeaponStats.range4);
+    finalWeaponStats.range5 = applyRangeModifier(finalWeaponStats.range5);
 
     return finalWeaponStats;
   }, [selectedWeapon, selectedMods]);
@@ -254,22 +267,18 @@ export function Simulator() {
    * @param {boolean} isSelected - 配件是否被选中
    */
   const handleModChange = (modId, isSelected) => {
-    const mod = availableMods.find(m => m.id === modId);
-    if (!mod?.type) return;
-    const newModSlots = mod.type;
-
-    setSelectedMods(prev => {
-      if (!isSelected) {
-        return prev.filter(id => id !== modId);
-      }
-      const nonConflictingMods = prev.filter(oldModId => {
-        const oldMod = availableMods.find(m => m.id === oldModId);
-        if (!oldMod?.type) return false;
-        const hasConflict = oldMod.type.some(slot => newModSlots.includes(slot));
-        return !hasConflict;
-      });
-      return [...nonConflictingMods, modId];
-    });
+    // 通过通用工具处理：
+    // - 同槽位互斥（选择新配件会替换同槽位旧配件）
+    // - 槽位解锁/依赖（unlockSlots / requiresSlots）
+    // - 级联移除（移除解锁源后，自动移除失去槽位依赖的配件）
+    setSelectedMods(prevSelectedIds =>
+      toggleModSelection({
+        modId,
+        isSelected,
+        selectedModIds: prevSelectedIds,
+        availableMods,
+      })
+    );
   };
 
   /**
@@ -311,6 +320,7 @@ export function Simulator() {
         return false; // 安全检查：确保 effects 对象存在
       }
 
+      // effectValues: 配件 effects 的所有值（用于快速判断“是否有数值效果”）
       const effectValues = Object.values(mod.effects); //获取所有效果的值，组成一个数组
 
       const hasRealEffect = effectValues.some(
@@ -319,11 +329,23 @@ export function Simulator() {
         ) => typeof value === 'number' && value !== 0
       );
 
+      // hasDamageChange: 变体配件（伤害模板切换）也算“有效配件”
       const hasDamageChange = mod.effects.damageChange === true; //检查配件是否改变伤害
 
-      return hasRealEffect || hasDamageChange; //只有两个条件都满足，才返回 true
+      // hasUnlockSlots: 纯“解锁槽位”的配件也需要展示（即使没有数值效果）
+      const hasUnlockSlots = Array.isArray(mod.effects.unlockSlots) && mod.effects.unlockSlots.length > 0;
+
+      return hasRealEffect || hasDamageChange || hasUnlockSlots;
     });
   }, [selectedWeapon]); // <-- 依赖项：只有当 selectedWeapon 变化时，才重新计算
+
+  // modsById: { [id]: mod }，用于快速取配件
+  const modsById = useMemo(() => buildModsById(availableMods || []), [availableMods]);
+  // unlockedSlots: 由已选配件解锁出来的槽位集合（用于 requiresSlots 禁用/可选性判断）
+  const unlockedSlots = useMemo(
+    () => computeUnlockedSlots(selectedMods, modsById),
+    [selectedMods, modsById]
+  );
 
   /**
    * 将可用的配件分组
@@ -526,9 +548,12 @@ export function Simulator() {
                         <div
                           key={mod.id}
                           //根据 selectedMods 中是否包含 mod.id，动态添加 'selected' 类
-                          className={`mod-option ${selectedMods.includes(mod.id) ? 'selected' : ''}`}
+                          className={`mod-option ${selectedMods.includes(mod.id) ? 'selected' : ''} ${
+                            isModSelectable(mod, unlockedSlots) ? '' : 'disabled'
+                          }`}
                           //将点击事件直接绑定在 div 上
                           onClick={() => {
+                            if (!isModSelectable(mod, unlockedSlots)) return;
                             //在点击时，手动切换选择状态
                             const isCurrentlySelected = selectedMods.includes(mod.id);
                             handleModChange(mod.id, !isCurrentlySelected);

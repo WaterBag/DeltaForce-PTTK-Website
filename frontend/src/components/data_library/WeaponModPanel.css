@@ -142,6 +142,20 @@
   border-color: #3a8eef;
 }
 
+.mod-option.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: #f6f6f6;
+  border-color: #e0e0e0;
+  color: #777;
+  box-shadow: none;
+}
+
+.mod-option.disabled:hover {
+  border-color: #e0e0e0;
+  background-color: #f6f6f6;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .mod-options {

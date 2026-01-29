@@ -10,10 +10,10 @@ const path = require('path');
 const ttkRoutes = require('./routes/ttk');
 const { notFoundHandler, globalErrorHandler } = require('./middleware/errorHandler');
 
-// 创建Express应用实例
+// app: Express 应用实例（挂载中间件、路由、静态资源）
 const app = express();
 
-// 服务器端口配置
+// port: 后端监听端口
 const port = 3001;
 
 // 启用CORS跨域支持
@@ -33,12 +33,18 @@ app.use('/api/ttk', ttkRoutes);
 
 // 提供前端静态文件服务（生产环境）
 // 设置静态资源缓存策略以提升加载速度
+// frontendBuildPath: React 前端构建产物目录（生产环境静态资源入口）
 const frontendBuildPath = path.join(__dirname, '../frontend/build');
 app.use(express.static(frontendBuildPath, {
   maxAge: '1d',          // 静态资源缓存1天
   etag: true,            // 启用ETag
   lastModified: true,    // 启用Last-Modified
   setHeaders: (res, filePath) => {
+    // 对 index.html 禁用强缓存，确保每次加载都能拿到最新的资源清单
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+      return;
+    }
     // 对图片文件设置更长的缓存时间
     if (filePath.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
       res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30天

@@ -45,6 +45,7 @@ const general = [
   'AKS-74U',
   'UZI',
   'SR9',
+  'MCX-LT'
 ];
 const russia = ['PKM', 'SR-3M', 'AK-12', 'AKM', 'KC17', 'SKS', 'AKS-74U', 'MK47'];
 const smg = ['MK4','MP7', 'Vector', 'P90', 'SR-3M', 'QCQ171', 'MP5', 'SMG-45', '勇士', '野牛', 'UZI'];
@@ -64,6 +65,8 @@ const variantWeapons = {
   'SR-25-短枪管': { base: 'SR-25', excludeTypes: ['枪管'] },
   'Marlin杠杆步枪-犀牛杠杆': { base: 'Marlin杠杆步枪', excludeTypes: ['杠杆'] },
   'Marlin杠杆步枪-蜂鸟杠杆': { base: 'Marlin杠杆步枪', excludeTypes: ['杠杆'] },
+  'MCX-LT-焰魂枪管': { base: 'MCX-LT', excludeTypes: ['枪管'] },
+  'P90-长弓精钢枪管': { base: 'P90', excludeTypes: ['枪管'] },
 };
 
 const baseModifications = [
@@ -1929,6 +1932,27 @@ const baseModifications = [
     }
   },
   {
+    id: "P90CustomBarrel",
+    name: "P90长弓精钢枪管",
+    type: [
+      "枪管"
+    ],
+    appliesTo: [
+      "P90"
+    ],
+    effects: {
+      rangeModifier: 0,
+      // 系统按 fireRate *= (1 + modifier) 计算：898 -> 782
+      fireRateModifier: -0.129176,
+      // 450 -> 600
+      muzzleVelocityModifier: 0.3333333333,
+      // 使用变体武器模板提供特殊射程/衰减倍率
+      specialRange: true,
+      dataQueryName: "P90-长弓精钢枪管",
+      btkQueryName: "P90-长弓精钢枪管"
+    }
+  },
+  {
     id: "PKMHorizonHeavyBarrel",
     name: "PKM地平线重枪管",
     type: [
@@ -2605,12 +2629,12 @@ const baseModifications = [
     ],
     effects: {
       rangeModifier: 0,
-      fireRateModifier: 0.7,
+      fireRateModifier: -0.3,
       muzzleVelocityModifier: 0.3636,
-      damageChange: "true",
-      specialRange: "true",
-      dataQueryName: "AS-val-刺客高级枪管",
-      btkQueryName: "AS-val-刺客高级枪管"
+      damageChange: true,
+      specialRange: true,
+      dataQueryName: "AS-Val-刺客高级枪管",
+      btkQueryName: "AS-Val-刺客高级枪管"
     }
   },
   {
@@ -2874,6 +2898,46 @@ const baseModifications = [
       dataQueryName: "Marlin杠杆步枪-蜂鸟杠杆",
       btkQueryName: "Marlin杠杆步枪-蜂鸟"
     }
+  },
+  {
+    id: 'MCXLTFlameSoulBarrel',
+    name: 'MCX-LT-焰魂枪管',
+    type: ['枪管'],
+    appliesTo: ['MCX-LT'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 0,
+      muzzleVelocityModifier: 0,
+      unlockSlots: ['外罩'],
+      damageChange: true,
+      btkQueryName: 'MCX-LT-焰魂枪管',
+      dataQueryName: 'MCX-LT-焰魂枪管',
+    },
+  },
+  {
+    id: 'MCXLTHunterBarrel',
+    name: 'MCX-LT-猎手枪管',
+    type: ['枪管'],
+    appliesTo: ['MCX-LT'],
+    effects: {
+      // MCX-LT 基础 range1=30，目标 39 => +30%
+      rangeModifier: 0.3,
+      fireRateModifier: 0,
+      // 450 -> 760
+      muzzleVelocityModifier: 0.6888888889,
+    },
+  },
+  {
+    id: 'SURHeatShield',
+    name: 'SUR隔热外罩',
+    type: ['外罩'],
+    appliesTo: ['MCX-LT'],
+    requiresSlots: ['外罩'],
+    effects: {
+      rangeModifier: 0,
+      fireRateModifier: 0.064,
+      muzzleVelocityModifier: 0,
+    },
   }
 ];
 
