@@ -325,6 +325,22 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
         }
       }
 
+      // 变体射程可能只有 1-3 档；超出档位的 BTK 点需要被“钉”在最后有效射程，避免插入中段
+      const rangeValues = [
+        modifiedWeaponInfo.range1,
+        modifiedWeaponInfo.range2,
+        modifiedWeaponInfo.range3,
+        modifiedWeaponInfo.range4,
+        modifiedWeaponInfo.range5,
+      ];
+      const lastValidRangeIndex = rangeValues
+        .map((v, i) => (v && v > 0 ? i + 1 : null))
+        .filter(Boolean)
+        .pop();
+      const lastValidRange = lastValidRangeIndex
+        ? modifiedWeaponInfo[`range${lastValidRangeIndex}`]
+        : null;
+
       const sparseTtkData = uniqueBtkDataPoints
         .map((point, index) => {
           const eBtk = EbtkCalculator(point.btk_data, hitRate);
@@ -340,8 +356,17 @@ export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay
           } else {
             // 第 n 个点 (index = n)，其跳变点由第 n 个射程档位的结束位置决定
             // 例如：index=1 对应 range1 的结束位置
-            const rangeKey = `range${index}`;
-            correctDistance = modifiedWeaponInfo[rangeKey];
+            if (lastValidRangeIndex && index > lastValidRangeIndex) {
+              // 变体档位不足：将超出点固定到最后有效射程，避免 56m 等中段插入导致一段 PTTK 异常
+              correctDistance = lastValidRange ?? point.distance;
+            } else {
+              const rangeKey = `range${index}`;
+              const rangeValue = modifiedWeaponInfo[rangeKey];
+              // 若该档位缺失（0/undefined），回退到最后有效射程，保证单调递增
+              correctDistance = rangeValue && rangeValue > 0
+                ? rangeValue
+                : (lastValidRange ?? point.distance);
+            }
           }
 
           if (correctDistance === null || correctDistance === undefined || correctDistance < 0) {
