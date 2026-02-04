@@ -41,6 +41,14 @@ export function ModificationModal({
   // hitRatePercent: 命中率百分比整数（30-100），用于期望 BTK/TTK 调整
   const [hitRatePercent, setHitRatePercent] = useState(100); // 存储百分比整数 (30-100)
 
+  // 默认弹药选择：优先5级，其次4级
+  const pickDefaultAmmo = (options) => {
+    if (!options || options.length === 0) return null;
+    return options.find(ammo => ammo.penetration === 5)
+      || options.find(ammo => ammo.penetration === 4)
+      || null;
+  };
+
   // modsById: { [id]: mod }，用于快速取配件对象
   const modsById = useMemo(() => buildModsById(availableMods || []), [availableMods]);
   // unlockedSlots: 当前已选配件解锁出来的槽位集合（用于 requiresSlots 禁用状态）
@@ -111,7 +119,7 @@ export function ModificationModal({
     if (!currentVariantDetails?.hasPrevious && usePreviousData) {
       setUsePreviousData(false);
     }
-  }, [currentVariantName]);
+  }, [currentVariantDetails?.hasPrevious, usePreviousData]);
 
   // isPreviousEnabled: 当前变体是否支持“上版本数据”切换
   const isPreviousEnabled = !!currentVariantDetails?.hasPrevious;
@@ -151,20 +159,35 @@ export function ModificationModal({
     // weaponCaliber: 当前枪的口径
     const weaponCaliber = weaponInfo.caliber;
 
-    return ammos.filter(
-      (
-        ammo // 4. 用【口径】和【可用弹药名】，去我们的“弹药总列表”中，进行精确查找
-      ) => ammo.caliber === weaponCaliber && availableBulletNames.includes(ammo.name)
-    );
+    return ammos
+      .filter(
+        (
+          ammo // 4. 用【口径】和【可用弹药名】，去我们的“弹药总列表”中，进行精确查找
+        ) => ammo.caliber === weaponCaliber && availableBulletNames.includes(ammo.name)
+      )
+      .slice()
+      .sort((a, b) => {
+        const penA = a?.penetration ?? -1;
+        const penB = b?.penetration ?? -1;
+        if (penA !== penB) return penB - penA;
+        return (a?.name || '').localeCompare(b?.name || '', 'zh-CN');
+      });
   }, [activeDetails, gunName]);
 
   // 仅在“当前已选弹药在新数据源/变体下不可用”时才清空
   useEffect(() => {
-    if (!selectedBullet) return;
-    const stillAvailable = bulletOptions.some(opt => opt.name === selectedBullet.name);
-    if (!stillAvailable) {
-      setSelectedBullet(null);
+    if (!bulletOptions || bulletOptions.length === 0) {
+      if (selectedBullet) {
+        setSelectedBullet(null);
+      }
+      return;
     }
+
+    const stillAvailable = selectedBullet && bulletOptions.some(opt => opt.name === selectedBullet.name);
+    if (stillAvailable) return;
+
+    const defaultBullet = pickDefaultAmmo(bulletOptions);
+    setSelectedBullet(defaultBullet ?? null);
   }, [bulletOptions, selectedBullet]);
 
   // firstRangeBtkData: 当前选中弹药在“最近距离点”的 btk 分布（用于一段射程分布图）

@@ -1,5 +1,3 @@
-import armors from '../../assets/data/armors';
-import helmets from '../../assets/data/helmets';
 import { GenericSelector } from '../public/GenericSelector';
 import { getProtectionLevelClass } from '../../utils/styleUtils';
 import './ArmorSittings.css';

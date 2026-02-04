@@ -2419,7 +2419,7 @@ const baseModifications = [
       muzzleVelocityModifier: 0.136,
       damageChange: true,
       specialRange: true,
-      dataQueryName: "SR25-短枪管"
+      dataQueryName: "SR25-瞬息短枪管"
     }
   },
   {

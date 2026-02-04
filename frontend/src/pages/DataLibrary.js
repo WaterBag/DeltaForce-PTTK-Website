@@ -118,22 +118,22 @@ export function DataLibrary() {
     // sort: 返回新的数组，避免直接排序 state/memo 的引用
     filtered = [...filtered].sort((a, b) => {
       switch (weaponSortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name, 'zh-CN');
-        case 'armorDamage':
-          return b.armorDamage - a.armorDamage;
-        case 'damage':
-          return b.damage - a.damage;
-        case 'fireRate':
-          return b.fireRate - a.fireRate;
-        case 'muzzleVelocity':
-          return b.muzzleVelocity - a.muzzleVelocity;
-        case 'armorDPS':
-          return b.armorDPS - a.armorDPS;
-        case 'fleshDPS':
-          return b.fleshDPS - a.fleshDPS;
-        default:
-          return 0;
+      case 'name':
+        return a.name.localeCompare(b.name, 'zh-CN');
+      case 'armorDamage':
+        return b.armorDamage - a.armorDamage;
+      case 'damage':
+        return b.damage - a.damage;
+      case 'fireRate':
+        return b.fireRate - a.fireRate;
+      case 'muzzleVelocity':
+        return b.muzzleVelocity - a.muzzleVelocity;
+      case 'armorDPS':
+        return b.armorDPS - a.armorDPS;
+      case 'fleshDPS':
+        return b.fleshDPS - a.fleshDPS;
+      default:
+        return 0;
       }
     });
 
@@ -161,14 +161,14 @@ export function DataLibrary() {
     // 排序
     filtered = [...filtered].sort((a, b) => {
       switch (ammoSortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name, 'zh-CN');
-        case 'penetration':
-          return b.penetration - a.penetration;
-        case 'fleshDamageCoeff':
-          return b.fleshDamageCoeff - a.fleshDamageCoeff;
-        default:
-          return 0;
+      case 'name':
+        return a.name.localeCompare(b.name, 'zh-CN');
+      case 'penetration':
+        return b.penetration - a.penetration;
+      case 'fleshDamageCoeff':
+        return b.fleshDamageCoeff - a.fleshDamageCoeff;
+      default:
+        return 0;
       }
     });
 

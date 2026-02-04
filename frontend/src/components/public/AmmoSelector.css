@@ -40,6 +40,12 @@
   color: #5e6c84;
   white-space: nowrap;
 }
+.selected-content-wrapper .selected-ammo-description {
+  font-size: 11px;
+  color: #8f9bb3;
+  line-height: 1.2;
+  white-space: nowrap;
+}
 
 /* --- 3. 【下拉列表项】的样式 (在.option-item中) --- */
 .option-item {
@@ -58,15 +64,28 @@
 .option-item .option-text-wrapper {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .option-item .option-ammo-name {
   font-size: 14px;
   font-weight: 600;
   color: #172b4d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .option-item .option-ammo-caliber {
   font-size: 12px;
   color: #5e6c84;
+}
+.option-item .option-ammo-description {
+  font-size: 11px;
+  color: #8f9bb3;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* --- 4. 属性信息 (Stats) --- */
@@ -76,6 +95,9 @@
   font-size: 12px;
   padding-left: 10px; /* 和左侧文字留出一些空间 */
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  max-width: 120px;
 }
 .ammo-option-info .stats {
   display: flex;

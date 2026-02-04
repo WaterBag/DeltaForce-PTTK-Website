@@ -220,7 +220,7 @@ export function DataQuery() {
       isRefreshingRef.current = false;
       setLoading(false);
     }
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError, resolveBtkQueryName]);
 
   /**
    * 预查询后端配置数据(不修改状态)
@@ -327,7 +327,7 @@ export function DataQuery() {
     await Promise.all(checkPromises);
 
     return { successLines, failedLines, successCount, failedCount };
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, resolveBtkQueryName]);
 
   /**
    * 重新查询已有对比列表中的武器配置(带失败移除处理)

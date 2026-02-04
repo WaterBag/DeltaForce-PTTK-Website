@@ -82,12 +82,14 @@ import R93Image from '../../assets/images/gun/R93.png';
 import SV98Image from '../../assets/images/gun/SV-98.png';
 import MarlinImage from '../../assets/images/gun/马林杠杆步枪.png';
 import MK47Image from '../../assets/images/gun/MK47.png';
+import MCXLTImage from '../../assets/images/gun/MCX-LT.png';
+import MK4Image from '../../assets/images/gun/MK4.png';
 
 export const weapons = [
   {
     id: "3021",
     name: "MCX-LT",
-    image: "",
+    image: MCXLTImage,
     caliber: ".300BLK",
     damage: 34,
     armorDamage: 26,
@@ -116,7 +118,7 @@ export const weapons = [
   {
     id: "30211",
     name: "MCX-LT-焰魂枪管",
-    image: "",
+    image: MCXLTImage,
     caliber: ".300BLK",
     damage: 36,
     armorDamage: 26,
@@ -444,7 +446,7 @@ export const weapons = [
   {
     id: "1011",
     name: "MK4",
-    image: null,
+    image: MK4Image,
     caliber: "4.6*30mm",
     damage: 34,
     armorDamage: 30,
@@ -471,7 +473,7 @@ export const weapons = [
   {
     id: "10111",
     name: "MK4-深空镀铬枪管",
-    image: null,
+    image: MK4Image,
     caliber: "4.6*30mm",
     damage: 32,
     armorDamage: 27,

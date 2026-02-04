@@ -36,7 +36,7 @@ export function RangeDecayChart({ weapon, rangeModifier = 0 }) {
     data.push({ distance: 0, decay: 100 });
     
     // 为每个射程段添加数据点
-    ranges.forEach((item, index) => {
+    ranges.forEach((item) => {
       if (item.range === 999) {
         // 999表示无限远，使用特殊标记
         data.push({ distance: '∞', decay: item.decay * 100 });

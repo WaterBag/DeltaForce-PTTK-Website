@@ -39,8 +39,6 @@ export const UniversalSlider = ({
     }
   };
 
-  const displayValue = isDisabled ? '--' : value;
-
   return (
     <div className={`universal-slider ${className} ${isDisabled ? 'disabled' : ''}`}>
       <div className="slider-labelandvalue">

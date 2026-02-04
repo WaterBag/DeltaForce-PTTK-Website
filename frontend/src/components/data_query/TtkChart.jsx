@@ -198,7 +198,7 @@ export function TtkChart({ data }) {
 
         {/* 绘制各武器的TTK曲线 */}
         {!isEmpty &&
-          data.map((line, index) => (
+          data.map((line) => (
             <Line
               key={line.id}
               type="monotone"

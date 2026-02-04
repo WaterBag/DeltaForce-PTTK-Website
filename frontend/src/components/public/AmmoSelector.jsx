@@ -41,6 +41,9 @@ export const AmmoSelector = ({
           <div className="selected-ammo-text">
             <span className="selected-ammo-name">{ammo.name}</span>
             <span className="selected-ammo-caliber">{ammo.caliber}</span>
+            {ammo.description && (
+              <span className="selected-ammo-description">{ammo.description}</span>
+            )}
           </div>
         </div>
       )}
@@ -55,7 +58,11 @@ export const AmmoSelector = ({
             <span className="option-ammo-name">{ammo.name}</span>
             <span className="option-ammo-caliber">{ammo.caliber}</span>
           </div>
-          <div className="ammo-option-info"></div>
+          <div className="ammo-option-info">
+            {ammo.description && (
+              <span className="option-ammo-description">{ammo.description}</span>
+            )}
+          </div>
         </>
       )}
     />

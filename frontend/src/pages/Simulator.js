@@ -18,6 +18,18 @@ import { calculateSingleHit } from '../utils/simulationUtils';
 import { TargetStatus } from '../components/simulator/TargetStatus'; // 导入新组件
 import { buildModsById, computeUnlockedSlots, isModSelectable, toggleModSelection } from '../utils/modSelectionUtils';
 
+// 默认护甲/头盔：5级耐久最高
+const pickMaxDurabilityByLevel = (items, level) => {
+  const candidates = (items || []).filter(item => item.level === level && item.durability > 0);
+  if (candidates.length === 0) return null;
+  return candidates.reduce((best, current) =>
+    current.durability > best.durability ? current : best
+  );
+};
+
+const defaultHelmet = pickMaxDurabilityByLevel(helmets, 5);
+const defaultArmor = pickMaxDurabilityByLevel(armors, 5);
+
 /**
  * 模拟器页面组件 - 用于武器和护甲配置的交互式模拟
  * 提供武器、弹药、护甲和头盔的选择和配置功能
@@ -39,13 +51,13 @@ export function Simulator() {
   /** @type {[Object, Function]} 工具提示位置 */
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   /** @type {[Object|null, Function]} 当前选中的头盔对象 */
-  const [selectedHelmet, setSelectedHelmet] = useState(null);
+  const [selectedHelmet, setSelectedHelmet] = useState(defaultHelmet);
   /** @type {[Object|null, Function]} 当前选中的护甲对象 */
-  const [selectedArmor, setSelectedArmor] = useState(null);
+  const [selectedArmor, setSelectedArmor] = useState(defaultArmor);
   /** @type {[number|null, Function]} 初始头盔耐久度值 */
-  const [helmetDurability, setHelmetDurability] = useState(null);
+  const [helmetDurability, setHelmetDurability] = useState(defaultHelmet?.durability ?? null);
   /** @type {[number|null, Function]} 初始护甲耐久度值 */
-  const [armorDurability, setArmorDurability] = useState(null);
+  const [armorDurability, setArmorDurability] = useState(defaultArmor?.durability ?? null);
 
   /** @type {[number|null, Function]} 当前交战距离 */
   const [distance, setDistance] = useState(10);
@@ -59,6 +71,14 @@ export function Simulator() {
   const [currentArmorDurability, setCurrentArmorDurability] = useState(null);
   /** @type {[Object|null, Function]} 击中日志 */
   const [hitLog, setHitLog] = useState([]);
+
+  // 默认弹药选择：优先5级，其次4级
+  const pickDefaultAmmo = (options) => {
+    if (!options || options.length === 0) return null;
+    return options.find(ammo => ammo.penetration === 5)
+      || options.find(ammo => ammo.penetration === 4)
+      || null;
+  };
 
   // 用于血量滑条的数值列表，生成1到100的整数数组
   const hpValues = useMemo(() => Array.from({ length: 100 }, (_, i) => i + 1), []);
@@ -292,8 +312,32 @@ export function Simulator() {
       // 如果没有选择武器，就直接返回一个空数组
       return [];
     }
-    return ammos.filter(ammo => ammo.caliber === selectedWeapon.caliber); // 如果选择了武器，就进行筛选
+    return ammos
+      .filter(ammo => ammo.caliber === selectedWeapon.caliber) // 如果选择了武器，就进行筛选
+      .slice()
+      .sort((a, b) => {
+        const penA = a?.penetration ?? -1;
+        const penB = b?.penetration ?? -1;
+        if (penA !== penB) return penB - penA;
+        return (a?.name || '').localeCompare(b?.name || '', 'zh-CN');
+      });
   }, [selectedWeapon]); //依赖项数组：只有当 selectedWeapon 变化时，才重新计算
+
+  // 当武器或弹药列表变化时，自动选中默认弹药（5级优先，其次4级）
+  useEffect(() => {
+    if (!selectedWeapon || availableAmmos.length === 0) {
+      if (selectedAmmo) {
+        setSelectedAmmo(null);
+      }
+      return;
+    }
+
+    const stillAvailable = selectedAmmo && availableAmmos.some(ammo => ammo.id === selectedAmmo.id);
+    if (stillAvailable) return;
+
+    const defaultAmmo = pickDefaultAmmo(availableAmmos);
+    setSelectedAmmo(defaultAmmo ?? null);
+  }, [selectedWeapon, availableAmmos, selectedAmmo]);
 
   /**
    * 动态计算可用配件 - 根据所选武器筛选适用的配件
