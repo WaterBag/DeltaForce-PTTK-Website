@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useState, useMemo } from 'react';
 import './DataLibrary.css';
 import { weapons } from '../assets/data/weapons';
