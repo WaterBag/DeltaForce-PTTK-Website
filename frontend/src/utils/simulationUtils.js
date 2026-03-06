@@ -201,6 +201,9 @@ export function calculateSingleHit(
   case 'head':
     partMultiplier = gun.headMultiplier;
     break; // 头部伤害倍率
+  case 'chest':
+    partMultiplier = gun.chestMultiplier;
+    break; // 胸部伤害倍率
   case 'abdomen':
     partMultiplier = gun.abdomenMultiplier;
     break; // 腹部伤害倍率
