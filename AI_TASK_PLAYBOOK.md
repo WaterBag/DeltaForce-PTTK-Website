@@ -98,3 +98,4 @@
 - 后端端口当前写死 `3001`（`backend/index.js`）。
 - 清理依赖后（`node_modules` 删除）需重新 `npm install`。
 - 在错误目录运行 npm 命令会触发 `ENOENT package.json`。
+- `提交报告_*.md` 作为本地交付材料，不提交到 Git 仓库（已由 `.gitignore` 忽略）。

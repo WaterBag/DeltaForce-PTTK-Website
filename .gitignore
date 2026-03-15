@@ -94,6 +94,10 @@ Thumbs.db
 *.local.sh
 *.local.bat
 
+# 本地提交报告（不入库）
+提交报告_*.md
+*提交报告_*.md
+
 # 数据库备份
 *.sql
 *.sqlite
