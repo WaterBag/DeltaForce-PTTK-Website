@@ -244,7 +244,7 @@ export function Simulator() {
     finalWeaponStats.range5 = applyRangeModifier(finalWeaponStats.range5);
 
     return finalWeaponStats;
-  }, [selectedWeapon, selectedMods]);
+  }, [selectedWeapon, selectedMods, modifications, weapons]);
 
   /**
    * 处理头盔选择事件
@@ -336,7 +336,7 @@ export function Simulator() {
         if (penA !== penB) return penB - penA;
         return (a?.name || '').localeCompare(b?.name || '', 'zh-CN');
       });
-  }, [selectedWeapon]); //依赖项数组：只有当 selectedWeapon 变化时，才重新计算
+  }, [selectedWeapon, ammos]); //依赖项数组：当武器或弹药源变化时重新计算
 
   // 当武器或弹药列表变化时，自动选中默认弹药（5级优先，其次4级）
   useEffect(() => {
@@ -396,7 +396,7 @@ export function Simulator() {
 
       return hasRealEffect || hasDamageChange || hasUnlockSlots;
     });
-  }, [selectedWeapon]); // <-- 依赖项：只有当 selectedWeapon 变化时，才重新计算
+  }, [selectedWeapon, modifications]); // <-- 依赖项：武器或配件源变化时重新计算
 
   // modsById: { [id]: mod }，用于快速取配件
   const modsById = useMemo(() => buildModsById(availableMods || []), [availableMods]);

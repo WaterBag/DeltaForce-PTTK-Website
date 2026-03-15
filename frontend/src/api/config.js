@@ -6,5 +6,5 @@
  */
 export const API_BASE_URL =
   process.env.NODE_ENV === 'production'
-    ? '/api' // 生产环境使用相对路径
+    ? '' // 生产环境走同域相对路径，请求端点自行带 /api 前缀
     : 'http://localhost:3001'; // 开发环境使用localhost

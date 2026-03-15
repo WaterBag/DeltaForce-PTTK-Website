@@ -4,7 +4,7 @@
  */
 
 const mysql = require('mysql2');
-require('dotenv').config();
+require('dotenv').config({ override: true });
 
 // pool: MySQL 连接池（回调版），由 mysql2 创建
 const pool = mysql.createPool({

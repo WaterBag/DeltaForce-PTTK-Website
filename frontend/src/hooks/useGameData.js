@@ -26,6 +26,8 @@ const fetchJson = async (url) => {
   return response.json();
 };
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const hydrateImages = (remoteList, localList) => {
   if (!Array.isArray(remoteList)) return remoteList;
   if (!Array.isArray(localList) || localList.length === 0) return remoteList;
@@ -70,6 +72,23 @@ const loadRemoteGameData = async () => {
   };
 };
 
+const loadRemoteGameDataWithRetry = async (maxAttempts = 3) => {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await loadRemoteGameData();
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts) {
+        await wait(attempt * 500);
+      }
+    }
+  }
+
+  throw lastError;
+};
+
 export function useGameData() {
   const [state, setState] = useState({
     data: cachedGameData || fallbackData,
@@ -84,12 +103,14 @@ export function useGameData() {
     }
 
     if (!loadingPromise) {
-      loadingPromise = loadRemoteGameData()
+      loadingPromise = loadRemoteGameDataWithRetry()
         .then((data) => {
           cachedGameData = data;
           return data;
         })
         .catch((error) => {
+          // Allow future mounts to retry after transient fetch failures.
+          loadingPromise = null;
           console.warn('加载远程游戏数据失败，使用本地静态数据兜底:', error);
           return null;
         });

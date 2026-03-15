@@ -224,7 +224,7 @@ export function DataQuery() {
       isRefreshingRef.current = false;
       setLoading(false);
     }
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError, resolveBtkQueryName]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError, resolveBtkQueryName, modifications]);
 
   /**
    * 预查询后端配置数据(不修改状态)
@@ -331,7 +331,7 @@ export function DataQuery() {
     await Promise.all(checkPromises);
 
     return { successLines, failedLines, successCount, failedCount };
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, resolveBtkQueryName]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, resolveBtkQueryName, modifications]);
 
   /**
    * 重新查询已有对比列表中的武器配置(带失败移除处理)
@@ -373,7 +373,7 @@ export function DataQuery() {
 
           // 确定要查询的枪械名称
           const queryGunName = usedDamageMod 
-            ? usedDamageMod.effects.btkQueryName 
+            ? resolveBtkQueryName(usedDamageMod, line.gunName)
             : line.gunName;
 
           // 重新查询BTK数据
@@ -469,7 +469,7 @@ export function DataQuery() {
       isRefreshingRef.current = false;
       setLoading(false);
     }
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError, modifications, resolveBtkQueryName]);
 
   /**
    * 查询可用武器列表
@@ -507,7 +507,7 @@ export function DataQuery() {
     } finally {
       setLoading(false);
     }
-  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError]);
+  }, [selectedHelmet, selectedArmor, helmetDurability, armorDurability, showError, weapons]);
 
   /**
    * 自动查询可用枪械的副作用
@@ -734,21 +734,21 @@ export function DataQuery() {
       // 清空保存的旧配置
       setPreviousArmorConfig(null);
     }
-  }, [previousArmorConfig]);
+  }, [previousArmorConfig, helmets, armors]);
 
   /**
    * 可用的头盔列表,根据选择规则过滤
    */
   const availableHelmets = useMemo(() => {
     return helmets.filter(h => selectionRules.allowedHelmetIds.includes(h.id));
-  }, []);
+  }, [helmets]);
 
   /**
    * 可用的护甲列表，根据选择规则过滤
    */
   const availableArmors = useMemo(() => {
     return armors.filter(a => selectionRules.allowedArmorIds.includes(a.id));
-  }, []);
+  }, [armors]);
 
   /**
    * 头盔耐久度可选值列表，基于所选头盔的最大耐久度生成

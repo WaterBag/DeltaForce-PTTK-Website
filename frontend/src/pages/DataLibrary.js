@@ -175,7 +175,7 @@ export function DataLibrary() {
     });
 
     return filtered;
-  }, [ammoSearchText, ammoCaliberFilter, ammoSortBy]);
+  }, [ammos, ammoSearchText, ammoCaliberFilter, ammoSortBy]);
 
   /**
    * 处理口径点击 - 跳转到弹药Tab并筛选
