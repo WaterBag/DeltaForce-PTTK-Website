@@ -3,8 +3,6 @@
  * 负责处理武器数据、计算TTK、应用改装效果等核心业务逻辑
  */
 
-import { weapons } from '../assets/data/weapons';
-import { modifications as allModifications } from '../assets/data/modifications.js';
 import { COLORS } from '../components/data_query/TtkChart.jsx';
 
 /**
@@ -37,13 +35,6 @@ const EbtkCalculator = (btkDataJsonString, hitRate = 1.0) => {
     return null;
   }
 };
-
-// 武器信息映射表 - 将武器名称映射到对应的武器信息对象
-// 用于快速查找武器属性，如射速、射程、枪口初速等
-const weaponInfoMap = weapons.reduce((acc, weapon) => {
-  acc[weapon.name] = weapon;
-  return acc;
-}, {});
 
 // 将可能为对象映射的变体名解析为字符串
 // 允许 effects.dataQueryName/btkQueryName 是：
@@ -120,10 +111,23 @@ const expandStepData = (sparseData, maxRange) => {
  * @param {boolean} applyTriggerDelay - 是否应用扳机延迟效果
  * @returns {Array} 处理后的图表数据数组
  */
-export const processChartData = (comparisonLines, applyEffect, applyTriggerDelay) => {
+export const processChartData = (
+  comparisonLines,
+  applyEffect,
+  applyTriggerDelay,
+  weapons = [],
+  allModifications = []
+) => {
   if (!comparisonLines || comparisonLines.length === 0) {
     return [];
   }
+
+  // 武器信息映射表 - 将武器名称映射到对应的武器信息对象
+  // 用于快速查找武器属性，如射速、射程、枪口初速等
+  const weaponInfoMap = weapons.reduce((acc, weapon) => {
+    acc[weapon.name] = weapon;
+    return acc;
+  }, {});
 
   return comparisonLines
     .map((lineConfig, index) => {

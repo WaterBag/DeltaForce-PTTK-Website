@@ -1,11 +1,9 @@
 /* eslint-disable indent */
 import React, { useState, useMemo } from 'react';
 import './DataLibrary.css';
-import { weapons } from '../assets/data/weapons';
-import { ammos } from '../assets/data/ammos';
 import { WeaponList } from '../components/data_library/WeaponList';
 import { AmmoList } from '../components/data_library/AmmoList';
-import { modifications } from '../assets/data/modifications';
+import { useGameData } from '../hooks/useGameData';
 
 /**
  * 数据图鉴页面组件 - 显示所有静态游戏数据
@@ -13,6 +11,9 @@ import { modifications } from '../assets/data/modifications';
  * @returns {JSX.Element} 数据图鉴页面组件
  */
 export function DataLibrary() {
+  const { data: gameData } = useGameData();
+  const { weapons, ammos, modifications } = gameData;
+
   // 当前激活的Tab：'weapons' 或 'ammos'
   const [activeTab, setActiveTab] = useState('weapons');
   
@@ -40,7 +41,7 @@ export function DataLibrary() {
     const calibers = new Set();
     weapons.forEach(w => calibers.add(w.caliber));
     return ['all', ...Array.from(calibers).sort()];
-  }, []);
+  }, [weapons]);
 
   /**
    * 计算武器的DPS值
@@ -95,7 +96,7 @@ export function DataLibrary() {
           fleshDPS: damage * (fireRate / 60),
         };
       });
-  }, []);
+  }, [weapons, modifications]);
 
   /**
    * 过滤和排序武器列表

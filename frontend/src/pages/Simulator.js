@@ -3,14 +3,10 @@ import { WeaponSelector } from '../components/simulator/Selectors';
 import { AmmoSelector } from '../components/public/AmmoSelector';
 import { Alert } from '../components/public/Alert';
 import { useAlert } from '../hooks/useAlert';
+import { useGameData } from '../hooks/useGameData';
 import './Simulator.css';
 import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
 import { UniversalSlider } from '../components/public/UniversalSlider';
-import helmets from '../assets/data/helmets';
-import armors from '../assets/data/armors';
-import { weapons } from '../assets/data/weapons';
-import { ammos } from '../assets/data/ammos';
-import { modifications } from '../assets/data/modifications';
 import { generateDurabilityValues } from '../utils/numberUtils';
 import { DamageDecayChart } from '../components/simulator/DamageDecayChart';
 import { TargetDummy } from '../components/simulator/TargetDummy';
@@ -27,15 +23,15 @@ const pickMaxDurabilityByLevel = (items, level) => {
   );
 };
 
-const defaultHelmet = pickMaxDurabilityByLevel(helmets, 5);
-const defaultArmor = pickMaxDurabilityByLevel(armors, 5);
-
 /**
  * 模拟器页面组件 - 用于武器和护甲配置的交互式模拟
  * 提供武器、弹药、护甲和头盔的选择和配置功能
  * @returns {JSX.Element} 模拟器页面组件
  */
 export function Simulator() {
+  const { data: gameData } = useGameData();
+  const { helmets, armors, weapons, ammos, modifications } = gameData;
+
   // 状态管理
   /** @type {[Object|null, Function]} 当前选中的武器对象 */
   const [selectedWeapon, setSelectedWeapon] = useState(null);
@@ -51,13 +47,13 @@ export function Simulator() {
   /** @type {[Object, Function]} 工具提示位置 */
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   /** @type {[Object|null, Function]} 当前选中的头盔对象 */
-  const [selectedHelmet, setSelectedHelmet] = useState(defaultHelmet);
+  const [selectedHelmet, setSelectedHelmet] = useState(null);
   /** @type {[Object|null, Function]} 当前选中的护甲对象 */
-  const [selectedArmor, setSelectedArmor] = useState(defaultArmor);
+  const [selectedArmor, setSelectedArmor] = useState(null);
   /** @type {[number|null, Function]} 初始头盔耐久度值 */
-  const [helmetDurability, setHelmetDurability] = useState(defaultHelmet?.durability ?? null);
+  const [helmetDurability, setHelmetDurability] = useState(null);
   /** @type {[number|null, Function]} 初始护甲耐久度值 */
-  const [armorDurability, setArmorDurability] = useState(defaultArmor?.durability ?? null);
+  const [armorDurability, setArmorDurability] = useState(null);
 
   /** @type {[number|null, Function]} 当前交战距离 */
   const [distance, setDistance] = useState(10);
@@ -82,6 +78,25 @@ export function Simulator() {
 
   // 用于血量滑条的数值列表，生成1到100的整数数组
   const hpValues = useMemo(() => Array.from({ length: 100 }, (_, i) => i + 1), []);
+
+  // 远程数据加载后，初始化默认防具（5级耐久最高）
+  useEffect(() => {
+    if (!selectedHelmet && helmets?.length) {
+      const defaultHelmet = pickMaxDurabilityByLevel(helmets, 5);
+      if (defaultHelmet) {
+        setSelectedHelmet(defaultHelmet);
+        setHelmetDurability(defaultHelmet.durability);
+      }
+    }
+
+    if (!selectedArmor && armors?.length) {
+      const defaultArmor = pickMaxDurabilityByLevel(armors, 5);
+      if (defaultArmor) {
+        setSelectedArmor(defaultArmor);
+        setArmorDurability(defaultArmor.durability);
+      }
+    }
+  }, [helmets, armors, selectedHelmet, selectedArmor]);
 
   // 自动重置模拟状态的副作用逻辑
   // 当头盔选择或耐久度变化时，重置头盔耐久度和目标血量

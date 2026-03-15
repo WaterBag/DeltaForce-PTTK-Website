@@ -11,6 +11,7 @@ import { ComparisonList } from '../components/data_query/ComparisonList.jsx';
 import { Alert } from '../components/public/Alert';
 import { ConfirmDialog } from '../components/public/ConfirmDialog';
 import { useAlert } from '../hooks/useAlert';
+import { useGameData } from '../hooks/useGameData';
 
 // API函数
 import { fetchAvailableGuns, fetchGunDetails } from '../api/ttkAPI';
@@ -22,12 +23,6 @@ import { generateDurabilityValues } from '../utils/numberUtils.js';
 // 配置和规则
 import { selectionRules } from '../config/selectionRules.js';
 
-// 静态数据
-import { modifications } from '../assets/data/modifications.js';
-import armors from '../assets/data/armors';
-import helmets from '../assets/data/helmets';
-import { weapons } from '../assets/data/weapons.js';
-
 // 样式文件
 
 import './DataQuery.css';
@@ -38,6 +33,9 @@ import './DataQuery.css';
  * @returns {JSX.Element} 数据查询页面组件
  */
 export function DataQuery() {
+  const { data: gameData } = useGameData();
+  const { modifications, armors, helmets, weapons } = gameData;
+
   // 辅助：解析配件的 btkQueryName（可能为对象映射）
   const resolveBtkQueryName = useCallback((mod, baseGunName) => {
     // v: btkQueryName，允许是 string 或 { [baseGunName]: variantName } 的映射对象
@@ -123,9 +121,15 @@ export function DataQuery() {
    * 当对比线、枪口初速影响或扳机延迟影响发生变化时，重新处理并更新图表数据
    */
   useEffect(() => {
-    const processedData = processChartData(comparisonLines, applyVelocityEffect, applyTriggerDelay);
+    const processedData = processChartData(
+      comparisonLines,
+      applyVelocityEffect,
+      applyTriggerDelay,
+      weapons,
+      modifications
+    );
     setDisplayedChartData(processedData);
-  }, [comparisonLines, applyVelocityEffect, applyTriggerDelay]);
+  }, [comparisonLines, applyVelocityEffect, applyTriggerDelay, weapons, modifications]);
 
   /**
    * 重新查询已有对比列表中的武器配置（使用新的护甲耐久值）

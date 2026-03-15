@@ -16,6 +16,7 @@
    - ammos.js
    - armors.js
    - helmets.js
+   - modifications.js
 2. 转换为标准 JSON 并输出到 `published_data`。
 3. 生成 `manifest.json`：
    - `version`
