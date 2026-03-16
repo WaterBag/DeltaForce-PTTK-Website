@@ -95,6 +95,24 @@ const setGroupedProbability = (hitProbabilities, sites, value) => {
 
 const BAR_COLORS = ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+const getSegmentDistances = (configuredWeapon, maxDistance = 100) => {
+  if (!configuredWeapon) return [0, maxDistance];
+
+  const points = [
+    0,
+    Number(configuredWeapon.range1),
+    Number(configuredWeapon.range2),
+    Number(configuredWeapon.range3),
+    Number(configuredWeapon.range4),
+    Number(configuredWeapon.range5),
+    maxDistance,
+  ]
+    .filter((v) => Number.isFinite(v) && v >= 0 && v <= maxDistance)
+    .map((v) => Math.round(v));
+
+  return [...new Set(points)].sort((a, b) => a - b);
+};
+
 function ComparisonTooltip({ active, payload, metric }) {
   if (!active || !payload || payload.length === 0) return null;
   const data = payload[0]?.payload;
@@ -517,7 +535,7 @@ export function TTKSimulator() {
   const runDistanceSweep = async (cfg, configuredWeapon) => {
     updateConfig(cfg.id, { lineRunning: true, lineProgress: 0 });
     const distanceSeries = [];
-    const distances = Array.from({ length: 101 }, (_, i) => i);
+    const distances = getSegmentDistances(configuredWeapon, 100);
 
     for (let i = 0; i < distances.length; i += 1) {
       const distance = distances[i];
@@ -677,7 +695,7 @@ export function TTKSimulator() {
                 className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`}
                 onClick={() => setCompareChartType('line')}
               >
-                折线图 (0-100m)
+                折线图 (分段射程点)
               </button>
             </div>
 
@@ -691,7 +709,7 @@ export function TTKSimulator() {
 
             {compareChartType === 'line' && configs.some((cfg) => cfg.lineRunning) && (
               <div className="line-calc-status">
-                正在计算 0-100m 全距离：
+                正在按枪械分段射程点计算：
                 {configs
                   .filter((cfg) => cfg.lineRunning)
                   .map((cfg) => `${cfg.name} ${Math.round((cfg.lineProgress || 0) * 100)}%`)
