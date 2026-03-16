@@ -15,6 +15,16 @@ import {
 } from '../utils/modSelectionUtils';
 import { buildConfiguredWeapon } from '../utils/weaponConfigUtils';
 import { DEFAULT_HIT_PROBABILITIES, runMonteCarlo } from '../utils/ttkMonteCarlo';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+} from 'recharts';
 import './TTKSimulator.css';
 
 const pickMaxDurabilityByLevel = (items, level) => {
@@ -47,10 +57,84 @@ const createConfig = (id) => ({
   initialHp: 100,
   trialCount: 5000,
   hitProbabilities: { ...DEFAULT_HIT_PROBABILITIES },
+  chartMode: 'ttk',
   running: false,
   progress: 0,
   result: null,
 });
+
+const PROBABILITY_FIELDS = [
+  { key: 'head', label: '头部', sites: ['head'] },
+  { key: 'chest', label: '胸部', sites: ['chest'] },
+  { key: 'abdomen', label: '腹部', sites: ['abdomen'] },
+  { key: 'limbs', label: '四肢(手臂+腿部)', sites: ['upperArm', 'lowerArm', 'thigh', 'calf'] },
+];
+
+const getDisplayProbability = (hitProbabilities, sites) => {
+  return sites.reduce((sum, site) => sum + (Number(hitProbabilities?.[site]) || 0), 0);
+};
+
+const setGroupedProbability = (hitProbabilities, sites, value) => {
+  const normalized = Math.max(0, Number(value) || 0);
+  if (sites.length === 1) {
+    return { ...hitProbabilities, [sites[0]]: normalized };
+  }
+
+  const perSite = normalized / sites.length;
+  const next = { ...hitProbabilities };
+  sites.forEach((site) => {
+    next[site] = perSite;
+  });
+  return next;
+};
+
+const BAR_COLORS = ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+function ComparisonTooltip({ active, payload, metric }) {
+  if (!active || !payload || payload.length === 0) return null;
+  const data = payload[0]?.payload;
+  if (!data) return null;
+
+  return (
+    <div className="compare-tooltip">
+      <div className="compare-tooltip-title">{data.weaponName}</div>
+      <div>方案：{data.name}</div>
+      <div>弹药：{data.ammoName}</div>
+      <div>平均TTK：{Math.round(data.avgTtk)} ms</div>
+      <div>平均BTK：{data.avgBtk.toFixed(2)}</div>
+      <div>{metric === 'ttk' ? '当前柱值：TTK' : '当前柱值：BTK'} = {metric === 'ttk' ? `${Math.round(data.avgTtk)} ms` : data.avgBtk.toFixed(2)}</div>
+      <div>样本数：{data.trialCount}</div>
+    </div>
+  );
+}
+
+function ComparisonBarChart({ rows, metric }) {
+  const dataKey = metric === 'ttk' ? 'avgTtk' : 'avgBtk';
+  const yFormatter = metric === 'ttk' ? (v) => `${Math.round(v)}ms` : (v) => Number(v).toFixed(1);
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={rows} margin={{ top: 16, right: 18, left: 8, bottom: 40 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis
+          dataKey="weaponName"
+          angle={-12}
+          textAnchor="end"
+          height={64}
+          interval={0}
+          tick={{ fontSize: 12 }}
+        />
+        <YAxis tickFormatter={yFormatter} />
+        <Tooltip content={<ComparisonTooltip metric={metric} />} />
+        <Bar dataKey={dataKey} radius={[8, 8, 0, 0]}>
+          {rows.map((row, index) => (
+            <Cell key={row.id} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
 
 function GunConfigCard({
   cfg,
@@ -161,9 +245,9 @@ function GunConfigCard({
         />
         <UniversalSlider
           label="初始血量"
-          values={Array.from({ length: 300 }, (_, i) => i + 1)}
-          value={cfg.initialHp}
-          onChange={(initialHp) => onChange({ initialHp })}
+          values={Array.from({ length: 100 }, (_, i) => i + 1)}
+          value={Math.min(cfg.initialHp, 100)}
+          onChange={(initialHp) => onChange({ initialHp: Math.min(initialHp, 100) })}
         />
         <UniversalSlider
           label="头盔耐久"
@@ -195,20 +279,17 @@ function GunConfigCard({
       </div>
 
       <div className="probabilities">
-        {Object.keys(DEFAULT_HIT_PROBABILITIES).map((site) => (
-          <label key={site} className="prob-item" htmlFor={`${cfg.id}-${site}`}>
-            <span>{site}</span>
+        {PROBABILITY_FIELDS.map((field) => (
+          <label key={field.key} className="prob-item" htmlFor={`${cfg.id}-${field.key}`}>
+            <span>{field.label}</span>
             <input
-              id={`${cfg.id}-${site}`}
+              id={`${cfg.id}-${field.key}`}
               type="number"
               min={0}
               step={0.01}
-              value={cfg.hitProbabilities[site] ?? 0}
+              value={getDisplayProbability(cfg.hitProbabilities, field.sites).toFixed(4)}
               onChange={(e) => onChange({
-                hitProbabilities: {
-                  ...cfg.hitProbabilities,
-                  [site]: Number(e.target.value) || 0,
-                },
+                hitProbabilities: setGroupedProbability(cfg.hitProbabilities, field.sites, e.target.value),
               })}
             />
           </label>
@@ -263,15 +344,35 @@ function GunConfigCard({
             <div>样本数: {cfg.result.trialCount}</div>
             <div>理论射速: {Math.round(cfg.result.fireRate || 0)} RPM</div>
           </div>
+          <div className="chart-toggle">
+            <button
+              type="button"
+              className={`ttk-btn ${cfg.chartMode === 'ttk' ? 'primary' : ''}`}
+              onClick={() => onChange({ chartMode: 'ttk' })}
+            >
+              TTK 分布
+            </button>
+            <button
+              type="button"
+              className={`ttk-btn ${cfg.chartMode === 'btk' ? 'primary' : ''}`}
+              onClick={() => onChange({ chartMode: 'btk' })}
+            >
+              BTK 分布
+            </button>
+          </div>
+
           <div className="chart-grid">
-            <div className="chart-box">
-              <h4>BTK 概率分布</h4>
-              <BtkDistributionChart btkData={cfg.result.btkDistributionJson} />
-            </div>
-            <div className="chart-box">
-              <h4>TTK 概率分布</h4>
-              <TtkDistributionChart ttkData={cfg.result.ttkDistribution} />
-            </div>
+            {cfg.chartMode === 'ttk' ? (
+              <div className="chart-box">
+                <h4>TTK 概率分布</h4>
+                <TtkDistributionChart ttkData={cfg.result.ttkDistribution} />
+              </div>
+            ) : (
+              <div className="chart-box">
+                <h4>BTK 概率分布</h4>
+                <BtkDistributionChart btkData={cfg.result.btkDistributionJson} />
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -288,6 +389,7 @@ export function TTKSimulator() {
   const modifications = data?.modifications || [];
 
   const [configs, setConfigs] = useState([createConfig(1)]);
+  const [compareMetric, setCompareMetric] = useState('ttk');
   const workerRef = useRef(null);
   const requestSeedRef = useRef(0);
 
@@ -388,7 +490,7 @@ export function TTKSimulator() {
       helmetDurability: cfg.helmetDurability,
       armorDurability: cfg.armorDurability,
       distance: cfg.distance,
-      initialHp: cfg.initialHp,
+      initialHp: Math.min(cfg.initialHp, 100),
       hitProbabilities: cfg.hitProbabilities,
       trials: cfg.trialCount,
       chunkSize: 2000,
@@ -439,35 +541,26 @@ export function TTKSimulator() {
 
       {comparisonRows.length > 0 && (
         <section className="ttk-compare">
-          <h3>多枪对比总表（按平均TTK升序）</h3>
-          <div className="ttk-table-wrap">
-            <table className="ttk-table">
-              <thead>
-                <tr>
-                  <th>排名</th>
-                  <th>方案</th>
-                  <th>武器</th>
-                  <th>弹药</th>
-                  <th>平均BTK</th>
-                  <th>平均TTK(ms)</th>
-                  <th>样本数</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row) => (
-                  <tr key={row.id}>
-                    <td>{row.rank}</td>
-                    <td>{row.name}</td>
-                    <td>{row.weaponName}</td>
-                    <td>{row.ammoName}</td>
-                    <td>{row.avgBtk.toFixed(2)}</td>
-                    <td>{Math.round(row.avgTtk)}</td>
-                    <td>{row.trialCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="ttk-compare-head">
+            <h3>枪械对比柱状图</h3>
+            <div className="chart-toggle">
+              <button
+                type="button"
+                className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`}
+                onClick={() => setCompareMetric('ttk')}
+              >
+                看 TTK
+              </button>
+              <button
+                type="button"
+                className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`}
+                onClick={() => setCompareMetric('btk')}
+              >
+                看 BTK
+              </button>
+            </div>
           </div>
+          <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
         </section>
       )}
 

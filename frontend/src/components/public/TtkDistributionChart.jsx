@@ -34,7 +34,7 @@ export function TtkDistributionChart({ ttkData = [] }) {
     <ResponsiveContainer width="100%" height={180}>
       <BarChart data={ttkData} margin={{ top: 23, right: 20, left: 0, bottom: 25 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="ttk" interval={0} label={{ value: 'TTK 分布 (ms)', position: 'insideBottom', dy: 15 }} />
+        <XAxis dataKey="ttk" interval={0} label={{ value: '击杀期望TTK (ms)', position: 'insideBottom', dy: 15 }} />
         <YAxis tickFormatter={formatPercent} domain={[0, yAxisMax]} width={40} />
 
         {!isEmpty && (

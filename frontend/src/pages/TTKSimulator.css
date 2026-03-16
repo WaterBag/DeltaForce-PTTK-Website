@@ -2,22 +2,33 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 4px 2px 16px;
 }
 
 .ttk-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.ttk-topbar h2 {
+  margin: 0;
+  font-size: 20px;
 }
 
 .ttk-card {
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
 }
 
 .ttk-card-header {
@@ -105,20 +116,30 @@
 }
 
 .ttk-btn {
-  border: none;
-  border-radius: 6px;
+  border: 1px solid #dbe4f4;
+  border-radius: 8px;
   padding: 8px 12px;
   cursor: pointer;
+  background: #fff;
+  color: #334155;
+  transition: all 0.15s ease;
+}
+
+.ttk-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .ttk-btn.primary {
   background: #2563eb;
   color: #fff;
+  border-color: #2563eb;
 }
 
 .ttk-btn.danger {
   background: #ef4444;
   color: #fff;
+  border-color: #ef4444;
 }
 
 .ttk-result {
@@ -136,16 +157,23 @@
   font-size: 13px;
 }
 
+.chart-toggle {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .chart-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 
 .chart-box {
-  border: 1px solid #f1f5f9;
-  border-radius: 8px;
-  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fcfdff;
 }
 
 .chart-box h4 {
@@ -155,12 +183,35 @@
 .ttk-compare {
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 12px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
 }
 
 .ttk-compare h3 {
-  margin: 0 0 8px;
+  margin: 0;
+}
+
+.ttk-compare-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.compare-tooltip {
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.compare-tooltip-title {
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .ttk-table-wrap {
