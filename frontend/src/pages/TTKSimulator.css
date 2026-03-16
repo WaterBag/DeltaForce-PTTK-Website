@@ -192,11 +192,48 @@
   margin: 0;
 }
 
+.ttk-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 14px;
+  align-items: start;
+}
+
+.ttk-configs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ttk-compare-panel {
+  position: sticky;
+  top: 12px;
+}
+
 .ttk-compare-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+}
+
+.chart-type-toggle {
+  margin-bottom: 10px;
+}
+
+.compare-empty {
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  background: #f8fafc;
+}
+
+.line-calc-status {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #334155;
 }
 
 .compare-tooltip {
@@ -233,4 +270,14 @@
 
 .ttk-table thead th {
   background: #f8fafc;
+}
+
+@media (max-width: 1200px) {
+  .ttk-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ttk-compare-panel {
+    position: static;
+  }
 }

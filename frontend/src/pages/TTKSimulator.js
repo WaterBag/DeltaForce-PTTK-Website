@@ -24,6 +24,9 @@ import {
   CartesianGrid,
   Tooltip,
   Cell,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts';
 import './TTKSimulator.css';
 
@@ -60,6 +63,8 @@ const createConfig = (id) => ({
   chartMode: 'ttk',
   running: false,
   progress: 0,
+  lineRunning: false,
+  lineProgress: 0,
   result: null,
 });
 
@@ -132,6 +137,46 @@ function ComparisonBarChart({ rows, metric }) {
           ))}
         </Bar>
       </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function ComparisonLineChart({ rows, metric }) {
+  const lineData = useMemo(() => {
+    const byDistance = {};
+    rows.forEach((row) => {
+      (row.distanceSeries || []).forEach((point) => {
+        if (!byDistance[point.distance]) byDistance[point.distance] = { distance: point.distance };
+        byDistance[point.distance][row.id] = metric === 'ttk' ? point.avgTtk : point.avgBtk;
+      });
+    });
+
+    return Object.values(byDistance).sort((a, b) => a.distance - b.distance);
+  }, [rows, metric]);
+
+  const readyRows = rows.filter((r) => Array.isArray(r.distanceSeries) && r.distanceSeries.length > 0);
+
+  return (
+    <ResponsiveContainer width="100%" height={320}>
+      <LineChart data={lineData} margin={{ top: 16, right: 18, left: 8, bottom: 22 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis dataKey="distance" domain={[0, 100]} type="number" tickCount={11} label={{ value: '距离(m)', position: 'insideBottom', dy: 10 }} />
+        <YAxis tickFormatter={(v) => (metric === 'ttk' ? `${Math.round(v)}ms` : Number(v).toFixed(1))} />
+        <Tooltip formatter={(value) => (metric === 'ttk' ? `${Math.round(value)} ms` : Number(value).toFixed(2))} labelFormatter={(label) => `距离 ${label}m`} />
+        <Legend />
+        {readyRows.map((row, index) => (
+          <Line
+            key={row.id}
+            type="monotone"
+            dataKey={row.id}
+            name={`${row.weaponName} (${row.ammoName})`}
+            stroke={BAR_COLORS[index % BAR_COLORS.length]}
+            strokeWidth={2}
+            dot={false}
+            activeDot={{ r: 4 }}
+          />
+        ))}
+      </LineChart>
     </ResponsiveContainer>
   );
 }
@@ -390,6 +435,7 @@ export function TTKSimulator() {
 
   const [configs, setConfigs] = useState([createConfig(1)]);
   const [compareMetric, setCompareMetric] = useState('ttk');
+  const [compareChartType, setCompareChartType] = useState('bar');
   const workerRef = useRef(null);
   const requestSeedRef = useRef(0);
 
@@ -468,6 +514,39 @@ export function TTKSimulator() {
     }
   });
 
+  const runDistanceSweep = async (cfg, configuredWeapon) => {
+    updateConfig(cfg.id, { lineRunning: true, lineProgress: 0 });
+    const distanceSeries = [];
+    const distances = Array.from({ length: 101 }, (_, i) => i);
+
+    for (let i = 0; i < distances.length; i += 1) {
+      const distance = distances[i];
+      const res = await runMonteCarlo({
+        configuredWeapon,
+        ammo: cfg.selectedAmmo,
+        helmet: cfg.selectedHelmet,
+        armor: cfg.selectedArmor,
+        helmetDurability: cfg.helmetDurability,
+        armorDurability: cfg.armorDurability,
+        distance,
+        initialHp: Math.min(cfg.initialHp, 100),
+        hitProbabilities: cfg.hitProbabilities,
+        trials: cfg.trialCount,
+        chunkSize: 2000,
+      });
+
+      distanceSeries.push({
+        distance,
+        avgTtk: res.avgTtk,
+        avgBtk: res.avgBtk,
+      });
+
+      updateConfig(cfg.id, { lineProgress: (i + 1) / distances.length });
+    }
+
+    return distanceSeries;
+  };
+
   const runConfig = async (cfg) => {
     if (!cfg.selectedWeapon || !cfg.selectedAmmo || !cfg.selectedHelmet || !cfg.selectedArmor) return;
 
@@ -480,7 +559,7 @@ export function TTKSimulator() {
 
     if (!configuredWeapon) return;
 
-    updateConfig(cfg.id, { running: true, progress: 0, result: null });
+    updateConfig(cfg.id, { running: true, progress: 0, result: null, lineRunning: false, lineProgress: 0 });
 
     const payload = {
       configuredWeapon,
@@ -506,12 +585,17 @@ export function TTKSimulator() {
       });
     }
 
+    const distanceSeries = await runDistanceSweep(cfg, configuredWeapon);
+
     updateConfig(cfg.id, {
       running: false,
       progress: 1,
+      lineRunning: false,
+      lineProgress: 1,
       result: {
         ...result,
         fireRate: configuredWeapon.fireRate,
+        distanceSeries,
       },
     });
   };
@@ -527,6 +611,7 @@ export function TTKSimulator() {
         avgBtk: cfg.result.avgBtk,
         avgTtk: cfg.result.avgTtk,
         trialCount: cfg.result.trialCount,
+        distanceSeries: cfg.result.distanceSeries || [],
       }))
       .sort((a, b) => a.avgTtk - b.avgTtk)
       .map((row, index) => ({ ...row, rank: index + 1 }));
@@ -539,45 +624,83 @@ export function TTKSimulator() {
         <button type="button" className="ttk-btn primary" onClick={addConfig}>新增对比枪</button>
       </div>
 
-      {comparisonRows.length > 0 && (
-        <section className="ttk-compare">
-          <div className="ttk-compare-head">
-            <h3>枪械对比柱状图</h3>
-            <div className="chart-toggle">
+      <div className="ttk-main">
+        <div className="ttk-configs">
+          {configs.map((cfg) => (
+            <GunConfigCard
+              key={cfg.id}
+              cfg={cfg}
+              weapons={weapons}
+              ammos={ammos}
+              helmets={helmets}
+              armors={armors}
+              modifications={modifications}
+              onChange={(patch) => updateConfig(cfg.id, patch)}
+              onRun={() => runConfig(cfg)}
+              onRemove={() => removeConfig(cfg.id)}
+            />
+          ))}
+        </div>
+
+        <aside className="ttk-compare-panel">
+          <section className="ttk-compare">
+            <div className="ttk-compare-head">
+              <h3>枪械对比</h3>
+              <div className="chart-toggle">
+                <button
+                  type="button"
+                  className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`}
+                  onClick={() => setCompareMetric('ttk')}
+                >
+                  看 TTK
+                </button>
+                <button
+                  type="button"
+                  className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`}
+                  onClick={() => setCompareMetric('btk')}
+                >
+                  看 BTK
+                </button>
+              </div>
+            </div>
+
+            <div className="chart-toggle chart-type-toggle">
               <button
                 type="button"
-                className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`}
-                onClick={() => setCompareMetric('ttk')}
+                className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`}
+                onClick={() => setCompareChartType('bar')}
               >
-                看 TTK
+                柱状图
               </button>
               <button
                 type="button"
-                className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`}
-                onClick={() => setCompareMetric('btk')}
+                className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`}
+                onClick={() => setCompareChartType('line')}
               >
-                看 BTK
+                折线图 (0-100m)
               </button>
             </div>
-          </div>
-          <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
-        </section>
-      )}
 
-      {configs.map((cfg) => (
-        <GunConfigCard
-          key={cfg.id}
-          cfg={cfg}
-          weapons={weapons}
-          ammos={ammos}
-          helmets={helmets}
-          armors={armors}
-          modifications={modifications}
-          onChange={(patch) => updateConfig(cfg.id, patch)}
-          onRun={() => runConfig(cfg)}
-          onRemove={() => removeConfig(cfg.id)}
-        />
-      ))}
+            {comparisonRows.length === 0 ? (
+              <div className="compare-empty">请先运行至少一个方案，再查看对比图</div>
+            ) : compareChartType === 'bar' ? (
+              <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
+            ) : (
+              <ComparisonLineChart rows={comparisonRows} metric={compareMetric} />
+            )}
+
+            {compareChartType === 'line' && configs.some((cfg) => cfg.lineRunning) && (
+              <div className="line-calc-status">
+                正在计算 0-100m 全距离：
+                {configs
+                  .filter((cfg) => cfg.lineRunning)
+                  .map((cfg) => `${cfg.name} ${Math.round((cfg.lineProgress || 0) * 100)}%`)
+                  .join(' / ')}
+              </div>
+            )}
+          </section>
+        </aside>
+      </div>
     </div>
   );
 }
