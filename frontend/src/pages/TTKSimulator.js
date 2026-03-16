@@ -46,7 +46,7 @@ const pickDefaultAmmo = (options) => {
     || null;
 };
 
-const createConfig = (id) => ({
+const createConfig = (id, defaultDistance = 10) => ({
   id,
   name: `方案 ${id}`,
   selectedWeapon: null,
@@ -56,7 +56,7 @@ const createConfig = (id) => ({
   helmetDurability: 0,
   armorDurability: 0,
   selectedMods: [],
-  distance: 10,
+  distance: defaultDistance,
   initialHp: 100,
   trialCount: 5000,
   hitProbabilities: { ...DEFAULT_HIT_PROBABILITIES },
@@ -210,6 +210,7 @@ function GunConfigCard({
   onRun,
   onRemove,
   showResult = true,
+  disableDistance = false,
 }) {
   const availableAmmos = useMemo(() => {
     if (!cfg.selectedWeapon) return [];
@@ -306,6 +307,7 @@ function GunConfigCard({
           values={Array.from({ length: 301 }, (_, i) => i)}
           value={cfg.distance}
           onChange={(distance) => onChange({ distance })}
+          isDisabled={disableDistance}
         />
         <UniversalSlider
           label="初始血量"
@@ -328,6 +330,10 @@ function GunConfigCard({
           isDisabled={!cfg.selectedArmor}
         />
       </div>
+
+      {disableDistance && (
+        <div className="distance-locked-tip">当前为折线图模式，距离按枪械分段射程点自动计算</div>
+      )}
 
       <div className="ttk-line">
         <label htmlFor={`trial-${cfg.id}`}>模拟次数 N</label>
@@ -452,7 +458,8 @@ export function TTKSimulator() {
   const armors = data?.armors || [];
   const modifications = data?.modifications || [];
 
-  const [configs, setConfigs] = useState([createConfig(1)]);
+  const [lastDistance, setLastDistance] = useState(10);
+  const [configs, setConfigs] = useState([createConfig(1, 10)]);
   const [selectedConfigId, setSelectedConfigId] = useState(1);
   const [editingConfigId, setEditingConfigId] = useState(null);
   const [compareMetric, setCompareMetric] = useState('ttk');
@@ -486,12 +493,19 @@ export function TTKSimulator() {
 
   const addConfig = () => {
     const nextId = configs.length + 1;
-    setConfigs((prev) => [...prev, createConfig(nextId)]);
+    setConfigs((prev) => [...prev, createConfig(nextId, lastDistance)]);
     setSelectedConfigId(nextId);
   };
 
   const updateConfig = (id, patch) => {
     setConfigs((prev) => prev.map((cfg) => (cfg.id === id ? { ...cfg, ...patch } : cfg)));
+  };
+
+  const handleConfigChange = (id, patch) => {
+    if (Object.prototype.hasOwnProperty.call(patch, 'distance')) {
+      setLastDistance(Number(patch.distance) || 0);
+    }
+    updateConfig(id, patch);
   };
 
   const removeConfig = (id) => {
@@ -655,11 +669,6 @@ export function TTKSimulator() {
 
   return (
     <div className="ttk-page">
-      <div className="ttk-topbar">
-        <h2>Monte Carlo TTK 模拟器（多枪独立条件对比）</h2>
-        <button type="button" className="ttk-btn primary" onClick={addConfig}>新增对比枪</button>
-      </div>
-
       <div className="ttk-main">
         <aside className="ttk-left-panel">
           <section className="ttk-compare">
@@ -668,15 +677,8 @@ export function TTKSimulator() {
               <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
             </div>
 
-            <div className="chart-toggle">
-              <button type="button" className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`} onClick={() => setCompareMetric('ttk')}>TTK</button>
-              <button type="button" className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`} onClick={() => setCompareMetric('btk')}>BTK</button>
-              <button type="button" className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`} onClick={() => setCompareChartType('bar')}>柱状图</button>
-              <button type="button" className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`} onClick={() => setCompareChartType('line')}>折线图</button>
-            </div>
-
             <div className="config-list">
-              {configs.map((cfg) => (
+              {configs.map((cfg, idx) => (
                 <button
                   key={cfg.id}
                   type="button"
@@ -686,14 +688,36 @@ export function TTKSimulator() {
                     setEditingConfigId(cfg.id);
                   }}
                 >
-                  <div className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</div>
-                  <div className="config-item-meta">{cfg.selectedWeapon?.name || '未选武器'} · {cfg.selectedAmmo?.name || '未选弹药'}</div>
+                  <div className="config-item-top">
+                    <span className="config-badge">#{idx + 1}</span>
+                    <div className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</div>
+                  </div>
+                  <div className="config-item-meta">{cfg.selectedAmmo?.name || '未选弹药'}</div>
                   <div className="config-item-stats">
-                    <span>期望BTK: {cfg.result ? cfg.result.avgBtk.toFixed(2) : '--'}</span>
-                    <span>期望TTK: {cfg.result ? `${Math.round(cfg.result.avgTtk)}ms` : '--'}</span>
+                    <span>EBTK {cfg.result ? cfg.result.avgBtk.toFixed(2) : '--'}</span>
+                    <span>ETTK {cfg.result ? `${Math.round(cfg.result.avgTtk)}ms` : '--'}</span>
                   </div>
                 </button>
               ))}
+            </div>
+          </section>
+
+          <section className="ttk-compare options-panel">
+            <div className="options-row">
+              <div className="option-group">
+                <span className="option-group-label">指标</span>
+                <div className="chart-toggle left-options">
+                  <button type="button" className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`} onClick={() => setCompareMetric('ttk')}>TTK</button>
+                  <button type="button" className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`} onClick={() => setCompareMetric('btk')}>BTK</button>
+                </div>
+              </div>
+              <div className="option-group">
+                <span className="option-group-label">图形</span>
+                <div className="chart-toggle left-options">
+                  <button type="button" className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`} onClick={() => setCompareChartType('bar')}>柱状图</button>
+                  <button type="button" className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`} onClick={() => setCompareChartType('line')}>折线图</button>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -754,10 +778,11 @@ export function TTKSimulator() {
               helmets={helmets}
               armors={armors}
               modifications={modifications}
-              onChange={(patch) => updateConfig(editingConfig.id, patch)}
+              onChange={(patch) => handleConfigChange(editingConfig.id, patch)}
               onRun={() => runConfig(editingConfig)}
               onRemove={() => removeConfig(editingConfig.id)}
               showResult={false}
+              disableDistance={compareChartType === 'line'}
             />
           </div>
         </div>
