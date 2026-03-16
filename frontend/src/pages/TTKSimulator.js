@@ -209,6 +209,7 @@ function GunConfigCard({
   onChange,
   onRun,
   onRemove,
+  showResult = true,
 }) {
   const availableAmmos = useMemo(() => {
     if (!cfg.selectedWeapon) return [];
@@ -399,7 +400,7 @@ function GunConfigCard({
         </button>
       </div>
 
-      {cfg.result && (
+      {showResult && cfg.result && (
         <div className="ttk-result">
           <div className="summary">
             <div>平均BTK: {cfg.result.avgBtk.toFixed(2)}</div>
@@ -452,6 +453,7 @@ export function TTKSimulator() {
   const modifications = data?.modifications || [];
 
   const [configs, setConfigs] = useState([createConfig(1)]);
+  const [selectedConfigId, setSelectedConfigId] = useState(1);
   const [compareMetric, setCompareMetric] = useState('ttk');
   const [compareChartType, setCompareChartType] = useState('bar');
   const workerRef = useRef(null);
@@ -482,7 +484,9 @@ export function TTKSimulator() {
   }, []);
 
   const addConfig = () => {
-    setConfigs((prev) => [...prev, createConfig(prev.length + 1)]);
+    const nextId = configs.length + 1;
+    setConfigs((prev) => [...prev, createConfig(nextId)]);
+    setSelectedConfigId(nextId);
   };
 
   const updateConfig = (id, patch) => {
@@ -490,7 +494,14 @@ export function TTKSimulator() {
   };
 
   const removeConfig = (id) => {
-    setConfigs((prev) => prev.length <= 1 ? prev : prev.filter((cfg) => cfg.id !== id));
+    setConfigs((prev) => {
+      if (prev.length <= 1) return prev;
+      const next = prev.filter((cfg) => cfg.id !== id);
+      if (selectedConfigId === id && next.length > 0) {
+        setSelectedConfigId(next[0].id);
+      }
+      return next;
+    });
   };
 
   const runMonteCarloWithWorker = (cfgId, payload) => new Promise((resolve, reject) => {
@@ -635,6 +646,8 @@ export function TTKSimulator() {
       .map((row, index) => ({ ...row, rank: index + 1 }));
   }, [configs]);
 
+  const selectedConfig = configs.find((cfg) => cfg.id === selectedConfigId) || configs[0] || null;
+
   return (
     <div className="ttk-page">
       <div className="ttk-topbar">
@@ -643,64 +656,80 @@ export function TTKSimulator() {
       </div>
 
       <div className="ttk-main">
-        <div className="ttk-configs">
-          {configs.map((cfg) => (
-            <GunConfigCard
-              key={cfg.id}
-              cfg={cfg}
-              weapons={weapons}
-              ammos={ammos}
-              helmets={helmets}
-              armors={armors}
-              modifications={modifications}
-              onChange={(patch) => updateConfig(cfg.id, patch)}
-              onRun={() => runConfig(cfg)}
-              onRemove={() => removeConfig(cfg.id)}
-            />
-          ))}
-        </div>
-
-        <aside className="ttk-compare-panel">
+        <aside className="ttk-left-panel">
           <section className="ttk-compare">
-            <div className="ttk-compare-head">
-              <h3>枪械对比</h3>
-              <div className="chart-toggle">
-                <button
-                  type="button"
-                  className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`}
-                  onClick={() => setCompareMetric('ttk')}
-                >
-                  看 TTK
-                </button>
-                <button
-                  type="button"
-                  className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`}
-                  onClick={() => setCompareMetric('btk')}
-                >
-                  看 BTK
-                </button>
-              </div>
+            <div className="ttk-left-head">
+              <h3>方案列表</h3>
+              <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
             </div>
 
-            <div className="chart-toggle chart-type-toggle">
-              <button
-                type="button"
-                className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`}
-                onClick={() => setCompareChartType('bar')}
-              >
-                柱状图
-              </button>
-              <button
-                type="button"
-                className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`}
-                onClick={() => setCompareChartType('line')}
-              >
-                折线图 (分段射程点)
-              </button>
+            <div className="chart-toggle">
+              <button type="button" className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`} onClick={() => setCompareMetric('ttk')}>TTK</button>
+              <button type="button" className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`} onClick={() => setCompareMetric('btk')}>BTK</button>
+              <button type="button" className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`} onClick={() => setCompareChartType('bar')}>柱状图</button>
+              <button type="button" className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`} onClick={() => setCompareChartType('line')}>折线图</button>
             </div>
 
+            <div className="config-list">
+              {configs.map((cfg) => (
+                <button
+                  key={cfg.id}
+                  type="button"
+                  className={`config-item ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
+                  onClick={() => setSelectedConfigId(cfg.id)}
+                >
+                  <div className="config-item-title">{cfg.name}</div>
+                  <div className="config-item-meta">{cfg.selectedWeapon?.name || '未选武器'} · {cfg.selectedAmmo?.name || '未选弹药'}</div>
+                  <div className="config-item-stats">
+                    <span>期望BTK: {cfg.result ? cfg.result.avgBtk.toFixed(2) : '--'}</span>
+                    <span>期望TTK: {cfg.result ? `${Math.round(cfg.result.avgTtk)}ms` : '--'}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {selectedConfig && (
+            <div className="secondary-menu">
+              <h4>二级菜单：{selectedConfig.name} 配置</h4>
+              <GunConfigCard
+                cfg={selectedConfig}
+                weapons={weapons}
+                ammos={ammos}
+                helmets={helmets}
+                armors={armors}
+                modifications={modifications}
+                onChange={(patch) => updateConfig(selectedConfig.id, patch)}
+                onRun={() => runConfig(selectedConfig)}
+                onRemove={() => removeConfig(selectedConfig.id)}
+                showResult={false}
+              />
+            </div>
+          )}
+        </aside>
+
+        <section className="ttk-right-chart">
+          <div className="ttk-compare">
+            <h3>{compareChartType === 'bar' ? '枪械对比柱状图' : '枪械对比分段折线图'}</h3>
             {comparisonRows.length === 0 ? (
-              <div className="compare-empty">请先运行至少一个方案，再查看对比图</div>
+              <div className="compare-placeholder">
+                <ResponsiveContainer width="100%" height={compareChartType === 'bar' ? 300 : 320}>
+                  {compareChartType === 'bar' ? (
+                    <BarChart data={[]} margin={{ top: 16, right: 18, left: 8, bottom: 40 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="weaponName" height={64} />
+                      <YAxis />
+                    </BarChart>
+                  ) : (
+                    <LineChart data={[]} margin={{ top: 16, right: 18, left: 8, bottom: 22 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="distance" domain={[0, 100]} type="number" tickCount={11} />
+                      <YAxis />
+                    </LineChart>
+                  )}
+                </ResponsiveContainer>
+                <div className="compare-empty">请先运行至少一个方案，再查看对比图</div>
+              </div>
             ) : compareChartType === 'bar' ? (
               <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
             ) : (
@@ -716,8 +745,8 @@ export function TTKSimulator() {
                   .join(' / ')}
               </div>
             )}
-          </section>
-        </aside>
+          </div>
+        </section>
       </div>
     </div>
   );

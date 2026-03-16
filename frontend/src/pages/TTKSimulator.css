@@ -194,40 +194,97 @@
 
 .ttk-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 420px;
+  grid-template-columns: 3fr 7fr;
   gap: 14px;
   align-items: start;
 }
 
-.ttk-configs {
+.ttk-left-panel {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.ttk-compare-panel {
   position: sticky;
   top: 12px;
 }
 
-.ttk-compare-head {
+.ttk-left-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
 
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 340px;
+  overflow: auto;
+}
+
+.config-item {
+  border: 1px solid #dbe4f4;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.config-item.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.config-item-title {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.config-item-meta {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.config-item-stats {
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #1e293b;
+}
+
+.secondary-menu h4 {
+  margin: 0 0 8px;
+}
+
+.ttk-right-chart {
+  min-width: 0;
+}
+
 .chart-type-toggle {
   margin-bottom: 10px;
 }
 
+.compare-placeholder {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fcfdff;
+  padding: 6px;
+}
+
 .compare-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #64748b;
-  border: 1px dashed #cbd5e1;
-  border-radius: 8px;
-  padding: 14px;
   text-align: center;
-  background: #f8fafc;
+  pointer-events: none;
+  font-size: 13px;
 }
 
 .line-calc-status {
@@ -277,7 +334,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ttk-compare-panel {
+  .ttk-left-panel {
     position: static;
   }
 }
