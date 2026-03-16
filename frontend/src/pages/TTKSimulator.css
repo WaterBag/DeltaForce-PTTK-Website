@@ -151,3 +151,35 @@
 .chart-box h4 {
   margin: 0 0 8px;
 }
+
+.ttk-compare {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.ttk-compare h3 {
+  margin: 0 0 8px;
+}
+
+.ttk-table-wrap {
+  overflow-x: auto;
+}
+
+.ttk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ttk-table th,
+.ttk-table td {
+  border: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.ttk-table thead th {
+  background: #f8fafc;
+}

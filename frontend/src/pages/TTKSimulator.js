@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { WeaponSelector } from '../components/simulator/Selectors';
 import { AmmoSelector } from '../components/public/AmmoSelector';
 import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
@@ -288,6 +288,8 @@ export function TTKSimulator() {
   const modifications = data?.modifications || [];
 
   const [configs, setConfigs] = useState([createConfig(1)]);
+  const workerRef = useRef(null);
+  const requestSeedRef = useRef(0);
 
   useEffect(() => {
     if (!helmets.length || !armors.length) return;
@@ -306,6 +308,13 @@ export function TTKSimulator() {
     }));
   }, [helmets, armors]);
 
+  useEffect(() => () => {
+    if (workerRef.current) {
+      workerRef.current.terminate();
+      workerRef.current = null;
+    }
+  }, []);
+
   const addConfig = () => {
     setConfigs((prev) => [...prev, createConfig(prev.length + 1)]);
   };
@@ -317,6 +326,45 @@ export function TTKSimulator() {
   const removeConfig = (id) => {
     setConfigs((prev) => prev.length <= 1 ? prev : prev.filter((cfg) => cfg.id !== id));
   };
+
+  const runMonteCarloWithWorker = (cfgId, payload) => new Promise((resolve, reject) => {
+    try {
+      if (!workerRef.current) {
+        workerRef.current = new Worker(new URL('../workers/ttkMonteCarloWorker.js', import.meta.url));
+      }
+
+      const requestId = `${Date.now()}-${requestSeedRef.current++}`;
+      const worker = workerRef.current;
+
+      const onMessage = (event) => {
+        const msg = event.data || {};
+        if (msg.requestId !== requestId) return;
+
+        if (msg.type === 'progress') {
+          updateConfig(cfgId, { progress: msg.progress });
+          return;
+        }
+
+        if (msg.type === 'done') {
+          worker.removeEventListener('message', onMessage);
+          worker.removeEventListener('error', onError);
+          resolve(msg.result);
+        }
+      };
+
+      const onError = (err) => {
+        worker.removeEventListener('message', onMessage);
+        worker.removeEventListener('error', onError);
+        reject(err);
+      };
+
+      worker.addEventListener('message', onMessage);
+      worker.addEventListener('error', onError);
+      worker.postMessage({ requestId, payload });
+    } catch (error) {
+      reject(error);
+    }
+  });
 
   const runConfig = async (cfg) => {
     if (!cfg.selectedWeapon || !cfg.selectedAmmo || !cfg.selectedHelmet || !cfg.selectedArmor) return;
@@ -332,7 +380,7 @@ export function TTKSimulator() {
 
     updateConfig(cfg.id, { running: true, progress: 0, result: null });
 
-    const result = await runMonteCarlo({
+    const payload = {
       configuredWeapon,
       ammo: cfg.selectedAmmo,
       helmet: cfg.selectedHelmet,
@@ -343,9 +391,18 @@ export function TTKSimulator() {
       initialHp: cfg.initialHp,
       hitProbabilities: cfg.hitProbabilities,
       trials: cfg.trialCount,
-      chunkSize: 1000,
-      onProgress: (progress) => updateConfig(cfg.id, { progress }),
-    });
+      chunkSize: 2000,
+    };
+
+    let result;
+    try {
+      result = await runMonteCarloWithWorker(cfg.id, payload);
+    } catch (error) {
+      result = await runMonteCarlo({
+        ...payload,
+        onProgress: (progress) => updateConfig(cfg.id, { progress }),
+      });
+    }
 
     updateConfig(cfg.id, {
       running: false,
@@ -357,12 +414,62 @@ export function TTKSimulator() {
     });
   };
 
+  const comparisonRows = useMemo(() => {
+    return configs
+      .filter((cfg) => cfg.result)
+      .map((cfg) => ({
+        id: cfg.id,
+        name: cfg.name,
+        weaponName: cfg.selectedWeapon?.name || '-',
+        ammoName: cfg.selectedAmmo?.name || '-',
+        avgBtk: cfg.result.avgBtk,
+        avgTtk: cfg.result.avgTtk,
+        trialCount: cfg.result.trialCount,
+      }))
+      .sort((a, b) => a.avgTtk - b.avgTtk)
+      .map((row, index) => ({ ...row, rank: index + 1 }));
+  }, [configs]);
+
   return (
     <div className="ttk-page">
       <div className="ttk-topbar">
         <h2>Monte Carlo TTK 模拟器（多枪独立条件对比）</h2>
         <button type="button" className="ttk-btn primary" onClick={addConfig}>新增对比枪</button>
       </div>
+
+      {comparisonRows.length > 0 && (
+        <section className="ttk-compare">
+          <h3>多枪对比总表（按平均TTK升序）</h3>
+          <div className="ttk-table-wrap">
+            <table className="ttk-table">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>方案</th>
+                  <th>武器</th>
+                  <th>弹药</th>
+                  <th>平均BTK</th>
+                  <th>平均TTK(ms)</th>
+                  <th>样本数</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.rank}</td>
+                    <td>{row.name}</td>
+                    <td>{row.weaponName}</td>
+                    <td>{row.ammoName}</td>
+                    <td>{row.avgBtk.toFixed(2)}</td>
+                    <td>{Math.round(row.avgTtk)}</td>
+                    <td>{row.trialCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {configs.map((cfg) => (
         <GunConfigCard
