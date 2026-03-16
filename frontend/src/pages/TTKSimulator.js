@@ -272,7 +272,7 @@ function GunConfigCard({
   return (
     <section className="ttk-card">
       <div className="ttk-card-header">
-        <h3>{cfg.name}</h3>
+        <h3>{cfg.selectedWeapon?.name || cfg.name}</h3>
         <button type="button" className="ttk-btn danger" onClick={onRemove}>移除</button>
       </div>
 
@@ -454,6 +454,7 @@ export function TTKSimulator() {
 
   const [configs, setConfigs] = useState([createConfig(1)]);
   const [selectedConfigId, setSelectedConfigId] = useState(1);
+  const [editingConfigId, setEditingConfigId] = useState(null);
   const [compareMetric, setCompareMetric] = useState('ttk');
   const [compareChartType, setCompareChartType] = useState('bar');
   const workerRef = useRef(null);
@@ -499,6 +500,9 @@ export function TTKSimulator() {
       const next = prev.filter((cfg) => cfg.id !== id);
       if (selectedConfigId === id && next.length > 0) {
         setSelectedConfigId(next[0].id);
+      }
+      if (editingConfigId === id) {
+        setEditingConfigId(null);
       }
       return next;
     });
@@ -647,6 +651,7 @@ export function TTKSimulator() {
   }, [configs]);
 
   const selectedConfig = configs.find((cfg) => cfg.id === selectedConfigId) || configs[0] || null;
+  const editingConfig = configs.find((cfg) => cfg.id === editingConfigId) || null;
 
   return (
     <div className="ttk-page">
@@ -676,9 +681,12 @@ export function TTKSimulator() {
                   key={cfg.id}
                   type="button"
                   className={`config-item ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
-                  onClick={() => setSelectedConfigId(cfg.id)}
+                  onClick={() => {
+                    setSelectedConfigId(cfg.id);
+                    setEditingConfigId(cfg.id);
+                  }}
                 >
-                  <div className="config-item-title">{cfg.name}</div>
+                  <div className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</div>
                   <div className="config-item-meta">{cfg.selectedWeapon?.name || '未选武器'} · {cfg.selectedAmmo?.name || '未选弹药'}</div>
                   <div className="config-item-stats">
                     <span>期望BTK: {cfg.result ? cfg.result.avgBtk.toFixed(2) : '--'}</span>
@@ -689,23 +697,6 @@ export function TTKSimulator() {
             </div>
           </section>
 
-          {selectedConfig && (
-            <div className="secondary-menu">
-              <h4>二级菜单：{selectedConfig.name} 配置</h4>
-              <GunConfigCard
-                cfg={selectedConfig}
-                weapons={weapons}
-                ammos={ammos}
-                helmets={helmets}
-                armors={armors}
-                modifications={modifications}
-                onChange={(patch) => updateConfig(selectedConfig.id, patch)}
-                onRun={() => runConfig(selectedConfig)}
-                onRemove={() => removeConfig(selectedConfig.id)}
-                showResult={false}
-              />
-            </div>
-          )}
         </aside>
 
         <section className="ttk-right-chart">
@@ -748,6 +739,29 @@ export function TTKSimulator() {
           </div>
         </section>
       </div>
+
+      {editingConfig && (
+        <div className="ttk-modal-overlay" onClick={() => setEditingConfigId(null)}>
+          <div className="ttk-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="ttk-modal-head">
+              <h3>二级菜单：{editingConfig.selectedWeapon?.name || editingConfig.name} 配置</h3>
+              <button type="button" className="ttk-btn" onClick={() => setEditingConfigId(null)}>关闭</button>
+            </div>
+            <GunConfigCard
+              cfg={editingConfig}
+              weapons={weapons}
+              ammos={ammos}
+              helmets={helmets}
+              armors={armors}
+              modifications={modifications}
+              onChange={(patch) => updateConfig(editingConfig.id, patch)}
+              onRun={() => runConfig(editingConfig)}
+              onRemove={() => removeConfig(editingConfig.id)}
+              showResult={false}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
