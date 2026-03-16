@@ -8,6 +8,7 @@ import { Layout } from './components/layout/Layout';
 import { DataQuery } from './pages/DataQuery';
 import { Simulator } from './pages/Simulator';
 import { DataLibrary } from './pages/DataLibrary';
+import { TTKSimulator } from './pages/TTKSimulator';
 
 /**
  * 主应用组件
@@ -27,6 +28,8 @@ function App() {
       return <Simulator />;
     case 'dataLibrary':
       return <DataLibrary />;
+    case 'ttkSimulator':
+      return <TTKSimulator />;
     case 'dataQuery':
     default:
       return <DataQuery />;

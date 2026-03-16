@@ -38,6 +38,13 @@ export function Sidebar({ currentView, setCurrentView }) {
           </li>
 
           <li
+            className={`nav-item ${currentView === 'ttkSimulator' ? 'active' : ''}`}
+            onClick={() => setCurrentView('ttkSimulator')}
+          >
+            Monte Carlo TTK
+          </li>
+
+          <li
             className={`nav-item ${currentView === 'dataLibrary' ? 'active' : ''}`}
             onClick={() => setCurrentView('dataLibrary')}
           >

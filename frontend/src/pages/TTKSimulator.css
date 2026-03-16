@@ -1,0 +1,153 @@
+.ttk-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ttk-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ttk-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ttk-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ttk-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ttk-grid.sliders {
+  align-items: start;
+}
+
+.ttk-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ttk-line input {
+  width: 140px;
+  padding: 6px 8px;
+}
+
+.probabilities {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.prob-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.prob-item input {
+  padding: 6px 8px;
+}
+
+.mods {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mod-group h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.mod-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mod-chip {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.mod-chip.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.mod-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ttk-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ttk-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.ttk-btn.primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.ttk-btn.danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.ttk-result {
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  font-size: 13px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chart-box {
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.chart-box h4 {
+  margin: 0 0 8px;
+}
