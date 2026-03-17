@@ -44,6 +44,71 @@
   gap: 10px;
 }
 
+.selector-grid {
+  align-items: stretch;
+}
+
+.field-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fcfdff;
+  padding: 8px;
+  min-height: 128px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.grouped-card {
+  gap: 8px;
+}
+
+.sub-grid.two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.sub-grid.one-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.selector-col,
+.durability-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.selector-col > *,
+.durability-col > * {
+  width: 100%;
+}
+
+.option-slot {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
+.option-slot.missing {
+  box-shadow: none;
+}
+
+.option-slot.missing .selector-trigger {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18);
+}
+
+.ttk-modal-content .helmet-selector,
+.ttk-modal-content .armor-selector {
+  width: 100% !important;
+}
+
 .ttk-grid.sliders {
   align-items: start;
 }
@@ -59,9 +124,23 @@
   padding: 6px 8px;
 }
 
+.probabilities-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fcfdff;
+  padding: 10px;
+}
+
+.probabilities-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
 .probabilities {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -72,8 +151,16 @@
   font-size: 12px;
 }
 
+.prob-label-row {
+  display: block;
+  color: #475569;
+  font-weight: 600;
+}
+
 .prob-item input {
   padding: 6px 8px;
+  border: 1px solid #dbe4f4;
+  border-radius: 8px;
 }
 
 .mods {
@@ -222,6 +309,7 @@
   gap: 8px;
   max-height: 340px;
   overflow: auto;
+  padding-top: 4px;
 }
 
 .config-item {
@@ -235,7 +323,6 @@
 }
 
 .config-item:hover {
-  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
 }
 
@@ -296,6 +383,7 @@
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: center;
 }
 
 .option-group {
@@ -316,7 +404,7 @@
 }
 
 .left-options {
-  justify-content: flex-start;
+  justify-content: center;
   gap: 6px;
 }
 
@@ -324,8 +412,47 @@
   padding: 6px 10px;
 }
 
+.effect-options-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.effect-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #334155;
+  user-select: none;
+}
+
+.effect-toggle input {
+  width: 14px;
+  height: 14px;
+}
+
 .ttk-right-chart {
   min-width: 0;
+  display: flex;
+}
+
+.chart-fill-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-fill-wrap .compare-placeholder,
+.chart-fill-wrap .recharts-responsive-container {
+  flex: 1;
+}
+
+.chart-canvas {
+  height: calc(100vh - 250px);
+  min-height: 420px;
 }
 
 .ttk-left-panel > .ttk-compare {
@@ -376,6 +503,12 @@
   font-size: 18px;
 }
 
+.modal-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .distance-locked-tip {
   font-size: 12px;
   color: #475569;
@@ -389,24 +522,18 @@
   margin-bottom: 10px;
 }
 
-.compare-placeholder {
-  position: relative;
-  border: 1px solid #e2e8f0;
+.compare-empty-plain {
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
   border-radius: 10px;
-  background: #fcfdff;
-  padding: 6px;
-}
-
-.compare-empty {
-  position: absolute;
-  inset: 0;
+  background: #f8fafc;
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 13px;
+  min-height: calc(100vh - 280px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  text-align: center;
-  pointer-events: none;
-  font-size: 13px;
 }
 
 .line-calc-status {
@@ -464,5 +591,14 @@
   .ttk-left-panel .ttk-compare,
   .ttk-right-chart .ttk-compare {
     min-height: auto;
+  }
+
+  .chart-canvas {
+    height: 360px;
+    min-height: 360px;
+  }
+
+  .compare-empty-plain {
+    min-height: 240px;
   }
 }

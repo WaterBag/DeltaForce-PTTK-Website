@@ -72,7 +72,8 @@ const PROBABILITY_FIELDS = [
   { key: 'head', label: '头部', sites: ['head'] },
   { key: 'chest', label: '胸部', sites: ['chest'] },
   { key: 'abdomen', label: '腹部', sites: ['abdomen'] },
-  { key: 'limbs', label: '四肢(手臂+腿部)', sites: ['upperArm', 'lowerArm', 'thigh', 'calf'] },
+  { key: 'upperArm', label: '上臂', sites: ['upperArm'] },
+  { key: 'limbs', label: '其余四肢(下臂+大腿+小腿)', sites: ['lowerArm', 'thigh', 'calf'] },
 ];
 
 const getDisplayProbability = (hitProbabilities, sites) => {
@@ -95,16 +96,63 @@ const setGroupedProbability = (hitProbabilities, sites, value) => {
 
 const BAR_COLORS = ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+const applyTtkEffects = ({
+  baseTtk,
+  distance,
+  configuredWeapon,
+  applyVelocityEffect,
+  applyTriggerDelay,
+}) => {
+  let ttk = Number(baseTtk) || 0;
+  if (applyVelocityEffect) {
+    const v = Number(configuredWeapon?.muzzleVelocity) || 0;
+    if (v > 0) ttk += (distance / v) * 1000;
+  }
+  if (applyTriggerDelay) {
+    const t = Number(configuredWeapon?.triggerDelay) || 0;
+    if (t > 0) ttk += t;
+  }
+  return ttk;
+};
+
+const expandSegmentSeriesToDense = (segmentSeries = [], maxDistance = 100) => {
+  if (!Array.isArray(segmentSeries) || segmentSeries.length === 0) return [];
+  const sorted = [...segmentSeries].sort((a, b) => a.distance - b.distance);
+  const dense = [];
+  let idx = 0;
+
+  for (let d = 0; d <= maxDistance; d += 1) {
+    while (idx + 1 < sorted.length && d >= sorted[idx + 1].distance) {
+      idx += 1;
+    }
+    dense.push({
+      distance: d,
+      avgTtk: sorted[idx].avgTtk,
+      avgBtk: sorted[idx].avgBtk,
+    });
+  }
+
+  return dense;
+};
+
 const getSegmentDistances = (configuredWeapon, maxDistance = 100) => {
   if (!configuredWeapon) return [0, maxDistance];
 
+  const r1 = Number(configuredWeapon.range1);
+  const r2 = Number(configuredWeapon.range2);
+  const r3 = Number(configuredWeapon.range3);
+  const r4 = Number(configuredWeapon.range4);
+  const r5 = Number(configuredWeapon.range5);
+
+  // 采样“各段起点”：0 段 + (rangeN + 1)
+  // 因为衰减判定是 <= rangeN 仍属于上一段
   const points = [
     0,
-    Number(configuredWeapon.range1),
-    Number(configuredWeapon.range2),
-    Number(configuredWeapon.range3),
-    Number(configuredWeapon.range4),
-    Number(configuredWeapon.range5),
+    r1 + 1,
+    r2 + 1,
+    r3 + 1,
+    r4 + 1,
+    r5 + 1,
     maxDistance,
   ]
     .filter((v) => Number.isFinite(v) && v >= 0 && v <= maxDistance)
@@ -136,7 +184,7 @@ function ComparisonBarChart({ rows, metric }) {
   const yFormatter = metric === 'ttk' ? (v) => `${Math.round(v)}ms` : (v) => Number(v).toFixed(1);
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart data={rows} margin={{ top: 16, right: 18, left: 8, bottom: 40 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
         <XAxis
@@ -159,7 +207,7 @@ function ComparisonBarChart({ rows, metric }) {
   );
 }
 
-function ComparisonLineChart({ rows, metric }) {
+function ComparisonLineChart({ rows, metric, applyVelocityEffect }) {
   const lineData = useMemo(() => {
     const byDistance = {};
     rows.forEach((row) => {
@@ -175,17 +223,20 @@ function ComparisonLineChart({ rows, metric }) {
   const readyRows = rows.filter((r) => Array.isArray(r.distanceSeries) && r.distanceSeries.length > 0);
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
-      <LineChart data={lineData} margin={{ top: 16, right: 18, left: 8, bottom: 22 }}>
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={lineData} margin={{ top: 52, right: 18, left: 8, bottom: 22 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-        <XAxis dataKey="distance" domain={[0, 100]} type="number" tickCount={11} label={{ value: '距离(m)', position: 'insideBottom', dy: 10 }} />
-        <YAxis tickFormatter={(v) => (metric === 'ttk' ? `${Math.round(v)}ms` : Number(v).toFixed(1))} />
+        <XAxis dataKey="distance" domain={[0, 100]} type="number" tickCount={11} />
+        <YAxis
+          tickFormatter={(v) => (metric === 'ttk' ? `${Math.round(v)}ms` : Number(v).toFixed(1))}
+          domain={metric === 'ttk' ? ['dataMin - 60', 'dataMax + 60'] : ['dataMin - 1', 'dataMax + 1']}
+        />
         <Tooltip formatter={(value) => (metric === 'ttk' ? `${Math.round(value)} ms` : Number(value).toFixed(2))} labelFormatter={(label) => `距离 ${label}m`} />
-        <Legend />
+        <Legend verticalAlign="top" align="center" height={36} />
         {readyRows.map((row, index) => (
           <Line
             key={row.id}
-            type="monotone"
+            type={applyVelocityEffect ? 'linear' : 'stepAfter'}
             dataKey={row.id}
             name={`${row.weaponName} (${row.ammoName})`}
             stroke={BAR_COLORS[index % BAR_COLORS.length]}
@@ -211,7 +262,11 @@ function GunConfigCard({
   onRemove,
   showResult = true,
   disableDistance = false,
+  showRemoveButton = true,
+  headerActions = null,
 }) {
+  const [missingFields, setMissingFields] = useState({});
+
   const availableAmmos = useMemo(() => {
     if (!cfg.selectedWeapon) return [];
     return (ammos || [])
@@ -270,35 +325,100 @@ function GunConfigCard({
     return generateDurabilityValues(cfg.selectedArmor.durability, 0, 1);
   }, [cfg.selectedArmor]);
 
+  useEffect(() => {
+    setMissingFields((prev) => ({
+      ...prev,
+      selectedWeapon: prev.selectedWeapon ? !cfg.selectedWeapon : false,
+      selectedAmmo: prev.selectedAmmo ? !cfg.selectedAmmo : false,
+      selectedHelmet: prev.selectedHelmet ? !cfg.selectedHelmet : false,
+      selectedArmor: prev.selectedArmor ? !cfg.selectedArmor : false,
+    }));
+  }, [cfg.selectedWeapon, cfg.selectedAmmo, cfg.selectedHelmet, cfg.selectedArmor]);
+
+  const validateRequired = () => {
+    const nextMissing = {
+      selectedWeapon: !cfg.selectedWeapon,
+      selectedAmmo: !cfg.selectedAmmo,
+      selectedHelmet: !cfg.selectedHelmet,
+      selectedArmor: !cfg.selectedArmor,
+    };
+    setMissingFields(nextMissing);
+    return !Object.values(nextMissing).some(Boolean);
+  };
+
+  const handleRun = () => {
+    if (!validateRequired()) return;
+    setMissingFields({});
+    onRun();
+  };
+
   return (
     <section className="ttk-card">
       <div className="ttk-card-header">
         <h3>{cfg.selectedWeapon?.name || cfg.name}</h3>
-        <button type="button" className="ttk-btn danger" onClick={onRemove}>移除</button>
+        <div className="modal-head-actions">
+          {showRemoveButton && <button type="button" className="ttk-btn danger" onClick={onRemove}>移除</button>}
+          {headerActions}
+        </div>
       </div>
 
-      <div className="ttk-grid">
-        <WeaponSelector
-          selectedWeapon={cfg.selectedWeapon}
-          onSelect={(weapon) => onChange({ selectedWeapon: weapon, selectedMods: [] })}
-        />
-        <AmmoSelector
-          options={availableAmmos}
-          selectedAmmo={cfg.selectedAmmo}
-          onSelect={(ammo) => onChange({ selectedAmmo: ammo })}
-          placeholder="选择弹药"
-          emptyOptionsMessage="请先选择武器"
-        />
-        <HelmetSelector
-          options={helmets}
-          selectedHelmet={cfg.selectedHelmet}
-          onSelect={(helmet) => onChange({ selectedHelmet: helmet, helmetDurability: helmet.durability })}
-        />
-        <ArmorSelector
-          options={armors}
-          selectedArmor={cfg.selectedArmor}
-          onSelect={(armor) => onChange({ selectedArmor: armor, armorDurability: armor.durability })}
-        />
+      <div className="ttk-grid selector-grid">
+        <div className="field-card grouped-card">
+          <div className="sub-grid one-col">
+            <div className={`option-slot ${missingFields.selectedWeapon ? 'missing' : ''}`}>
+              <WeaponSelector
+                selectedWeapon={cfg.selectedWeapon}
+                onSelect={(weapon) => onChange({ selectedWeapon: weapon, selectedMods: [] })}
+              />
+            </div>
+            <div className={`option-slot ${missingFields.selectedAmmo ? 'missing' : ''}`}>
+              <AmmoSelector
+                options={availableAmmos}
+                selectedAmmo={cfg.selectedAmmo}
+                onSelect={(ammo) => onChange({ selectedAmmo: ammo })}
+                placeholder="选择弹药"
+                emptyOptionsMessage="请先选择武器"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="field-card grouped-card">
+          <div className="sub-grid two-col">
+            <div className="selector-col">
+              <div className={`option-slot ${missingFields.selectedHelmet ? 'missing' : ''}`}>
+                <HelmetSelector
+                  options={helmets}
+                  selectedHelmet={cfg.selectedHelmet}
+                  onSelect={(helmet) => onChange({ selectedHelmet: helmet, helmetDurability: helmet.durability })}
+                />
+              </div>
+              <div className={`option-slot ${missingFields.selectedArmor ? 'missing' : ''}`}>
+                <ArmorSelector
+                  options={armors}
+                  selectedArmor={cfg.selectedArmor}
+                  onSelect={(armor) => onChange({ selectedArmor: armor, armorDurability: armor.durability })}
+                />
+              </div>
+            </div>
+            <div className="durability-col">
+              <UniversalSlider
+                label="头盔耐久"
+                values={helmetDurabilityValues}
+                value={cfg.helmetDurability}
+                onChange={(helmetDurability) => onChange({ helmetDurability })}
+                isDisabled={!cfg.selectedHelmet}
+              />
+              <UniversalSlider
+                label="护甲耐久"
+                values={armorDurabilityValues}
+                value={cfg.armorDurability}
+                onChange={(armorDurability) => onChange({ armorDurability })}
+                isDisabled={!cfg.selectedArmor}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="ttk-grid sliders">
@@ -314,20 +434,6 @@ function GunConfigCard({
           values={Array.from({ length: 100 }, (_, i) => i + 1)}
           value={Math.min(cfg.initialHp, 100)}
           onChange={(initialHp) => onChange({ initialHp: Math.min(initialHp, 100) })}
-        />
-        <UniversalSlider
-          label="头盔耐久"
-          values={helmetDurabilityValues}
-          value={cfg.helmetDurability}
-          onChange={(helmetDurability) => onChange({ helmetDurability })}
-          isDisabled={!cfg.selectedHelmet}
-        />
-        <UniversalSlider
-          label="护甲耐久"
-          values={armorDurabilityValues}
-          value={cfg.armorDurability}
-          onChange={(armorDurability) => onChange({ armorDurability })}
-          isDisabled={!cfg.selectedArmor}
         />
       </div>
 
@@ -348,22 +454,25 @@ function GunConfigCard({
         />
       </div>
 
-      <div className="probabilities">
-        {PROBABILITY_FIELDS.map((field) => (
-          <label key={field.key} className="prob-item" htmlFor={`${cfg.id}-${field.key}`}>
-            <span>{field.label}</span>
-            <input
-              id={`${cfg.id}-${field.key}`}
-              type="number"
-              min={0}
-              step={0.01}
-              value={getDisplayProbability(cfg.hitProbabilities, field.sites).toFixed(4)}
-              onChange={(e) => onChange({
-                hitProbabilities: setGroupedProbability(cfg.hitProbabilities, field.sites, e.target.value),
-              })}
-            />
-          </label>
-        ))}
+      <div className="probabilities-wrap">
+        <div className="probabilities-title">部位概率分布</div>
+        <div className="probabilities">
+          {PROBABILITY_FIELDS.map((field) => (
+            <label key={field.key} className="prob-item" htmlFor={`${cfg.id}-${field.key}`}>
+              <span className="prob-label-row">{field.label}</span>
+              <input
+                id={`${cfg.id}-${field.key}`}
+                type="number"
+                min={0}
+                step={0.01}
+                value={getDisplayProbability(cfg.hitProbabilities, field.sites).toFixed(4)}
+                onChange={(e) => onChange({
+                  hitProbabilities: setGroupedProbability(cfg.hitProbabilities, field.sites, e.target.value),
+                })}
+              />
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="mods">
@@ -401,7 +510,7 @@ function GunConfigCard({
       </div>
 
       <div className="ttk-actions">
-        <button type="button" className="ttk-btn primary" onClick={onRun} disabled={cfg.running}>
+        <button type="button" className="ttk-btn primary" onClick={handleRun} disabled={cfg.running}>
           {cfg.running ? `计算中 ${Math.round(cfg.progress * 100)}%` : '开始模拟'}
         </button>
       </div>
@@ -459,11 +568,13 @@ export function TTKSimulator() {
   const modifications = data?.modifications || [];
 
   const [lastDistance, setLastDistance] = useState(10);
-  const [configs, setConfigs] = useState([createConfig(1, 10)]);
-  const [selectedConfigId, setSelectedConfigId] = useState(1);
+  const [configs, setConfigs] = useState([]);
+  const [selectedConfigId, setSelectedConfigId] = useState(null);
   const [editingConfigId, setEditingConfigId] = useState(null);
   const [compareMetric, setCompareMetric] = useState('ttk');
-  const [compareChartType, setCompareChartType] = useState('bar');
+  const [compareChartType, setCompareChartType] = useState('line');
+  const [applyVelocityEffect, setApplyVelocityEffect] = useState(false);
+  const [applyTriggerDelay, setApplyTriggerDelay] = useState(false);
   const workerRef = useRef(null);
   const requestSeedRef = useRef(0);
 
@@ -492,9 +603,10 @@ export function TTKSimulator() {
   }, []);
 
   const addConfig = () => {
-    const nextId = configs.length + 1;
+    const nextId = (configs.length ? Math.max(...configs.map((c) => c.id)) : 0) + 1;
     setConfigs((prev) => [...prev, createConfig(nextId, lastDistance)]);
     setSelectedConfigId(nextId);
+    setEditingConfigId(nextId);
   };
 
   const updateConfig = (id, patch) => {
@@ -510,10 +622,9 @@ export function TTKSimulator() {
 
   const removeConfig = (id) => {
     setConfigs((prev) => {
-      if (prev.length <= 1) return prev;
       const next = prev.filter((cfg) => cfg.id !== id);
-      if (selectedConfigId === id && next.length > 0) {
-        setSelectedConfigId(next[0].id);
+      if (selectedConfigId === id) {
+        setSelectedConfigId(next.length > 0 ? next[0].id : null);
       }
       if (editingConfigId === id) {
         setEditingConfigId(null);
@@ -650,19 +761,48 @@ export function TTKSimulator() {
   const comparisonRows = useMemo(() => {
     return configs
       .filter((cfg) => cfg.result)
-      .map((cfg) => ({
-        id: cfg.id,
-        name: cfg.name,
-        weaponName: cfg.selectedWeapon?.name || '-',
-        ammoName: cfg.selectedAmmo?.name || '-',
-        avgBtk: cfg.result.avgBtk,
-        avgTtk: cfg.result.avgTtk,
-        trialCount: cfg.result.trialCount,
-        distanceSeries: cfg.result.distanceSeries || [],
-      }))
+      .map((cfg) => {
+        const configuredWeapon = buildConfiguredWeapon({
+          selectedWeapon: cfg.selectedWeapon,
+          selectedModIds: cfg.selectedMods,
+          modifications,
+          weapons,
+        });
+
+        const adjustedAvgTtk = applyTtkEffects({
+          baseTtk: cfg.result.avgTtk,
+          distance: cfg.distance,
+          configuredWeapon,
+          applyVelocityEffect,
+          applyTriggerDelay,
+        });
+
+        const denseBaseSeries = expandSegmentSeriesToDense(cfg.result.distanceSeries || [], 100);
+        const adjustedSeries = denseBaseSeries.map((p) => ({
+          ...p,
+          avgTtk: applyTtkEffects({
+            baseTtk: p.avgTtk,
+            distance: p.distance,
+            configuredWeapon,
+            applyVelocityEffect,
+            applyTriggerDelay,
+          }),
+        }));
+
+        return {
+          id: cfg.id,
+          name: cfg.name,
+          weaponName: cfg.selectedWeapon?.name || '-',
+          ammoName: cfg.selectedAmmo?.name || '-',
+          avgBtk: cfg.result.avgBtk,
+          avgTtk: adjustedAvgTtk,
+          trialCount: cfg.result.trialCount,
+          distanceSeries: adjustedSeries,
+        };
+      })
       .sort((a, b) => a.avgTtk - b.avgTtk)
       .map((row, index) => ({ ...row, rank: index + 1 }));
-  }, [configs]);
+  }, [configs, applyVelocityEffect, applyTriggerDelay, modifications, weapons]);
 
   const selectedConfig = configs.find((cfg) => cfg.id === selectedConfigId) || configs[0] || null;
   const editingConfig = configs.find((cfg) => cfg.id === editingConfigId) || null;
@@ -705,50 +845,44 @@ export function TTKSimulator() {
           <section className="ttk-compare options-panel">
             <div className="options-row">
               <div className="option-group">
-                <span className="option-group-label">指标</span>
                 <div className="chart-toggle left-options">
                   <button type="button" className={`ttk-btn ${compareMetric === 'ttk' ? 'primary' : ''}`} onClick={() => setCompareMetric('ttk')}>TTK</button>
                   <button type="button" className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`} onClick={() => setCompareMetric('btk')}>BTK</button>
                 </div>
               </div>
               <div className="option-group">
-                <span className="option-group-label">图形</span>
                 <div className="chart-toggle left-options">
                   <button type="button" className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`} onClick={() => setCompareChartType('bar')}>柱状图</button>
                   <button type="button" className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`} onClick={() => setCompareChartType('line')}>折线图</button>
                 </div>
               </div>
             </div>
+            <div className="effect-options-row">
+              <label className="effect-toggle">
+                <input type="checkbox" checked={applyTriggerDelay} onChange={(e) => setApplyTriggerDelay(e.target.checked)} />
+                启用扳机延迟
+              </label>
+              <label className="effect-toggle">
+                <input type="checkbox" checked={applyVelocityEffect} onChange={(e) => setApplyVelocityEffect(e.target.checked)} />
+                启用枪口初速
+              </label>
+            </div>
           </section>
 
         </aside>
 
         <section className="ttk-right-chart">
-          <div className="ttk-compare">
-            <h3>{compareChartType === 'bar' ? '枪械对比柱状图' : '枪械对比分段折线图'}</h3>
+          <div className="ttk-compare chart-fill-wrap">
             {comparisonRows.length === 0 ? (
-              <div className="compare-placeholder">
-                <ResponsiveContainer width="100%" height={compareChartType === 'bar' ? 300 : 320}>
-                  {compareChartType === 'bar' ? (
-                    <BarChart data={[]} margin={{ top: 16, right: 18, left: 8, bottom: 40 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="weaponName" height={64} />
-                      <YAxis />
-                    </BarChart>
-                  ) : (
-                    <LineChart data={[]} margin={{ top: 16, right: 18, left: 8, bottom: 22 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                      <XAxis dataKey="distance" domain={[0, 100]} type="number" tickCount={11} />
-                      <YAxis />
-                    </LineChart>
-                  )}
-                </ResponsiveContainer>
-                <div className="compare-empty">请先运行至少一个方案，再查看对比图</div>
-              </div>
-            ) : compareChartType === 'bar' ? (
-              <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
+              <div className="compare-empty-plain">请先运行至少一个方案，再查看对比图</div>
             ) : (
-              <ComparisonLineChart rows={comparisonRows} metric={compareMetric} />
+              <div className="chart-canvas">
+                {compareChartType === 'bar' ? (
+                  <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
+                ) : (
+                  <ComparisonLineChart rows={comparisonRows} metric={compareMetric} applyVelocityEffect={applyVelocityEffect} />
+                )}
+              </div>
             )}
 
             {compareChartType === 'line' && configs.some((cfg) => cfg.lineRunning) && (
@@ -767,10 +901,6 @@ export function TTKSimulator() {
       {editingConfig && (
         <div className="ttk-modal-overlay" onClick={() => setEditingConfigId(null)}>
           <div className="ttk-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="ttk-modal-head">
-              <h3>二级菜单：{editingConfig.selectedWeapon?.name || editingConfig.name} 配置</h3>
-              <button type="button" className="ttk-btn" onClick={() => setEditingConfigId(null)}>关闭</button>
-            </div>
             <GunConfigCard
               cfg={editingConfig}
               weapons={weapons}
@@ -779,10 +909,18 @@ export function TTKSimulator() {
               armors={armors}
               modifications={modifications}
               onChange={(patch) => handleConfigChange(editingConfig.id, patch)}
-              onRun={() => runConfig(editingConfig)}
-              onRemove={() => removeConfig(editingConfig.id)}
+              onRun={() => {
+                setEditingConfigId(null);
+                runConfig(editingConfig);
+              }}
+              onRemove={() => {
+                setEditingConfigId(null);
+                removeConfig(editingConfig.id);
+              }}
               showResult={false}
               disableDistance={compareChartType === 'line'}
+              showRemoveButton
+              headerActions={<button type="button" className="ttk-btn" onClick={() => setEditingConfigId(null)}>关闭</button>}
             />
           </div>
         </div>
