@@ -113,15 +113,56 @@
   align-items: start;
 }
 
+.run-config-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fcfdff;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .ttk-line {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.trial-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.trial-input-wrap label {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
 }
 
 .ttk-line input {
   width: 140px;
   padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.trial-tip {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.trial-tip.warn {
+  color: #b45309;
+  font-weight: 600;
 }
 
 .probabilities-wrap {
@@ -131,17 +172,36 @@
   padding: 10px;
 }
 
-.probabilities-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #334155;
+.prob-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
+  gap: 10px;
+}
+
+.probabilities-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #334155;
+  margin-bottom: 0;
 }
 
 .probabilities {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 8px;
+}
+
+.prob-head,
+.prob-chest,
+.prob-abdomen {
+  grid-column: span 2;
+}
+
+.prob-upperArm,
+.prob-limbs {
+  grid-column: span 1;
 }
 
 .prob-item {
@@ -149,24 +209,47 @@
   flex-direction: column;
   gap: 4px;
   font-size: 12px;
+  min-width: 0;
 }
 
 .prob-label-row {
   display: block;
   color: #475569;
   font-weight: 600;
+  line-height: 1.25;
 }
 
 .prob-item input {
+  width: 100%;
   padding: 6px 8px;
   border: 1px solid #dbe4f4;
   border-radius: 8px;
+}
+
+.prob-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prob-sum {
+  font-size: 12px;
+  color: #475569;
+}
+
+.prob-sum.warn {
+  color: #b45309;
+  font-weight: 600;
 }
 
 .mods {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fcfdff;
+  padding: 10px;
 }
 
 .mod-group h4 {
@@ -175,22 +258,27 @@
 }
 
 .mod-chips {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
 }
 
 .mod-chip {
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 4px 10px;
+  border: 1px solid #dfe1e6;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 8px 10px;
   cursor: pointer;
+  text-align: left;
+}
+
+.mod-chip:hover {
+  border-color: #0052cc;
 }
 
 .mod-chip.selected {
   border-color: #2563eb;
-  background: #eff6ff;
+  background: #eaf2ff;
 }
 
 .mod-chip:disabled {
@@ -362,6 +450,13 @@
   margin-top: 4px;
 }
 
+.config-weapon-image {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
 .config-item-stats {
   margin-top: 8px;
   display: flex;
@@ -369,6 +464,76 @@
   font-size: 12px;
   color: #1e293b;
   font-weight: 600;
+}
+
+.quality-lines .level-0,
+.quality-lines .level-1,
+.quality-lines .level-2,
+.quality-lines .level-3,
+.quality-lines .level-4,
+.quality-lines .level-5,
+.quality-lines .level-6 {
+  font-weight: 700;
+}
+
+.config-item-meta.rarity-red { color: #e74c3c; }
+.config-item-meta.rarity-orange { color: #e67e22; }
+.config-item-meta.rarity-purple { color: #9b59b6; }
+.config-item-meta.rarity-blue { color: #3498db; }
+.config-item-meta.rarity-green { color: #2ecc71; }
+.config-item-meta.rarity-white { color: #64748b; }
+
+.card-hover-preview {
+  margin-top: 8px;
+  border: 1px solid #dbe4f4;
+  border-radius: 8px;
+  padding: 6px;
+  background: #f8fbff;
+}
+
+.preview-controls {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.tiny-btn {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.tiny-btn.active {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+.preview-bar-row {
+  display: grid;
+  grid-template-columns: 62px 1fr 42px;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: #334155;
+}
+
+.preview-bar-track {
+  height: 7px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.preview-bar-fill {
+  height: 100%;
+  background: #3b82f6;
 }
 
 .secondary-menu h4 {

@@ -15,6 +15,7 @@ import {
 } from '../utils/modSelectionUtils';
 import { buildConfiguredWeapon } from '../utils/weaponConfigUtils';
 import { DEFAULT_HIT_PROBABILITIES, runMonteCarlo } from '../utils/ttkMonteCarlo';
+import { getRarityClass, getProtectionLevelClass } from '../utils/styleUtils';
 import {
   ResponsiveContainer,
   BarChart,
@@ -73,7 +74,7 @@ const PROBABILITY_FIELDS = [
   { key: 'chest', label: '胸部', sites: ['chest'] },
   { key: 'abdomen', label: '腹部', sites: ['abdomen'] },
   { key: 'upperArm', label: '上臂', sites: ['upperArm'] },
-  { key: 'limbs', label: '其余四肢(下臂+大腿+小腿)', sites: ['lowerArm', 'thigh', 'calf'] },
+  { key: 'limbs', label: '其余四肢', sites: ['lowerArm', 'thigh', 'calf'] },
 ];
 
 const getDisplayProbability = (hitProbabilities, sites) => {
@@ -92,6 +93,14 @@ const setGroupedProbability = (hitProbabilities, sites, value) => {
     next[site] = perSite;
   });
   return next;
+};
+
+const getProbabilityDrafts = (hitProbabilities) => {
+  const drafts = {};
+  PROBABILITY_FIELDS.forEach((field) => {
+    drafts[field.key] = getDisplayProbability(hitProbabilities, field.sites).toFixed(4);
+  });
+  return drafts;
 };
 
 const BAR_COLORS = ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -129,6 +138,8 @@ const expandSegmentSeriesToDense = (segmentSeries = [], maxDistance = 100) => {
       distance: d,
       avgTtk: sorted[idx].avgTtk,
       avgBtk: sorted[idx].avgBtk,
+      btkDistribution: sorted[idx].btkDistribution,
+      ttkDistribution: sorted[idx].ttkDistribution,
     });
   }
 
@@ -266,6 +277,7 @@ function GunConfigCard({
   headerActions = null,
 }) {
   const [missingFields, setMissingFields] = useState({});
+  const [probDrafts, setProbDrafts] = useState(getProbabilityDrafts(cfg.hitProbabilities));
 
   const availableAmmos = useMemo(() => {
     if (!cfg.selectedWeapon) return [];
@@ -335,6 +347,10 @@ function GunConfigCard({
     }));
   }, [cfg.selectedWeapon, cfg.selectedAmmo, cfg.selectedHelmet, cfg.selectedArmor]);
 
+  useEffect(() => {
+    setProbDrafts(getProbabilityDrafts(cfg.hitProbabilities));
+  }, [cfg.hitProbabilities]);
+
   const validateRequired = () => {
     const nextMissing = {
       selectedWeapon: !cfg.selectedWeapon,
@@ -351,6 +367,50 @@ function GunConfigCard({
     setMissingFields({});
     onRun();
   };
+
+  const commitProbability = (fieldKey, rawValue) => {
+    const field = PROBABILITY_FIELDS.find((f) => f.key === fieldKey);
+    if (!field) return;
+    const numeric = Math.max(0, Number(rawValue) || 0);
+    onChange({
+      hitProbabilities: setGroupedProbability(cfg.hitProbabilities, field.sites, numeric),
+    });
+  };
+
+  const handleProbabilityKeyDown = (e, fieldKey, idx) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const inputs = Array.from(document.querySelectorAll('.prob-item input'));
+      const next = inputs[idx + 1];
+      if (next) next.focus();
+      return;
+    }
+
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const step = e.shiftKey ? 0.001 : 0.01;
+      const current = Number(probDrafts[fieldKey]) || 0;
+      const nextValue = e.key === 'ArrowUp' ? current + step : Math.max(0, current - step);
+      const text = nextValue.toFixed(4);
+      setProbDrafts((prev) => ({ ...prev, [fieldKey]: text }));
+      commitProbability(fieldKey, text);
+    }
+  };
+
+  const normalizeProbabilities = () => {
+    const values = PROBABILITY_FIELDS.map((f) => Math.max(0, Number(probDrafts[f.key]) || 0));
+    const sum = values.reduce((a, b) => a + b, 0);
+    if (sum <= 0) return;
+
+    const normalized = values.map((v) => v / sum);
+    let nextHit = { ...cfg.hitProbabilities };
+    PROBABILITY_FIELDS.forEach((f, i) => {
+      nextHit = setGroupedProbability(nextHit, f.sites, normalized[i]);
+    });
+    onChange({ hitProbabilities: nextHit });
+  };
+
+  const probabilitySum = PROBABILITY_FIELDS.reduce((sum, f) => sum + (Math.max(0, Number(probDrafts[f.key]) || 0)), 0);
 
   return (
     <section className="ttk-card">
@@ -421,93 +481,110 @@ function GunConfigCard({
         </div>
       </div>
 
-      <div className="ttk-grid sliders">
-        <UniversalSlider
-          label="距离(米)"
-          values={Array.from({ length: 301 }, (_, i) => i)}
-          value={cfg.distance}
-          onChange={(distance) => onChange({ distance })}
-          isDisabled={disableDistance}
-        />
-        <UniversalSlider
-          label="初始血量"
-          values={Array.from({ length: 100 }, (_, i) => i + 1)}
-          value={Math.min(cfg.initialHp, 100)}
-          onChange={(initialHp) => onChange({ initialHp: Math.min(initialHp, 100) })}
-        />
-      </div>
+      <div className="run-config-wrap">
+        <div className="ttk-grid sliders">
+          <UniversalSlider
+            label="距离(米)"
+            values={Array.from({ length: 301 }, (_, i) => i)}
+            value={cfg.distance}
+            onChange={(distance) => onChange({ distance })}
+            isDisabled={disableDistance}
+          />
+          <UniversalSlider
+            label="初始血量"
+            values={Array.from({ length: 100 }, (_, i) => i + 1)}
+            value={Math.min(cfg.initialHp, 100)}
+            onChange={(initialHp) => onChange({ initialHp: Math.min(initialHp, 100) })}
+          />
+        </div>
 
-      {disableDistance && (
-        <div className="distance-locked-tip">当前为折线图模式，距离按枪械分段射程点自动计算</div>
-      )}
+        {disableDistance && (
+          <div className="distance-locked-tip">当前为折线图模式，距离按枪械分段射程点自动计算</div>
+        )}
 
-      <div className="ttk-line">
-        <label htmlFor={`trial-${cfg.id}`}>模拟次数 N</label>
-        <input
-          id={`trial-${cfg.id}`}
-          type="number"
-          min={100}
-          max={100000}
-          step={100}
-          value={cfg.trialCount}
-          onChange={(e) => onChange({ trialCount: Math.max(100, Math.min(100000, Number(e.target.value) || 100)) })}
-        />
+        <div className="ttk-line">
+          <div className="trial-input-wrap">
+            <label htmlFor={`trial-${cfg.id}`}>模拟次数 N</label>
+            <input
+              id={`trial-${cfg.id}`}
+              type="number"
+              min={100}
+              max={100000}
+              step={100}
+              value={cfg.trialCount}
+              onChange={(e) => onChange({ trialCount: Math.max(100, Math.min(100000, Number(e.target.value) || 100)) })}
+            />
+          </div>
+          <div className={`trial-tip ${cfg.trialCount > 10000 ? 'warn' : ''}`}>模拟次数过高可能导致卡顿，建议保持在10000以下</div>
+        </div>
       </div>
 
       <div className="probabilities-wrap">
-        <div className="probabilities-title">部位概率分布</div>
+        <div className="prob-head-row">
+          <div className="probabilities-title">部位概率分布</div>
+          <div className="prob-footer">
+            <span className={`prob-sum ${Math.abs(probabilitySum - 1) > 0.0001 ? 'warn' : ''}`}>总和：{probabilitySum.toFixed(4)}</span>
+            <button type="button" className="ttk-btn" onClick={normalizeProbabilities}>归一化到 1.0000</button>
+          </div>
+        </div>
         <div className="probabilities">
-          {PROBABILITY_FIELDS.map((field) => (
-            <label key={field.key} className="prob-item" htmlFor={`${cfg.id}-${field.key}`}>
+          {PROBABILITY_FIELDS.map((field, idx) => (
+            <label key={field.key} className={`prob-item prob-${field.key}`} htmlFor={`${cfg.id}-${field.key}`}>
               <span className="prob-label-row">{field.label}</span>
               <input
                 id={`${cfg.id}-${field.key}`}
                 type="number"
                 min={0}
                 step={0.01}
-                value={getDisplayProbability(cfg.hitProbabilities, field.sites).toFixed(4)}
-                onChange={(e) => onChange({
-                  hitProbabilities: setGroupedProbability(cfg.hitProbabilities, field.sites, e.target.value),
-                })}
+                value={probDrafts[field.key] ?? ''}
+                onChange={(e) => setProbDrafts((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                onBlur={(e) => {
+                  const fixed = (Math.max(0, Number(e.target.value) || 0)).toFixed(4);
+                  setProbDrafts((prev) => ({ ...prev, [field.key]: fixed }));
+                  commitProbability(field.key, fixed);
+                }}
+                onKeyDown={(e) => handleProbabilityKeyDown(e, field.key, idx)}
               />
             </label>
           ))}
         </div>
       </div>
 
-      <div className="mods">
-        {Object.entries(groupedMods).map(([group, mods]) => (
-          <div key={group} className="mod-group">
-            <h4>{group}</h4>
-            <div className="mod-chips">
-              {mods.map((mod) => {
-                const selected = cfg.selectedMods.includes(mod.id);
-                const disabled = !selected && !isModSelectable(mod, unlockedSlots);
-                return (
-                  <button
-                    key={mod.id}
-                    type="button"
-                    disabled={disabled}
-                    className={`mod-chip ${selected ? 'selected' : ''}`}
-                    onClick={() => {
-                      const next = toggleModSelection({
-                        modId: mod.id,
-                        isSelected: !selected,
-                        selectedModIds: cfg.selectedMods,
-                        availableMods,
-                        baseUnlockedSlots: new Set(),
-                      });
-                      onChange({ selectedMods: next });
-                    }}
-                  >
-                    {mod.name}
-                  </button>
-                );
-              })}
+      {cfg.selectedWeapon && availableMods.length > 0 && (
+        <div className="mods">
+          {Object.entries(groupedMods).map(([group, mods]) => (
+            <div key={group} className="mod-group">
+              <h4>{group}</h4>
+              <div className="mod-chips">
+                {mods.map((mod) => {
+                  const selected = cfg.selectedMods.includes(mod.id);
+                  const disabled = !selected && !isModSelectable(mod, unlockedSlots);
+                  return (
+                    <button
+                      key={mod.id}
+                      type="button"
+                      disabled={disabled}
+                      className={`mod-chip ${selected ? 'selected' : ''}`}
+                      onClick={() => {
+                        const next = toggleModSelection({
+                          modId: mod.id,
+                          isSelected: !selected,
+                          selectedModIds: cfg.selectedMods,
+                          availableMods,
+                          baseUnlockedSlots: new Set(),
+                        });
+                        onChange({ selectedMods: next });
+                      }}
+                    >
+                      {mod.name}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="ttk-actions">
         <button type="button" className="ttk-btn primary" onClick={handleRun} disabled={cfg.running}>
@@ -575,6 +652,9 @@ export function TTKSimulator() {
   const [compareChartType, setCompareChartType] = useState('line');
   const [applyVelocityEffect, setApplyVelocityEffect] = useState(false);
   const [applyTriggerDelay, setApplyTriggerDelay] = useState(false);
+  const [hoveredConfigId, setHoveredConfigId] = useState(null);
+  const [previewMetric, setPreviewMetric] = useState('ttk');
+  const [previewRangeByConfig, setPreviewRangeByConfig] = useState({});
   const workerRef = useRef(null);
   const requestSeedRef = useRef(0);
 
@@ -604,7 +684,27 @@ export function TTKSimulator() {
 
   const addConfig = () => {
     const nextId = (configs.length ? Math.max(...configs.map((c) => c.id)) : 0) + 1;
-    setConfigs((prev) => [...prev, createConfig(nextId, lastDistance)]);
+
+    let nextConfig = createConfig(nextId, lastDistance);
+    if (configs.length > 0) {
+      const base = configs[0];
+      nextConfig = {
+        ...nextConfig,
+        selectedWeapon: base.selectedWeapon,
+        selectedAmmo: base.selectedAmmo,
+        selectedHelmet: base.selectedHelmet,
+        selectedArmor: base.selectedArmor,
+        helmetDurability: base.helmetDurability,
+        armorDurability: base.armorDurability,
+        selectedMods: [...(base.selectedMods || [])],
+        distance: base.distance,
+        initialHp: base.initialHp,
+        trialCount: base.trialCount,
+        hitProbabilities: { ...(base.hitProbabilities || DEFAULT_HIT_PROBABILITIES) },
+      };
+    }
+
+    setConfigs((prev) => [...prev, nextConfig]);
     setSelectedConfigId(nextId);
     setEditingConfigId(nextId);
   };
@@ -697,6 +797,8 @@ export function TTKSimulator() {
         distance,
         avgTtk: res.avgTtk,
         avgBtk: res.avgBtk,
+        btkDistribution: res.btkDistribution,
+        ttkDistribution: res.ttkDistribution,
       });
 
       updateConfig(cfg.id, { lineProgress: (i + 1) / distances.length });
@@ -793,7 +895,13 @@ export function TTKSimulator() {
           id: cfg.id,
           name: cfg.name,
           weaponName: cfg.selectedWeapon?.name || '-',
+          weaponImage: cfg.selectedWeapon?.image,
           ammoName: cfg.selectedAmmo?.name || '-',
+          ammoRarity: cfg.selectedAmmo?.rarity,
+          helmetLevel: cfg.selectedHelmet?.level,
+          armorLevel: cfg.selectedArmor?.level,
+          helmetDurability: cfg.helmetDurability,
+          armorDurability: cfg.armorDurability,
           avgBtk: cfg.result.avgBtk,
           avgTtk: adjustedAvgTtk,
           trialCount: cfg.result.trialCount,
@@ -807,6 +915,23 @@ export function TTKSimulator() {
   const selectedConfig = configs.find((cfg) => cfg.id === selectedConfigId) || configs[0] || null;
   const editingConfig = configs.find((cfg) => cfg.id === editingConfigId) || null;
 
+  const getPreviewDistribution = (row, range) => {
+    const point = (row.distanceSeries || [])[Math.max(0, Math.min(100, Number(range) || 0))];
+    if (!point) return [];
+
+    if (previewMetric === 'btk') {
+      return (point.btkDistribution || []).slice(0, 8).map((d) => ({
+        label: `BTK ${d.btk}`,
+        prob: d.probability,
+      }));
+    }
+
+    return (point.ttkDistribution || []).slice(0, 8).map((d) => ({
+      label: `${Math.round(d.ttk)}ms`,
+      prob: d.probability,
+    }));
+  };
+
   return (
     <div className="ttk-page">
       <div className="ttk-main">
@@ -818,27 +943,65 @@ export function TTKSimulator() {
             </div>
 
             <div className="config-list">
-              {configs.map((cfg, idx) => (
-                <button
-                  key={cfg.id}
-                  type="button"
-                  className={`config-item ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
-                  onClick={() => {
-                    setSelectedConfigId(cfg.id);
-                    setEditingConfigId(cfg.id);
-                  }}
-                >
-                  <div className="config-item-top">
-                    <span className="config-badge">#{idx + 1}</span>
-                    <div className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</div>
-                  </div>
-                  <div className="config-item-meta">{cfg.selectedAmmo?.name || '未选弹药'}</div>
-                  <div className="config-item-stats">
-                    <span>EBTK {cfg.result ? cfg.result.avgBtk.toFixed(2) : '--'}</span>
-                    <span>ETTK {cfg.result ? `${Math.round(cfg.result.avgTtk)}ms` : '--'}</span>
-                  </div>
-                </button>
-              ))}
+              {configs.map((cfg, idx) => {
+                const row = comparisonRows.find((r) => r.id === cfg.id);
+                const range = previewRangeByConfig[cfg.id] ?? 0;
+                const previewDist = row ? getPreviewDistribution(row, range) : [];
+                return (
+                  <button
+                    key={cfg.id}
+                    type="button"
+                    className={`config-item rich ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
+                    onMouseEnter={() => {
+                      setHoveredConfigId(cfg.id);
+                      setPreviewRangeByConfig((prev) => ({ ...prev, [cfg.id]: prev[cfg.id] ?? 0 }));
+                    }}
+                    onMouseLeave={() => setHoveredConfigId(null)}
+                    onClick={() => {
+                      setSelectedConfigId(cfg.id);
+                      setEditingConfigId(cfg.id);
+                    }}
+                  >
+                    <div className="config-item-top">
+                      <span className="config-badge">#{idx + 1}</span>
+                      {cfg.selectedWeapon?.image && <img src={cfg.selectedWeapon.image} alt={cfg.selectedWeapon?.name} className="config-weapon-image" />}
+                      <div className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</div>
+                    </div>
+                    <div className={`config-item-meta ${getRarityClass(cfg.selectedAmmo?.rarity)}`}>{cfg.selectedAmmo?.name || '未选弹药'}</div>
+                    <div className="config-item-stats quality-lines">
+                      <span className={getProtectionLevelClass(cfg.selectedHelmet?.level)}>头：{Math.round(cfg.helmetDurability || 0)}</span>
+                      <span className={getProtectionLevelClass(cfg.selectedArmor?.level)}>甲：{Math.round(cfg.armorDurability || 0)}</span>
+                    </div>
+
+                    {hoveredConfigId === cfg.id && row && (
+                      <div className="card-hover-preview">
+                        <div className="preview-controls">
+                          <button type="button" className={`tiny-btn ${previewMetric === 'ttk' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setPreviewMetric('ttk'); }}>TTK</button>
+                          <button type="button" className={`tiny-btn ${previewMetric === 'btk' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setPreviewMetric('btk'); }}>BTK</button>
+                          <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={range}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => setPreviewRangeByConfig((prev) => ({ ...prev, [row.id]: Number(e.target.value) }))}
+                          />
+                          <span>{range}m</span>
+                        </div>
+                        <div className="preview-bars">
+                          {previewDist.map((d) => (
+                            <div key={d.label} className="preview-bar-row">
+                              <span>{d.label}</span>
+                              <div className="preview-bar-track"><div className="preview-bar-fill" style={{ width: `${Math.max(2, d.prob * 100)}%` }} /></div>
+                              <span>{(d.prob * 100).toFixed(1)}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </section>
 
