@@ -16,7 +16,7 @@ import { TTKSimulator } from './pages/TTKSimulator';
  */
 function App() {
   // 当前视图状态：'dataQuery'、'simulator' 或 'dataLibrary'
-  const [currentView, setCurrentView] = useState('dataQuery');
+  const [currentView, setCurrentView] = useState('ttkSimulator');
 
   /**
    * 根据当前视图状态渲染对应的内容组件

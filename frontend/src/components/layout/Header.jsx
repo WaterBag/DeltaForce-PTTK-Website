@@ -10,7 +10,10 @@ import BilibiliIcon from '../../assets/images/others/BilibiliIcon.png';
 export function Header() {
   return (
     <header className="header">
-      <div className="logo">DeltaForce TTK</div>
+      <div className="logo-wrap">
+        <div className="logo">三角洲行动 枪械击杀用时查询</div>
+        <div className="data-tag">当前数据：S9季中更新</div>
+      </div>
       <nav className="nav">
         <ul></ul>
       </nav>

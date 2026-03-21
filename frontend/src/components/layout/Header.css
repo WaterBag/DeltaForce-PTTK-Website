@@ -17,6 +17,19 @@
   color: #091e42;
 }
 
+.logo-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.data-tag {
+  font-size: 0.78rem;
+  color: #6b778c;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .nav ul {
   display: flex;
   list-style-type: none; /* 去掉列表的小黑点 */
@@ -54,6 +67,10 @@
   .logo {
     font-size: 1.3rem; /* 减小logo字体大小 */
   }
+
+  .data-tag {
+    font-size: 0.72rem;
+  }
 }
 
 /* 响应式布局 - 移动设备 */
@@ -65,6 +82,14 @@
 
   .logo {
     font-size: 1.1rem; /* 进一步减小logo字体大小 */
+  }
+
+  .logo-wrap {
+    gap: 6px;
+  }
+
+  .data-tag {
+    font-size: 0.68rem;
   }
 
   .bilibili-link span {

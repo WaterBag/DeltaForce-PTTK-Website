@@ -18,14 +18,14 @@ export function Sidebar({ currentView, setCurrentView }) {
             className={`nav-item ${currentView === 'ttkSimulator' ? 'active' : ''}`}
             onClick={() => setCurrentView('ttkSimulator')}
           >
-            概率TTK折线图
+            模拟期望击杀时间
           </li>
 
           <li
             className={`nav-item ${currentView === 'dataQuery' ? 'active' : ''}`}
             onClick={() => setCurrentView('dataQuery')}
           >
-            预制TTK折线图
+            查询期望击杀时间
           </li>
 
           <li
