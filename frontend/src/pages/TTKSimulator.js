@@ -1,4 +1,5 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+﻿import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { WeaponSelector } from '../components/simulator/Selectors';
 import { AmmoSelector } from '../components/public/AmmoSelector';
 import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
@@ -10,7 +11,9 @@ import { generateDurabilityValues } from '../utils/numberUtils';
 import {
   buildModsById,
   computeUnlockedSlots,
+  inferBaseUnlockedSlots,
   isModSelectable,
+  mergeUnlockedSlots,
   toggleModSelection,
 } from '../utils/modSelectionUtils';
 import { buildConfiguredWeapon } from '../utils/weaponConfigUtils';
@@ -47,7 +50,7 @@ const pickDefaultAmmo = (options) => {
     || null;
 };
 
-const createConfig = (id, defaultDistance = 10) => ({
+const createConfig = (id) => ({
   id,
   name: `方案 ${id}`,
   selectedWeapon: null,
@@ -57,7 +60,7 @@ const createConfig = (id, defaultDistance = 10) => ({
   helmetDurability: 0,
   armorDurability: 0,
   selectedMods: [],
-  distance: defaultDistance,
+  distance: 10,
   initialHp: 100,
   trialCount: 5000,
   hitProbabilities: { ...DEFAULT_HIT_PROBABILITIES },
@@ -76,6 +79,7 @@ const PROBABILITY_FIELDS = [
   { key: 'upperArm', label: '上臂', sites: ['upperArm'] },
   { key: 'limbs', label: '其余四肢', sites: ['lowerArm', 'thigh', 'calf'] },
 ];
+const PROBABILITY_SUM_WARN_EPSILON = 0.0005;
 
 const getDisplayProbability = (hitProbabilities, sites) => {
   return sites.reduce((sum, site) => sum + (Number(hitProbabilities?.[site]) || 0), 0);
@@ -104,6 +108,138 @@ const getProbabilityDrafts = (hitProbabilities) => {
 };
 
 const BAR_COLORS = ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const RECHARTS_TOOLTIP_CONTENT_STYLE = {
+  background: 'rgba(255, 255, 255, 0.72)',
+  color: '#172b4d',
+  borderRadius: '8px',
+  border: '1px solid #dfe1e6',
+  boxShadow: '0 4px 12px rgba(9, 30, 66, 0.15)',
+};
+const CUSTOM_CALIBER = '独特口径';
+const CUSTOM_WEAPON_FIELDS = [
+  { key: 'name', label: '枪械名称', type: 'text' },
+  { key: 'damage', label: '基础伤害', type: 'number', step: '0.01' },
+  { key: 'armorDamage', label: '护甲伤害', type: 'number', step: '0.01' },
+  { key: 'fireRate', label: '射速(RPM)', type: 'number', step: '0.01' },
+  { key: 'muzzleVelocity', label: '枪口初速', type: 'number', step: '0.01' },
+  { key: 'triggerDelay', label: '扳机延迟(ms)', type: 'number', step: '0.01' },
+  { key: 'headMultiplier', label: '头部倍率', type: 'number', step: '0.01' },
+  { key: 'chestMultiplier', label: '胸部倍率', type: 'number', step: '0.01' },
+  { key: 'abdomenMultiplier', label: '腹部倍率', type: 'number', step: '0.01' },
+  { key: 'upperArmMultiplier', label: '上臂倍率', type: 'number', step: '0.01' },
+  { key: 'lowerArmMultiplier', label: '下臂倍率', type: 'number', step: '0.01' },
+  { key: 'thighMultiplier', label: '大腿倍率', type: 'number', step: '0.01' },
+  { key: 'calfMultiplier', label: '小腿倍率', type: 'number', step: '0.01' },
+];
+const CUSTOM_WEAPON_DECAY_FIELDS = [
+  { key: 'decay1', label: '第1段伤害系数', type: 'number', step: '0.0001' },
+  { key: 'decay2', label: '第2段伤害系数', type: 'number', step: '0.0001' },
+  { key: 'decay3', label: '第3段伤害系数', type: 'number', step: '0.0001' },
+  { key: 'decay4', label: '第4段伤害系数', type: 'number', step: '0.0001' },
+  { key: 'decay5', label: '第5段伤害系数', type: 'number', step: '0.0001' },
+];
+const CUSTOM_AMMO_FIELDS = [
+  { key: 'name', label: '子弹名称', type: 'text' },
+  { key: 'penetration', label: '穿透等级', type: 'number', step: '1' },
+  { key: 'sameLevelPenetration', label: '同级穿透率', type: 'number', step: '0.0001' },
+  { key: 'secondaryPenetration', label: '次级穿透率', type: 'number', step: '0.0001' },
+  { key: 'fleshDamageCoeff', label: '肉伤系数', type: 'number', step: '0.0001' },
+  { key: 'armor1', label: '护甲系数1', type: 'number', step: '0.0001' },
+  { key: 'armor2', label: '护甲系数2', type: 'number', step: '0.0001' },
+  { key: 'armor3', label: '护甲系数3', type: 'number', step: '0.0001' },
+  { key: 'armor4', label: '护甲系数4', type: 'number', step: '0.0001' },
+  { key: 'armor5', label: '护甲系数5', type: 'number', step: '0.0001' },
+  { key: 'armor6', label: '护甲系数6', type: 'number', step: '0.0001' },
+];
+
+const createEmptyCustomWeaponDraft = () => ({
+  templateId: '',
+  inheritTemplateNameImage: false,
+  name: '自定义枪械',
+  caliber: CUSTOM_CALIBER,
+  rangeSegmentCount: 5,
+  damage: 30,
+  armorDamage: 30,
+  fireRate: 600,
+  muzzleVelocity: 700,
+  triggerDelay: 0,
+  headMultiplier: 1.7,
+  chestMultiplier: 1.0,
+  abdomenMultiplier: 1.0,
+  upperArmMultiplier: 1.0,
+  lowerArmMultiplier: 1.0,
+  thighMultiplier: 1.0,
+  calfMultiplier: 1.0,
+  range1: 10,
+  range2: 20,
+  range3: 35,
+  range4: 50,
+  range5: 100,
+  decay1: 1,
+  decay2: 0.9,
+  decay3: 0.8,
+  decay4: 0.7,
+  decay5: 0.6,
+});
+
+const createEmptyCustomAmmoDraft = () => ({
+  templateId: '',
+  inheritTemplateNameImage: false,
+  name: '自定义子弹',
+  caliber: CUSTOM_CALIBER,
+  penetration: 4,
+  sameLevelPenetration: 0.5,
+  secondaryPenetration: 0.75,
+  fleshDamageCoeff: 1,
+  armor1: 1,
+  armor2: 1,
+  armor3: 1,
+  armor4: 1,
+  armor5: 1,
+  armor6: 1,
+  rarity: 'white',
+  description: '自定义子弹',
+  image: '',
+});
+
+const toNumberOr = (value, fallback) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+};
+
+const getUniqueName = (rawBaseName, existingNames) => {
+  const baseName = String(rawBaseName || '').trim() || '自定义';
+  if (!existingNames.includes(baseName)) return baseName;
+  let suffix = 1;
+  while (existingNames.includes(`${baseName}${suffix}`)) {
+    suffix += 1;
+  }
+  return `${baseName}${suffix}`;
+};
+
+const getNextSequentialName = (prefix, existingNames = []) => {
+  const reg = new RegExp(`^${prefix}(\\d+)$`);
+  let maxNo = 0;
+  existingNames.forEach((name) => {
+    const text = String(name || '').trim();
+    const m = text.match(reg);
+    if (m) {
+      const n = Number(m[1]);
+      if (Number.isFinite(n)) maxNo = Math.max(maxNo, n);
+    }
+  });
+  return `${prefix}${maxNo + 1}`;
+};
+
+const resolvePenetrationRarity = (penetration) => {
+  const p = Number(penetration) || 0;
+  if (p >= 6) return 'red';
+  if (p >= 5) return 'orange';
+  if (p >= 4) return 'purple';
+  if (p >= 3) return 'blue';
+  if (p >= 2) return 'green';
+  return 'white';
+};
 
 const applyTtkEffects = ({
   baseTtk,
@@ -149,21 +285,26 @@ const expandSegmentSeriesToDense = (segmentSeries = [], maxDistance = 100) => {
 const getSegmentDistances = (configuredWeapon, maxDistance = 100) => {
   if (!configuredWeapon) return [0, maxDistance];
 
-  const r1 = Number(configuredWeapon.range1);
-  const r2 = Number(configuredWeapon.range2);
-  const r3 = Number(configuredWeapon.range3);
-  const r4 = Number(configuredWeapon.range4);
-  const r5 = Number(configuredWeapon.range5);
+  const toPositiveRange = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
 
-  // 采样“各段起点”：0 段 + (rangeN + 1)
-  // 因为衰减判定是 <= rangeN 仍属于上一段
+  const r1 = toPositiveRange(configuredWeapon.range1);
+  const r2 = toPositiveRange(configuredWeapon.range2);
+  const r3 = toPositiveRange(configuredWeapon.range3);
+  const r4 = toPositiveRange(configuredWeapon.range4);
+  const r5 = toPositiveRange(configuredWeapon.range5);
+
+  // 閲囨牱鈥滃悇娈佃捣鐐光€濓細0 娈?+ (rangeN + 1)
+  // 采样各段起点：0段 + (rangeN + 1)，因为 <= rangeN 仍属于上一段
   const points = [
     0,
-    r1 + 1,
-    r2 + 1,
-    r3 + 1,
-    r4 + 1,
-    r5 + 1,
+    r1 == null ? null : r1 + 1,
+    r2 == null ? null : r2 + 1,
+    r3 == null ? null : r3 + 1,
+    r4 == null ? null : r4 + 1,
+    r5 == null ? null : r5 + 1,
     maxDistance,
   ]
     .filter((v) => Number.isFinite(v) && v >= 0 && v <= maxDistance)
@@ -184,7 +325,7 @@ function ComparisonTooltip({ active, payload, metric }) {
       <div>弹药：{data.ammoName}</div>
       <div>平均TTK：{Math.round(data.avgTtk)} ms</div>
       <div>平均BTK：{data.avgBtk.toFixed(2)}</div>
-      <div>{metric === 'ttk' ? '当前柱值：TTK' : '当前柱值：BTK'} = {metric === 'ttk' ? `${Math.round(data.avgTtk)} ms` : data.avgBtk.toFixed(2)}</div>
+      <div>{metric === 'ttk' ? '当前指标：TTK' : '当前指标：BTK'} = {metric === 'ttk' ? `${Math.round(data.avgTtk)} ms` : data.avgBtk.toFixed(2)}</div>
       <div>样本数：{data.trialCount}</div>
     </div>
   );
@@ -242,7 +383,11 @@ function ComparisonLineChart({ rows, metric, applyVelocityEffect }) {
           tickFormatter={(v) => (metric === 'ttk' ? `${Math.round(v)}ms` : Number(v).toFixed(1))}
           domain={metric === 'ttk' ? ['dataMin - 60', 'dataMax + 60'] : ['dataMin - 1', 'dataMax + 1']}
         />
-        <Tooltip formatter={(value) => (metric === 'ttk' ? `${Math.round(value)} ms` : Number(value).toFixed(2))} labelFormatter={(label) => `距离 ${label}m`} />
+        <Tooltip
+          formatter={(value) => (metric === 'ttk' ? `${Math.round(value)} ms` : Number(value).toFixed(2))}
+          labelFormatter={(label) => `距离 ${label}m`}
+          contentStyle={RECHARTS_TOOLTIP_CONTENT_STYLE}
+        />
         <Legend verticalAlign="top" align="center" height={36} />
         {readyRows.map((row, index) => (
           <Line
@@ -261,6 +406,146 @@ function ComparisonLineChart({ rows, metric, applyVelocityEffect }) {
   );
 }
 
+function CustomWeaponModal({
+  open,
+  weaponTemplates,
+  ammoTemplates,
+  draftWeapon,
+  draftAmmo,
+  onClose,
+  onChangeWeaponField,
+  onChangeAmmoField,
+  onApplyWeaponTemplate,
+  onApplyAmmoTemplate,
+  onSave,
+}) {
+  if (!open) return null;
+
+  return createPortal(
+    <div className="ttk-modal-overlay custom-modal-overlay-top" onClick={onClose}>
+      <div className="ttk-modal-content custom-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="ttk-modal-head">
+          <h3>自定义枪械/子弹</h3>
+          <span className="custom-modal-subtitle">可基于模板快速填充并继续微调参数</span>
+        </div>
+        <div className="custom-modal-body">
+          <div className="custom-grid">
+            <section className="custom-section">
+              <div className="custom-section-head">
+                <h4>枪械模板与参数</h4>
+                <select
+                  value={draftWeapon.templateId || ''}
+                  onChange={(e) => onApplyWeaponTemplate(e.target.value)}
+                >
+                  <option value="">选择枪械模板</option>
+                  {weaponTemplates.map((weapon) => (
+                    <option key={weapon.id} value={weapon.id}>{weapon.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="custom-fields-grid">
+                {CUSTOM_WEAPON_FIELDS.map((field) => (
+                  <label key={field.key} className="custom-field">
+                    <span>{field.label}</span>
+                    <input
+                      type={field.type}
+                      step={field.step}
+                      value={draftWeapon[field.key]}
+                      onChange={(e) => onChangeWeaponField(field.key, e.target.value)}
+                    />
+                  </label>
+                ))}
+              </div>
+              <div className="custom-section-subtitle">射程分段</div>
+              <div className="custom-fields-grid">
+                <label className="custom-field">
+                  <span>射程段数</span>
+                  <select
+                    value={draftWeapon.rangeSegmentCount}
+                    onChange={(e) => onChangeWeaponField('rangeSegmentCount', Number(e.target.value))}
+                  >
+                    <option value={1}>1段</option>
+                    <option value={2}>2段</option>
+                    <option value={3}>3段</option>
+                    <option value={4}>4段</option>
+                    <option value={5}>5段</option>
+                  </select>
+                </label>
+                {Array.from({ length: Number(draftWeapon.rangeSegmentCount) || 1 }).map((_, idx) => {
+                  const segNo = idx + 1;
+                  const rangeKey = `range${segNo}`;
+                  const isLast = segNo === Number(draftWeapon.rangeSegmentCount);
+                  return (
+                    <label key={rangeKey} className="custom-field">
+                      <span>{`第${segNo}段射程上限`}</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={isLast ? 999 : draftWeapon[rangeKey]}
+                        disabled={isLast}
+                        onChange={(e) => onChangeWeaponField(rangeKey, e.target.value)}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+              <div className="custom-section-subtitle">分段伤害系数</div>
+              <div className="custom-fields-grid">
+                {Array.from({ length: Number(draftWeapon.rangeSegmentCount) || 1 }).map((_, idx) => {
+                  const field = CUSTOM_WEAPON_DECAY_FIELDS[idx];
+                  return (
+                    <label key={field.key} className="custom-field">
+                      <span>{field.label}</span>
+                      <input
+                        type={field.type}
+                        step={field.step}
+                        value={draftWeapon[field.key]}
+                        onChange={(e) => onChangeWeaponField(field.key, e.target.value)}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+            </section>
+            <section className="custom-section">
+              <div className="custom-section-head">
+                <h4>子弹模板与参数</h4>
+                <select
+                  value={draftAmmo.templateId || ''}
+                  onChange={(e) => onApplyAmmoTemplate(e.target.value)}
+                >
+                  <option value="">选择子弹模板</option>
+                  {ammoTemplates.map((ammo) => (
+                    <option key={ammo.id} value={ammo.id}>{`${ammo.name}（${ammo.caliber || '-'}）`}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="custom-fields-grid">
+                {CUSTOM_AMMO_FIELDS.map((field) => (
+                  <label key={field.key} className="custom-field">
+                    <span>{field.label}</span>
+                    <input
+                      type={field.type}
+                      step={field.step}
+                      value={draftAmmo[field.key]}
+                      onChange={(e) => onChangeAmmoField(field.key, e.target.value)}
+                    />
+                  </label>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+        <div className="custom-modal-footer">
+          <button type="button" className="ttk-btn" onClick={onClose}>取消</button>
+          <button type="button" className="ttk-btn primary" onClick={onSave}>保存</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function GunConfigCard({
   cfg,
   weapons,
@@ -271,17 +556,23 @@ function GunConfigCard({
   onChange,
   onRun,
   onRemove,
+  onRequestCreateCustom,
   showResult = true,
-  disableDistance = false,
   showRemoveButton = true,
   headerActions = null,
 }) {
   const [missingFields, setMissingFields] = useState({});
   const [probDrafts, setProbDrafts] = useState(getProbabilityDrafts(cfg.hitProbabilities));
+  const [hoveredMod, setHoveredMod] = useState(null);
+  const [modTooltipPos, setModTooltipPos] = useState({ x: 0, y: 0 });
 
   const availableAmmos = useMemo(() => {
     if (!cfg.selectedWeapon) return [];
+    if (cfg.selectedWeapon.isCustom) {
+      return cfg.selectedAmmo ? [cfg.selectedAmmo] : [];
+    }
     return (ammos || [])
+      .filter((ammo) => !ammo.isCustom)
       .filter((ammo) => ammo.caliber === cfg.selectedWeapon.caliber)
       .slice()
       .sort((a, b) => (b?.penetration ?? -1) - (a?.penetration ?? -1));
@@ -305,17 +596,28 @@ function GunConfigCard({
       if (!mod.appliesTo?.includes(cfg.selectedWeapon.name)) return false;
       if (!mod.effects) return false;
       const effectValues = Object.values(mod.effects);
-      const hasRealEffect = effectValues.some((v) => typeof v === 'number' && v !== 0);
+      const hasRealEffect = effectValues.some((v) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n !== 0;
+      });
       const hasDamageChange = mod.effects.damageChange === true;
-      const hasUnlockSlots = Array.isArray(mod.effects.unlockSlots) && mod.effects.unlockSlots.length > 0;
+      const unlockSlotsRaw = mod.effects.unlockSlots ?? mod.effects.unlock_slots;
+      const hasUnlockSlots = Array.isArray(unlockSlotsRaw)
+        ? unlockSlotsRaw.length > 0
+        : typeof unlockSlotsRaw === 'string' && unlockSlotsRaw.trim().length > 0;
       return hasRealEffect || hasDamageChange || hasUnlockSlots;
     });
   }, [cfg.selectedWeapon, modifications]);
 
   const modsById = useMemo(() => buildModsById(availableMods || []), [availableMods]);
+  const baseUnlockedSlots = useMemo(() => inferBaseUnlockedSlots(availableMods || []), [availableMods]);
   const unlockedSlots = useMemo(
     () => computeUnlockedSlots(cfg.selectedMods, modsById),
     [cfg.selectedMods, modsById]
+  );
+  const effectiveUnlockedSlots = useMemo(
+    () => mergeUnlockedSlots(baseUnlockedSlots, unlockedSlots),
+    [baseUnlockedSlots, unlockedSlots]
   );
 
   const groupedMods = useMemo(() => {
@@ -362,10 +664,27 @@ function GunConfigCard({
     return !Object.values(nextMissing).some(Boolean);
   };
 
+  const buildNormalizedHitProbabilities = () => {
+    const values = PROBABILITY_FIELDS.map((f) => Math.max(0, Number(probDrafts[f.key]) || 0));
+    const sum = values.reduce((a, b) => a + b, 0);
+    if (sum <= 0) return null;
+
+    const normalized = values.map((v) => v / sum);
+    let nextHit = { ...cfg.hitProbabilities };
+    PROBABILITY_FIELDS.forEach((f, i) => {
+      nextHit = setGroupedProbability(nextHit, f.sites, normalized[i]);
+    });
+    return nextHit;
+  };
+
   const handleRun = () => {
     if (!validateRequired()) return;
     setMissingFields({});
-    onRun();
+    const normalizedHitProbabilities = buildNormalizedHitProbabilities();
+    if (normalizedHitProbabilities) {
+      onChange({ hitProbabilities: normalizedHitProbabilities });
+    }
+    onRun(normalizedHitProbabilities || cfg.hitProbabilities);
   };
 
   const commitProbability = (fieldKey, rawValue) => {
@@ -398,22 +717,15 @@ function GunConfigCard({
   };
 
   const normalizeProbabilities = () => {
-    const values = PROBABILITY_FIELDS.map((f) => Math.max(0, Number(probDrafts[f.key]) || 0));
-    const sum = values.reduce((a, b) => a + b, 0);
-    if (sum <= 0) return;
-
-    const normalized = values.map((v) => v / sum);
-    let nextHit = { ...cfg.hitProbabilities };
-    PROBABILITY_FIELDS.forEach((f, i) => {
-      nextHit = setGroupedProbability(nextHit, f.sites, normalized[i]);
-    });
+    const nextHit = buildNormalizedHitProbabilities();
+    if (!nextHit) return;
     onChange({ hitProbabilities: nextHit });
   };
 
   const probabilitySum = PROBABILITY_FIELDS.reduce((sum, f) => sum + (Math.max(0, Number(probDrafts[f.key]) || 0)), 0);
 
   return (
-    <section className="ttk-card">
+    <section className={`ttk-card ${showResult ? '' : 'ttk-card-flat'}`}>
       <div className="ttk-card-header">
         <h3>{cfg.selectedWeapon?.name || cfg.name}</h3>
         <div className="modal-head-actions">
@@ -427,7 +739,9 @@ function GunConfigCard({
           <div className="sub-grid one-col">
             <div className={`option-slot ${missingFields.selectedWeapon ? 'missing' : ''}`}>
               <WeaponSelector
+                options={weapons}
                 selectedWeapon={cfg.selectedWeapon}
+                onCreateCustom={onRequestCreateCustom}
                 onSelect={(weapon) => onChange({ selectedWeapon: weapon, selectedMods: [] })}
               />
             </div>
@@ -436,7 +750,7 @@ function GunConfigCard({
                 options={availableAmmos}
                 selectedAmmo={cfg.selectedAmmo}
                 onSelect={(ammo) => onChange({ selectedAmmo: ammo })}
-                placeholder="选择弹药"
+                placeholder="閫夋嫨寮硅嵂"
                 emptyOptionsMessage="请先选择武器"
               />
             </div>
@@ -482,40 +796,32 @@ function GunConfigCard({
       </div>
 
       <div className="run-config-wrap">
-        <div className="ttk-grid sliders">
-          <UniversalSlider
-            label="距离(米)"
-            values={Array.from({ length: 301 }, (_, i) => i)}
-            value={cfg.distance}
-            onChange={(distance) => onChange({ distance })}
-            isDisabled={disableDistance}
-          />
-          <UniversalSlider
-            label="初始血量"
-            values={Array.from({ length: 100 }, (_, i) => i + 1)}
-            value={Math.min(cfg.initialHp, 100)}
-            onChange={(initialHp) => onChange({ initialHp: Math.min(initialHp, 100) })}
-          />
-        </div>
-
-        {disableDistance && (
-          <div className="distance-locked-tip">当前为折线图模式，距离按枪械分段射程点自动计算</div>
-        )}
-
-        <div className="ttk-line">
-          <div className="trial-input-wrap">
-            <label htmlFor={`trial-${cfg.id}`}>模拟次数 N</label>
-            <input
-              id={`trial-${cfg.id}`}
-              type="number"
-              min={100}
-              max={100000}
-              step={100}
-              value={cfg.trialCount}
-              onChange={(e) => onChange({ trialCount: Math.max(100, Math.min(100000, Number(e.target.value) || 100)) })}
+        <div className="run-row-73">
+          <div className="run-left">
+            <div className="ttk-line">
+              <div className="trial-input-wrap">
+                <label htmlFor={`trial-${cfg.id}`}>模拟次数 N</label>
+                <input
+                  id={`trial-${cfg.id}`}
+                  type="number"
+                  min={100}
+                  max={100000}
+                  step={100}
+                  value={cfg.trialCount}
+                  onChange={(e) => onChange({ trialCount: Math.max(100, Math.min(100000, Number(e.target.value) || 100)) })}
+                />
+              </div>
+              <div className={`trial-tip ${cfg.trialCount > 10000 ? 'warn' : ''}`}>模拟次数过高可能导致卡顿，建议保持在10000以下</div>
+            </div>
+          </div>
+          <div className="run-right">
+            <UniversalSlider
+              label="初始血量"
+              values={Array.from({ length: 100 }, (_, i) => i + 1)}
+              value={Math.min(cfg.initialHp, 100)}
+              onChange={(initialHp) => onChange({ initialHp: Math.min(initialHp, 100) })}
             />
           </div>
-          <div className={`trial-tip ${cfg.trialCount > 10000 ? 'warn' : ''}`}>模拟次数过高可能导致卡顿，建议保持在10000以下</div>
         </div>
       </div>
 
@@ -523,7 +829,7 @@ function GunConfigCard({
         <div className="prob-head-row">
           <div className="probabilities-title">部位概率分布</div>
           <div className="prob-footer">
-            <span className={`prob-sum ${Math.abs(probabilitySum - 1) > 0.0001 ? 'warn' : ''}`}>总和：{probabilitySum.toFixed(4)}</span>
+            <span className={`prob-sum ${Math.abs(probabilitySum - 1) > PROBABILITY_SUM_WARN_EPSILON ? 'warn' : ''}`}>总和：{probabilitySum.toFixed(4)}</span>
             <button type="button" className="ttk-btn" onClick={normalizeProbabilities}>归一化到 1.0000</button>
           </div>
         </div>
@@ -558,20 +864,32 @@ function GunConfigCard({
               <div className="mod-chips">
                 {mods.map((mod) => {
                   const selected = cfg.selectedMods.includes(mod.id);
-                  const disabled = !selected && !isModSelectable(mod, unlockedSlots);
+                  const disabled = !selected && !isModSelectable(mod, effectiveUnlockedSlots);
+                  const rangeModifier = Number(mod?.effects?.rangeModifier) || 0;
+                  const fireRateModifier = Number(mod?.effects?.fireRateModifier) || 0;
+                  const muzzleVelocityModifier = Number(mod?.effects?.muzzleVelocityModifier) || 0;
                   return (
                     <button
                       key={mod.id}
                       type="button"
                       disabled={disabled}
                       className={`mod-chip ${selected ? 'selected' : ''}`}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setModTooltipPos({
+                          x: Math.min(rect.right + 10, window.innerWidth - 280),
+                          y: Math.max(10, rect.top),
+                        });
+                        setHoveredMod(mod);
+                      }}
+                      onMouseLeave={() => setHoveredMod(null)}
                       onClick={() => {
                         const next = toggleModSelection({
                           modId: mod.id,
                           isSelected: !selected,
                           selectedModIds: cfg.selectedMods,
                           availableMods,
-                          baseUnlockedSlots: new Set(),
+                          baseUnlockedSlots,
                         });
                         onChange({ selectedMods: next });
                       }}
@@ -585,6 +903,56 @@ function GunConfigCard({
           ))}
         </div>
       )}
+      {hoveredMod && (
+        <div className="mod-tooltip mod-tooltip-ttk" style={{ left: `${modTooltipPos.x}px`, top: `${modTooltipPos.y}px` }}>
+          <h4>{hoveredMod.name}</h4>
+          <div className="mod-effects">
+            {(Number(hoveredMod?.effects?.rangeModifier) || 0) !== 0 && (
+              <div className="effect-item">
+                <span className="effect-label">射程:</span>
+                <span className={`effect-value ${(Number(hoveredMod.effects.rangeModifier) || 0) > 0 ? 'positive' : 'negative'}`}>
+                  {(Number(hoveredMod.effects.rangeModifier) || 0) > 0 ? '+' : ''}
+                  {Math.round((Number(hoveredMod.effects.rangeModifier) || 0) * 100)}%
+                </span>
+              </div>
+            )}
+            {(Number(hoveredMod?.effects?.fireRateModifier) || 0) !== 0 && (
+              <div className="effect-item">
+                <span className="effect-label">射速:</span>
+                <span className={`effect-value ${(Number(hoveredMod.effects.fireRateModifier) || 0) > 0 ? 'positive' : 'negative'}`}>
+                  {(Number(hoveredMod.effects.fireRateModifier) || 0) > 0 ? '+' : ''}
+                  {Math.round((Number(hoveredMod.effects.fireRateModifier) || 0) * 100)}%
+                </span>
+              </div>
+            )}
+            {(Number(hoveredMod?.effects?.muzzleVelocityModifier) || 0) !== 0 && (
+              <div className="effect-item">
+                <span className="effect-label">初速:</span>
+                <span className={`effect-value ${(Number(hoveredMod.effects.muzzleVelocityModifier) || 0) > 0 ? 'positive' : 'negative'}`}>
+                  {(Number(hoveredMod.effects.muzzleVelocityModifier) || 0) > 0 ? '+' : ''}
+                  {Math.round((Number(hoveredMod.effects.muzzleVelocityModifier) || 0) * 100)}%
+                </span>
+              </div>
+            )}
+            {hoveredMod?.effects?.damageChange === true && (
+              <div className="effect-item">
+                <span className="effect-label">伤害:</span>
+                <span className="effect-value special">改变伤害曲线</span>
+              </div>
+            )}
+            {!(
+              (Number(hoveredMod?.effects?.rangeModifier) || 0) !== 0
+              || (Number(hoveredMod?.effects?.fireRateModifier) || 0) !== 0
+              || (Number(hoveredMod?.effects?.muzzleVelocityModifier) || 0) !== 0
+              || hoveredMod?.effects?.damageChange === true
+            ) && (
+              <div className="effect-item">
+                <span className="effect-value">无直接数值效果</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="ttk-actions">
         <button type="button" className="ttk-btn primary" onClick={handleRun} disabled={cfg.running}>
@@ -595,10 +963,10 @@ function GunConfigCard({
       {showResult && cfg.result && (
         <div className="ttk-result">
           <div className="summary">
-            <div>平均BTK: {cfg.result.avgBtk.toFixed(2)}</div>
-            <div>平均TTK: {Math.round(cfg.result.avgTtk)} ms</div>
-            <div>样本数: {cfg.result.trialCount}</div>
-            <div>理论射速: {Math.round(cfg.result.fireRate || 0)} RPM</div>
+            <div>骞冲潎BTK: {cfg.result.avgBtk.toFixed(2)}</div>
+            <div>骞冲潎TTK: {Math.round(cfg.result.avgTtk)} ms</div>
+            <div>鏍锋湰鏁? {cfg.result.trialCount}</div>
+            <div>鐞嗚灏勯€? {Math.round(cfg.result.fireRate || 0)} RPM</div>
           </div>
           <div className="chart-toggle">
             <button
@@ -644,19 +1012,44 @@ export function TTKSimulator() {
   const armors = data?.armors || [];
   const modifications = data?.modifications || [];
 
-  const [lastDistance, setLastDistance] = useState(10);
   const [configs, setConfigs] = useState([]);
   const [selectedConfigId, setSelectedConfigId] = useState(null);
   const [editingConfigId, setEditingConfigId] = useState(null);
   const [compareMetric, setCompareMetric] = useState('ttk');
-  const [compareChartType, setCompareChartType] = useState('line');
   const [applyVelocityEffect, setApplyVelocityEffect] = useState(false);
   const [applyTriggerDelay, setApplyTriggerDelay] = useState(false);
   const [hoveredConfigId, setHoveredConfigId] = useState(null);
+  const [hoverPreviewPos, setHoverPreviewPos] = useState(null);
   const [previewMetric, setPreviewMetric] = useState('ttk');
-  const [previewRangeByConfig, setPreviewRangeByConfig] = useState({});
+  const [previewSegmentByConfig, setPreviewSegmentByConfig] = useState({});
+  const [customWeapons, setCustomWeapons] = useState([]);
+  const [customAmmos, setCustomAmmos] = useState([]);
+  const [cloneSessionByConfig, setCloneSessionByConfig] = useState({});
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [customTargetConfigId, setCustomTargetConfigId] = useState(null);
+  const [editingCustomPairId, setEditingCustomPairId] = useState(null);
+  const [customWeaponDraft, setCustomWeaponDraft] = useState(createEmptyCustomWeaponDraft());
+  const [customAmmoDraft, setCustomAmmoDraft] = useState(createEmptyCustomAmmoDraft());
   const workerRef = useRef(null);
   const requestSeedRef = useRef(0);
+  const previewCloseTimerRef = useRef(null);
+
+  const weaponTemplates = useMemo(
+    () => (weapons || []).filter((weapon) => !weapon.isModification && !weapon.isCustom),
+    [weapons]
+  );
+  const ammoTemplates = useMemo(
+    () => (ammos || []).filter((ammo) => !ammo.isCustom),
+    [ammos]
+  );
+  const selectableWeapons = useMemo(
+    () => [...weaponTemplates],
+    [weaponTemplates]
+  );
+  const selectableAmmos = useMemo(
+    () => [...ammoTemplates],
+    [ammoTemplates]
+  );
 
   useEffect(() => {
     if (!helmets.length || !armors.length) return;
@@ -680,18 +1073,49 @@ export function TTKSimulator() {
       workerRef.current.terminate();
       workerRef.current = null;
     }
+    if (previewCloseTimerRef.current) {
+      clearTimeout(previewCloseTimerRef.current);
+      previewCloseTimerRef.current = null;
+    }
   }, []);
 
   const addConfig = () => {
     const nextId = (configs.length ? Math.max(...configs.map((c) => c.id)) : 0) + 1;
 
-    let nextConfig = createConfig(nextId, lastDistance);
+    let nextConfig = createConfig(nextId);
     if (configs.length > 0) {
-      const base = configs[0];
+      const base = configs[configs.length - 1];
+      let inheritedWeapon = base.selectedWeapon;
+      let inheritedAmmo = base.selectedAmmo;
+      if (base.selectedWeapon?.isCustom && base.selectedAmmo?.isCustom) {
+        const inheritedPairId = `custom-pair-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        const nextWeaponName = getNextSequentialName(
+          '自定义枪械',
+          (customWeapons || []).map((item) => item.name)
+        );
+        const nextAmmoName = getNextSequentialName(
+          '自定义子弹',
+          (customAmmos || []).map((item) => item.name)
+        );
+        inheritedWeapon = {
+          ...base.selectedWeapon,
+          id: `custom-weapon-${inheritedPairId}`,
+          customPairId: inheritedPairId,
+          name: nextWeaponName,
+        };
+        inheritedAmmo = {
+          ...base.selectedAmmo,
+          id: `custom-ammo-${inheritedPairId}`,
+          customPairId: inheritedPairId,
+          name: nextAmmoName,
+        };
+        setCustomWeapons((prev) => [...prev, inheritedWeapon]);
+        setCustomAmmos((prev) => [...prev, inheritedAmmo]);
+      }
       nextConfig = {
         ...nextConfig,
-        selectedWeapon: base.selectedWeapon,
-        selectedAmmo: base.selectedAmmo,
+        selectedWeapon: inheritedWeapon,
+        selectedAmmo: inheritedAmmo,
         selectedHelmet: base.selectedHelmet,
         selectedArmor: base.selectedArmor,
         helmetDurability: base.helmetDurability,
@@ -709,15 +1133,365 @@ export function TTKSimulator() {
     setEditingConfigId(nextId);
   };
 
+  const openCustomModal = (targetConfigId = null, currentWeapon = null, currentAmmo = null) => {
+    setCustomTargetConfigId(targetConfigId);
+    if (currentWeapon?.isCustom && currentWeapon.customPairId) {
+      const currentPairId = currentWeapon.customPairId;
+      const existingWeapon = currentWeapon || customWeapons.find((item) => item.customPairId === currentPairId);
+      const existingAmmo = currentAmmo || customAmmos.find((item) => item.customPairId === currentPairId);
+      if (existingWeapon && existingAmmo) {
+        setEditingCustomPairId(currentPairId);
+        setCustomWeaponDraft({
+          templateId: existingWeapon.sourceTemplateId || '',
+          inheritTemplateNameImage: Boolean(existingWeapon.inheritTemplateNameImage),
+          name: existingWeapon.name || '自定义枪械',
+          caliber: CUSTOM_CALIBER,
+          rangeSegmentCount: (() => {
+            for (let i = 1; i <= 5; i += 1) {
+              const rv = Number(existingWeapon[`range${i}`]);
+              if (Number.isFinite(rv) && rv >= 999) return i;
+            }
+            return 5;
+          })(),
+          damage: toNumberOr(existingWeapon.damage, 30),
+          armorDamage: toNumberOr(existingWeapon.armorDamage, 30),
+          fireRate: toNumberOr(existingWeapon.fireRate, 600),
+          muzzleVelocity: toNumberOr(existingWeapon.muzzleVelocity, 700),
+          triggerDelay: toNumberOr(existingWeapon.triggerDelay, 0),
+          headMultiplier: toNumberOr(existingWeapon.headMultiplier, 1.7),
+          chestMultiplier: toNumberOr(existingWeapon.chestMultiplier, 1),
+          abdomenMultiplier: toNumberOr(existingWeapon.abdomenMultiplier, 1),
+          upperArmMultiplier: toNumberOr(existingWeapon.upperArmMultiplier, 1),
+          lowerArmMultiplier: toNumberOr(existingWeapon.lowerArmMultiplier, 1),
+          thighMultiplier: toNumberOr(existingWeapon.thighMultiplier, 1),
+          calfMultiplier: toNumberOr(existingWeapon.calfMultiplier, 1),
+          range1: toNumberOr(existingWeapon.range1, 10),
+          range2: toNumberOr(existingWeapon.range2, 20),
+          range3: toNumberOr(existingWeapon.range3, 35),
+          range4: toNumberOr(existingWeapon.range4, 50),
+          range5: toNumberOr(existingWeapon.range5, 999),
+          decay1: toNumberOr(existingWeapon.decay1, 1),
+          decay2: toNumberOr(existingWeapon.decay2, 0.9),
+          decay3: toNumberOr(existingWeapon.decay3, 0.8),
+          decay4: toNumberOr(existingWeapon.decay4, 0.7),
+          decay5: toNumberOr(existingWeapon.decay5, 0.6),
+        });
+        setCustomAmmoDraft({
+          templateId: existingAmmo.sourceTemplateId || '',
+          inheritTemplateNameImage: Boolean(existingAmmo.inheritTemplateNameImage),
+          name: existingAmmo.name || '自定义子弹',
+          caliber: CUSTOM_CALIBER,
+          penetration: toNumberOr(existingAmmo.penetration, 4),
+          sameLevelPenetration: toNumberOr(existingAmmo.sameLevelPenetration, 0.5),
+          secondaryPenetration: toNumberOr(existingAmmo.secondaryPenetration, 0.75),
+          fleshDamageCoeff: toNumberOr(existingAmmo.fleshDamageCoeff, 1),
+          armor1: toNumberOr(existingAmmo.armor1, 1),
+          armor2: toNumberOr(existingAmmo.armor2, 1),
+          armor3: toNumberOr(existingAmmo.armor3, 1),
+          armor4: toNumberOr(existingAmmo.armor4, 1),
+          armor5: toNumberOr(existingAmmo.armor5, 1),
+          armor6: toNumberOr(existingAmmo.armor6, 1),
+          rarity: existingAmmo.rarity || 'white',
+          description: existingAmmo.description || '自定义子弹',
+          image: '',
+        });
+        setShowCustomModal(true);
+        return;
+      }
+    }
+    setEditingCustomPairId(null);
+    setCustomWeaponDraft({
+      ...createEmptyCustomWeaponDraft(),
+      name: getNextSequentialName('自定义枪械', (customWeapons || []).map((item) => item.name)),
+    });
+    setCustomAmmoDraft({
+      ...createEmptyCustomAmmoDraft(),
+      name: getNextSequentialName('自定义子弹', (customAmmos || []).map((item) => item.name)),
+    });
+    setShowCustomModal(true);
+  };
+
+  const applyWeaponTemplate = (templateId) => {
+    const template = weaponTemplates.find((item) => String(item.id) === String(templateId));
+    if (!template) {
+      setCustomWeaponDraft((prev) => ({ ...prev, templateId: '', inheritTemplateNameImage: false }));
+      return;
+    }
+    setCustomWeaponDraft((prev) => {
+      const next = { ...prev, templateId, inheritTemplateNameImage: true };
+      CUSTOM_WEAPON_FIELDS.forEach((field) => {
+        if (field.key === 'name') return;
+        if (field.type === 'number') {
+          next[field.key] = toNumberOr(template[field.key], next[field.key]);
+        } else {
+          next[field.key] = template[field.key] ?? next[field.key];
+        }
+      });
+      for (let i = 1; i <= 5; i += 1) {
+        next[`range${i}`] = toNumberOr(template[`range${i}`], next[`range${i}`]);
+        next[`decay${i}`] = toNumberOr(template[`decay${i}`], next[`decay${i}`]);
+      }
+      let segmentCount = 5;
+      for (let i = 1; i <= 5; i += 1) {
+        const rangeValue = Number(template[`range${i}`]);
+        if (Number.isFinite(rangeValue) && rangeValue >= 999) {
+          segmentCount = i;
+          break;
+        }
+      }
+      next.rangeSegmentCount = segmentCount;
+      return next;
+    });
+  };
+
+  const applyAmmoTemplate = (templateId) => {
+    const template = ammoTemplates.find((item) => String(item.id) === String(templateId));
+    if (!template) {
+      setCustomAmmoDraft((prev) => ({ ...prev, templateId: '', inheritTemplateNameImage: false }));
+      return;
+    }
+    setCustomAmmoDraft((prev) => {
+      const next = { ...prev, templateId, inheritTemplateNameImage: true };
+      CUSTOM_AMMO_FIELDS.forEach((field) => {
+        if (field.key === 'name') return;
+        if (field.type === 'number') {
+          next[field.key] = toNumberOr(template[field.key], next[field.key]);
+        } else {
+          next[field.key] = template[field.key] ?? next[field.key];
+        }
+      });
+      next.rarity = template.rarity || prev.rarity || 'white';
+      next.description = template.description || prev.description || '自定义子弹';
+      next.image = '';
+      return next;
+    });
+  };
+
+  const saveCustomPair = () => {
+    const requestedWeaponName = String(customWeaponDraft.name || '').trim();
+    const requestedAmmoName = String(customAmmoDraft.name || '').trim();
+    const caliber = CUSTOM_CALIBER;
+    if (!requestedWeaponName || !requestedAmmoName) {
+      window.alert('请至少填写枪械名称和子弹名称。');
+      return;
+    }
+
+    const isEditingCustom = Boolean(editingCustomPairId);
+    const existingWeaponForEdit = isEditingCustom
+      ? customWeapons.find((item) => item.customPairId === editingCustomPairId)
+      : null;
+    const existingAmmoForEdit = isEditingCustom
+      ? customAmmos.find((item) => item.customPairId === editingCustomPairId)
+      : null;
+
+    const pairId = editingCustomPairId || `custom-pair-${Date.now()}`;
+    const weaponTemplate = weaponTemplates.find((item) => String(item.id) === String(customWeaponDraft.templateId));
+    const ammoTemplate = ammoTemplates.find((item) => String(item.id) === String(customAmmoDraft.templateId));
+    const rangeSegmentCount = Math.max(1, Math.min(5, Number(customWeaponDraft.rangeSegmentCount) || 1));
+    const selectedSegmentDecay = toNumberOr(customWeaponDraft[`decay${rangeSegmentCount}`], 1);
+
+    const finalRange = {};
+    const finalDecay = {};
+    for (let i = 1; i <= 5; i += 1) {
+      finalRange[`range${i}`] = i < rangeSegmentCount
+        ? toNumberOr(customWeaponDraft[`range${i}`], i * 10)
+        : 999;
+      finalDecay[`decay${i}`] = i <= rangeSegmentCount
+        ? toNumberOr(customWeaponDraft[`decay${i}`], selectedSegmentDecay)
+        : selectedSegmentDecay;
+    }
+
+    const shouldInheritWeaponNameImage = Boolean(weaponTemplate) && Boolean(customWeaponDraft.inheritTemplateNameImage);
+    const shouldInheritAmmoNameImage = Boolean(ammoTemplate) && Boolean(customAmmoDraft.inheritTemplateNameImage);
+
+    const weaponName = shouldInheritWeaponNameImage
+      ? (weaponTemplate?.name || requestedWeaponName || '自定义枪械')
+      : getUniqueName(
+        requestedWeaponName,
+        (customWeapons || [])
+          .filter((item) => item.customPairId !== editingCustomPairId)
+          .map((item) => item.name)
+      );
+    const ammoName = shouldInheritAmmoNameImage
+      ? (ammoTemplate?.name || requestedAmmoName || '自定义子弹')
+      : getUniqueName(
+        requestedAmmoName,
+        (customAmmos || [])
+          .filter((item) => item.customPairId !== editingCustomPairId)
+          .map((item) => item.name)
+      );
+
+    const customWeapon = {
+      ...(weaponTemplate || {}),
+      id: existingWeaponForEdit?.id || `custom-weapon-${pairId}`,
+      isCustom: true,
+      customPairId: pairId,
+      sourceTemplateId: weaponTemplate?.id ?? null,
+      inheritTemplateNameImage: shouldInheritWeaponNameImage,
+      isModification: false,
+      name: weaponName,
+      caliber,
+      image: shouldInheritWeaponNameImage ? (weaponTemplate?.image || '') : '',
+      damage: toNumberOr(customWeaponDraft.damage, 30),
+      armorDamage: toNumberOr(customWeaponDraft.armorDamage, 30),
+      fireRate: toNumberOr(customWeaponDraft.fireRate, 600),
+      muzzleVelocity: toNumberOr(customWeaponDraft.muzzleVelocity, 700),
+      triggerDelay: toNumberOr(customWeaponDraft.triggerDelay, 0),
+      headMultiplier: toNumberOr(customWeaponDraft.headMultiplier, 1.7),
+      chestMultiplier: toNumberOr(customWeaponDraft.chestMultiplier, 1.0),
+      abdomenMultiplier: toNumberOr(customWeaponDraft.abdomenMultiplier, 1.0),
+      upperArmMultiplier: toNumberOr(customWeaponDraft.upperArmMultiplier, 1.0),
+      lowerArmMultiplier: toNumberOr(customWeaponDraft.lowerArmMultiplier, 1.0),
+      thighMultiplier: toNumberOr(customWeaponDraft.thighMultiplier, 1.0),
+      calfMultiplier: toNumberOr(customWeaponDraft.calfMultiplier, 1.0),
+      ...finalRange,
+      ...finalDecay,
+    };
+
+    const customAmmo = {
+      ...(ammoTemplate || {}),
+      id: existingAmmoForEdit?.id || `custom-ammo-${pairId}`,
+      isCustom: true,
+      customPairId: pairId,
+      sourceTemplateId: ammoTemplate?.id ?? null,
+      inheritTemplateNameImage: shouldInheritAmmoNameImage,
+      name: ammoName,
+      caliber,
+      image: shouldInheritAmmoNameImage
+        ? (ammoTemplate?.image || '')
+        : (existingAmmoForEdit?.image || ''),
+      penetration: toNumberOr(customAmmoDraft.penetration, 4),
+      rarity: resolvePenetrationRarity(toNumberOr(customAmmoDraft.penetration, 4)),
+      description: '',
+      sameLevelPenetration: toNumberOr(customAmmoDraft.sameLevelPenetration, 0.5),
+      secondaryPenetration: toNumberOr(customAmmoDraft.secondaryPenetration, 0.75),
+      fleshDamageCoeff: toNumberOr(customAmmoDraft.fleshDamageCoeff, 1),
+      armor1: toNumberOr(customAmmoDraft.armor1, 1),
+      armor2: toNumberOr(customAmmoDraft.armor2, 1),
+      armor3: toNumberOr(customAmmoDraft.armor3, 1),
+      armor4: toNumberOr(customAmmoDraft.armor4, 1),
+      armor5: toNumberOr(customAmmoDraft.armor5, 1),
+      armor6: toNumberOr(customAmmoDraft.armor6, 1),
+    };
+
+    setCustomWeapons((prev) => (
+      isEditingCustom
+        ? prev.map((item) => (item.customPairId === pairId ? customWeapon : item))
+        : [...prev, customWeapon]
+    ));
+    setCustomAmmos((prev) => (
+      isEditingCustom
+        ? prev.map((item) => (item.customPairId === pairId ? customAmmo : item))
+        : [...prev, customAmmo]
+    ));
+
+    const fallbackConfigId = selectedConfigId || configs[0]?.id || null;
+    const targetConfigId = customTargetConfigId || fallbackConfigId;
+    if (targetConfigId != null) {
+      updateConfig(targetConfigId, {
+        selectedWeapon: customWeapon,
+        selectedAmmo: customAmmo,
+        selectedMods: [],
+      });
+      setSelectedConfigId(targetConfigId);
+      setEditingConfigId(targetConfigId);
+    }
+
+    setShowCustomModal(false);
+    setCustomTargetConfigId(null);
+    setEditingCustomPairId(null);
+  };
+
+  const cloneCustomPairForEdit = (configId, sourceWeapon) => {
+    if (!sourceWeapon?.isCustom) {
+      openCustomModal(configId, sourceWeapon);
+      return;
+    }
+
+    const activeSession = cloneSessionByConfig[configId];
+    if (activeSession) {
+      if (sourceWeapon.customPairId === activeSession.clonedPairId) {
+        const clonedAmmo = customAmmos.find((item) => item.customPairId === activeSession.clonedPairId);
+        openCustomModal(configId, sourceWeapon, clonedAmmo || null);
+        return;
+      }
+      if (sourceWeapon.customPairId === activeSession.sourcePairId) {
+        const clonedWeapon = customWeapons.find((item) => item.customPairId === activeSession.clonedPairId);
+        const clonedAmmo = customAmmos.find((item) => item.customPairId === activeSession.clonedPairId);
+        if (clonedWeapon && clonedAmmo) {
+          updateConfig(configId, {
+            selectedWeapon: clonedWeapon,
+            selectedAmmo: clonedAmmo,
+            selectedMods: [],
+          });
+          setSelectedConfigId(configId);
+          setEditingConfigId(configId);
+          openCustomModal(configId, clonedWeapon, clonedAmmo);
+          return;
+        }
+      }
+    }
+
+    const sourceAmmo = customAmmos.find((item) => item.customPairId === sourceWeapon.customPairId);
+    if (!sourceAmmo) {
+      openCustomModal(configId, sourceWeapon);
+      return;
+    }
+
+    const pairId = `custom-pair-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const clonedWeapon = {
+      ...sourceWeapon,
+      id: `custom-weapon-${pairId}`,
+      customPairId: pairId,
+      name: getUniqueName(sourceWeapon.name, (customWeapons || []).map((item) => item.name)),
+    };
+    const clonedAmmo = {
+      ...sourceAmmo,
+      id: `custom-ammo-${pairId}`,
+      customPairId: pairId,
+      name: getUniqueName(sourceAmmo.name, (customAmmos || []).map((item) => item.name)),
+    };
+
+    setCustomWeapons((prev) => [...prev, clonedWeapon]);
+    setCustomAmmos((prev) => [...prev, clonedAmmo]);
+    setCloneSessionByConfig((prev) => ({
+      ...prev,
+      [configId]: {
+        sourcePairId: sourceWeapon.customPairId,
+        clonedPairId: pairId,
+      },
+    }));
+    updateConfig(configId, {
+      selectedWeapon: clonedWeapon,
+      selectedAmmo: clonedAmmo,
+      selectedMods: [],
+    });
+    setSelectedConfigId(configId);
+    setEditingConfigId(configId);
+    openCustomModal(configId, clonedWeapon, clonedAmmo);
+  };
+
   const updateConfig = (id, patch) => {
     setConfigs((prev) => prev.map((cfg) => (cfg.id === id ? { ...cfg, ...patch } : cfg)));
   };
 
   const handleConfigChange = (id, patch) => {
-    if (Object.prototype.hasOwnProperty.call(patch, 'distance')) {
-      setLastDistance(Number(patch.distance) || 0);
-    }
     updateConfig(id, patch);
+    if (Object.prototype.hasOwnProperty.call(patch, 'selectedWeapon')) {
+      setCloneSessionByConfig((prev) => {
+        const session = prev[id];
+        if (!session) return prev;
+        const nextWeapon = patch.selectedWeapon;
+        const keepSession = nextWeapon?.isCustom
+          && (
+            nextWeapon.customPairId === session.sourcePairId
+            || nextWeapon.customPairId === session.clonedPairId
+          );
+        if (keepSession) return prev;
+        const { [id]: _removed, ...rest } = prev;
+        return rest;
+      });
+    }
   };
 
   const removeConfig = (id) => {
@@ -730,6 +1504,10 @@ export function TTKSimulator() {
         setEditingConfigId(null);
       }
       return next;
+    });
+    setCloneSessionByConfig((prev) => {
+      const { [id]: _removed, ...rest } = prev;
+      return rest;
     });
   };
 
@@ -891,6 +1669,8 @@ export function TTKSimulator() {
           }),
         }));
 
+        const segmentDistances = getSegmentDistances(configuredWeapon, 100);
+
         return {
           id: cfg.id,
           name: cfg.name,
@@ -906,6 +1686,7 @@ export function TTKSimulator() {
           avgTtk: adjustedAvgTtk,
           trialCount: cfg.result.trialCount,
           distanceSeries: adjustedSeries,
+          segmentOptions: segmentDistances.map((distance, i) => ({ label: `第${i + 1}段`, distance })),
         };
       })
       .sort((a, b) => a.avgTtk - b.avgTtk)
@@ -915,8 +1696,8 @@ export function TTKSimulator() {
   const selectedConfig = configs.find((cfg) => cfg.id === selectedConfigId) || configs[0] || null;
   const editingConfig = configs.find((cfg) => cfg.id === editingConfigId) || null;
 
-  const getPreviewDistribution = (row, range) => {
-    const point = (row.distanceSeries || [])[Math.max(0, Math.min(100, Number(range) || 0))];
+  const getPreviewDistribution = (row, distance) => {
+    const point = (row.distanceSeries || [])[Math.max(0, Math.min(100, Number(distance) || 0))];
     if (!point) return [];
 
     if (previewMetric === 'btk') {
@@ -932,6 +1713,42 @@ export function TTKSimulator() {
     }));
   };
 
+  const clearHoverPreviewCloseTimer = () => {
+    if (previewCloseTimerRef.current) {
+      clearTimeout(previewCloseTimerRef.current);
+      previewCloseTimerRef.current = null;
+    }
+  };
+
+  const scheduleHoverPreviewClose = () => {
+    clearHoverPreviewCloseTimer();
+    previewCloseTimerRef.current = setTimeout(() => {
+      setHoveredConfigId(null);
+      setHoverPreviewPos(null);
+    }, 120);
+  };
+
+  const openHoverPreview = (cfgId, rect) => {
+    clearHoverPreviewCloseTimer();
+    const floatWidth = 240;
+    const floatHeight = 260;
+    const offset = 12;
+    const top = Math.max(12, Math.min(rect.top, window.innerHeight - floatHeight - 12));
+    const left = Math.max(12, Math.min(rect.right + offset, window.innerWidth - floatWidth - 12));
+    setHoveredConfigId(cfgId);
+    setHoverPreviewPos({ top, left });
+    setPreviewSegmentByConfig((prev) => ({ ...prev, [cfgId]: prev[cfgId] ?? 0 }));
+  };
+
+  const hoveredRow = hoveredConfigId ? comparisonRows.find((r) => r.id === hoveredConfigId) : null;
+  const hoveredSegIdx = hoveredConfigId ? (previewSegmentByConfig[hoveredConfigId] ?? 0) : 0;
+  const hoveredSeg = hoveredRow?.segmentOptions?.[hoveredSegIdx] || hoveredRow?.segmentOptions?.[0];
+  const hoveredPreviewDist = hoveredRow ? getPreviewDistribution(hoveredRow, hoveredSeg?.distance ?? 0) : [];
+  const lineColorByConfigId = useMemo(
+    () => comparisonRows.reduce((acc, row, i) => ({ ...acc, [row.id]: BAR_COLORS[i % BAR_COLORS.length] }), {}),
+    [comparisonRows]
+  );
+
   return (
     <div className="ttk-page">
       <div className="ttk-main">
@@ -945,60 +1762,37 @@ export function TTKSimulator() {
             <div className="config-list">
               {configs.map((cfg, idx) => {
                 const row = comparisonRows.find((r) => r.id === cfg.id);
-                const range = previewRangeByConfig[cfg.id] ?? 0;
-                const previewDist = row ? getPreviewDistribution(row, range) : [];
+                const badgeColor = lineColorByConfigId[cfg.id] || '#94a3b8';
                 return (
                   <button
                     key={cfg.id}
                     type="button"
                     className={`config-item rich ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
-                    onMouseEnter={() => {
-                      setHoveredConfigId(cfg.id);
-                      setPreviewRangeByConfig((prev) => ({ ...prev, [cfg.id]: prev[cfg.id] ?? 0 }));
+                    onMouseEnter={(e) => {
+                      if (!row) return;
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      openHoverPreview(cfg.id, rect);
                     }}
-                    onMouseLeave={() => setHoveredConfigId(null)}
+                    onMouseLeave={scheduleHoverPreviewClose}
                     onClick={() => {
                       setSelectedConfigId(cfg.id);
                       setEditingConfigId(cfg.id);
                     }}
                   >
-                    <div className="config-item-top">
-                      <span className="config-badge">#{idx + 1}</span>
+                    <div className="config-item-layout">
+                      <span className="config-badge color" style={{ backgroundColor: badgeColor }} aria-label={`方案颜色 ${idx + 1}`} />
                       {cfg.selectedWeapon?.image && <img src={cfg.selectedWeapon.image} alt={cfg.selectedWeapon?.name} className="config-weapon-image" />}
-                      <div className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</div>
-                    </div>
-                    <div className={`config-item-meta ${getRarityClass(cfg.selectedAmmo?.rarity)}`}>{cfg.selectedAmmo?.name || '未选弹药'}</div>
-                    <div className="config-item-stats quality-lines">
-                      <span className={getProtectionLevelClass(cfg.selectedHelmet?.level)}>头：{Math.round(cfg.helmetDurability || 0)}</span>
-                      <span className={getProtectionLevelClass(cfg.selectedArmor?.level)}>甲：{Math.round(cfg.armorDurability || 0)}</span>
-                    </div>
-
-                    {hoveredConfigId === cfg.id && row && (
-                      <div className="card-hover-preview">
-                        <div className="preview-controls">
-                          <button type="button" className={`tiny-btn ${previewMetric === 'ttk' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setPreviewMetric('ttk'); }}>TTK</button>
-                          <button type="button" className={`tiny-btn ${previewMetric === 'btk' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setPreviewMetric('btk'); }}>BTK</button>
-                          <input
-                            type="range"
-                            min={0}
-                            max={100}
-                            value={range}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => setPreviewRangeByConfig((prev) => ({ ...prev, [row.id]: Number(e.target.value) }))}
-                          />
-                          <span>{range}m</span>
+                      <div className="config-item-lines">
+                        <div className="config-line-one">
+                          <span className="config-item-title">{cfg.selectedWeapon?.name || cfg.name}</span>
+                          <span className={`config-item-meta ${getRarityClass(cfg.selectedAmmo?.rarity)}`}>{cfg.selectedAmmo?.name || '未选弹药'}</span>
                         </div>
-                        <div className="preview-bars">
-                          {previewDist.map((d) => (
-                            <div key={d.label} className="preview-bar-row">
-                              <span>{d.label}</span>
-                              <div className="preview-bar-track"><div className="preview-bar-fill" style={{ width: `${Math.max(2, d.prob * 100)}%` }} /></div>
-                              <span>{(d.prob * 100).toFixed(1)}%</span>
-                            </div>
-                          ))}
+                        <div className="config-item-stats quality-lines">
+                          <span className={getProtectionLevelClass(cfg.selectedHelmet?.level)}>头：{Math.round(cfg.helmetDurability || 0)}</span>
+                          <span className={getProtectionLevelClass(cfg.selectedArmor?.level)}>甲：{Math.round(cfg.armorDurability || 0)}</span>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </button>
                 );
               })}
@@ -1013,22 +1807,14 @@ export function TTKSimulator() {
                   <button type="button" className={`ttk-btn ${compareMetric === 'btk' ? 'primary' : ''}`} onClick={() => setCompareMetric('btk')}>BTK</button>
                 </div>
               </div>
-              <div className="option-group">
-                <div className="chart-toggle left-options">
-                  <button type="button" className={`ttk-btn ${compareChartType === 'bar' ? 'primary' : ''}`} onClick={() => setCompareChartType('bar')}>柱状图</button>
-                  <button type="button" className={`ttk-btn ${compareChartType === 'line' ? 'primary' : ''}`} onClick={() => setCompareChartType('line')}>折线图</button>
-                </div>
+              <div className="chart-toggle left-options">
+                <button type="button" className={`ttk-btn ${applyTriggerDelay ? 'primary' : ''}`} onClick={() => setApplyTriggerDelay((v) => !v)}>
+                  扳机延迟
+                </button>
+                <button type="button" className={`ttk-btn ${applyVelocityEffect ? 'primary' : ''}`} onClick={() => setApplyVelocityEffect((v) => !v)}>
+                  枪口初速
+                </button>
               </div>
-            </div>
-            <div className="effect-options-row">
-              <label className="effect-toggle">
-                <input type="checkbox" checked={applyTriggerDelay} onChange={(e) => setApplyTriggerDelay(e.target.checked)} />
-                启用扳机延迟
-              </label>
-              <label className="effect-toggle">
-                <input type="checkbox" checked={applyVelocityEffect} onChange={(e) => setApplyVelocityEffect(e.target.checked)} />
-                启用枪口初速
-              </label>
             </div>
           </section>
 
@@ -1037,18 +1823,17 @@ export function TTKSimulator() {
         <section className="ttk-right-chart">
           <div className="ttk-compare chart-fill-wrap">
             {comparisonRows.length === 0 ? (
-              <div className="compare-empty-plain">请先运行至少一个方案，再查看对比图</div>
+              <div className="compare-empty-plain">
+                <p className="compare-empty-main">请先运行至少一个方案，再查看对比图</p>
+                <p className="compare-empty-tip">该功能在本地执行模拟计算，对设备性能有一定要求</p>
+              </div>
             ) : (
               <div className="chart-canvas">
-                {compareChartType === 'bar' ? (
-                  <ComparisonBarChart rows={comparisonRows} metric={compareMetric} />
-                ) : (
-                  <ComparisonLineChart rows={comparisonRows} metric={compareMetric} applyVelocityEffect={applyVelocityEffect} />
-                )}
+                <ComparisonLineChart rows={comparisonRows} metric={compareMetric} applyVelocityEffect={applyVelocityEffect} />
               </div>
             )}
 
-            {compareChartType === 'line' && configs.some((cfg) => cfg.lineRunning) && (
+            {configs.some((cfg) => cfg.lineRunning) && (
               <div className="line-calc-status">
                 正在按枪械分段射程点计算：
                 {configs
@@ -1061,27 +1846,80 @@ export function TTKSimulator() {
         </section>
       </div>
 
+      {hoveredRow && hoverPreviewPos && createPortal(
+        <div
+          className="config-hover-float"
+          style={{ top: hoverPreviewPos.top, left: hoverPreviewPos.left }}
+          onMouseEnter={clearHoverPreviewCloseTimer}
+          onMouseLeave={scheduleHoverPreviewClose}
+        >
+          <div className="preview-controls">
+            <button type="button" className={`tiny-btn ${previewMetric === 'ttk' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setPreviewMetric('ttk'); }}>TTK</button>
+            <button type="button" className={`tiny-btn ${previewMetric === 'btk' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); setPreviewMetric('btk'); }}>BTK</button>
+            <select
+              value={hoveredSegIdx}
+              onChange={(e) => setPreviewSegmentByConfig((prev) => ({ ...prev, [hoveredConfigId]: Number(e.target.value) }))}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(hoveredRow.segmentOptions || []).map((segOpt, i) => <option key={`${segOpt.label}-${i}`} value={i}>{segOpt.label}</option>)}
+            </select>
+          </div>
+          <div className="preview-bars">
+            {hoveredPreviewDist.map((d) => (
+              <div key={d.label} className="preview-bar-row">
+                <span>{d.label}</span>
+                <div className="preview-bar-track"><div className="preview-bar-fill" style={{ width: `${Math.max(2, d.prob * 100)}%` }} /></div>
+                <span>{(d.prob * 100).toFixed(1)}%</span>
+              </div>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      <CustomWeaponModal
+        open={showCustomModal}
+        weaponTemplates={weaponTemplates}
+        ammoTemplates={ammoTemplates}
+        draftWeapon={customWeaponDraft}
+        draftAmmo={customAmmoDraft}
+        onClose={() => {
+          setShowCustomModal(false);
+          setCustomTargetConfigId(null);
+          setEditingCustomPairId(null);
+        }}
+        onChangeWeaponField={(key, value) => setCustomWeaponDraft((prev) => ({ ...prev, [key]: value, inheritTemplateNameImage: false }))}
+        onChangeAmmoField={(key, value) => setCustomAmmoDraft((prev) => ({ ...prev, [key]: value, inheritTemplateNameImage: false }))}
+        onApplyWeaponTemplate={applyWeaponTemplate}
+        onApplyAmmoTemplate={applyAmmoTemplate}
+        onSave={saveCustomPair}
+      />
+
       {editingConfig && (
         <div className="ttk-modal-overlay" onClick={() => setEditingConfigId(null)}>
           <div className="ttk-modal-content" onClick={(e) => e.stopPropagation()}>
             <GunConfigCard
               cfg={editingConfig}
-              weapons={weapons}
-              ammos={ammos}
+              weapons={selectableWeapons}
+              ammos={selectableAmmos}
               helmets={helmets}
               armors={armors}
               modifications={modifications}
               onChange={(patch) => handleConfigChange(editingConfig.id, patch)}
-              onRun={() => {
+              onRequestCreateCustom={(currentWeapon) => openCustomModal(editingConfig.id, currentWeapon, editingConfig.selectedAmmo)}
+              onRun={(normalizedHitProbabilities) => {
                 setEditingConfigId(null);
-                runConfig(editingConfig);
+                runConfig(
+                  normalizedHitProbabilities
+                    ? { ...editingConfig, hitProbabilities: normalizedHitProbabilities }
+                    : editingConfig,
+                );
               }}
               onRemove={() => {
                 setEditingConfigId(null);
                 removeConfig(editingConfig.id);
               }}
               showResult={false}
-              disableDistance={compareChartType === 'line'}
               showRemoveButton
               headerActions={<button type="button" className="ttk-btn" onClick={() => setEditingConfigId(null)}>关闭</button>}
             />
@@ -1091,3 +1929,7 @@ export function TTKSimulator() {
     </div>
   );
 }
+
+
+
+

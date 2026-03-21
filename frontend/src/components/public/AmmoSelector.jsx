@@ -2,6 +2,17 @@ import { GenericSelector } from './GenericSelector';
 import { getRarityClass } from '../../utils/styleUtils';
 import './AmmoSelector.css';
 
+const getCustomPenetrationRarityClass = (ammo) => {
+  if (!ammo?.isCustom) return getRarityClass(ammo?.rarity);
+  const p = Number(ammo?.penetration) || 0;
+  if (p >= 6) return getRarityClass('red');
+  if (p >= 5) return getRarityClass('orange');
+  if (p >= 4) return getRarityClass('purple');
+  if (p >= 3) return getRarityClass('blue');
+  if (p >= 2) return getRarityClass('green');
+  return getRarityClass('white');
+};
+
 /**
  * 弹药选择器组件 - 基于GenericSelector封装的专用弹药选择器
  * 提供弹药选择功能，显示弹药图片、名称和口径
@@ -33,15 +44,17 @@ export const AmmoSelector = ({
       className="ammo-selector"
       renderSelected={ammo => (
         <div className="selected-content-wrapper">
-          <img
-            src={ammo.image}
-            alt={ammo.name}
-            className={`ammo-option-image ${getRarityClass(ammo.rarity)}`}
-          />
+          {ammo.image ? (
+            <img
+              src={ammo.image}
+              alt={ammo.name}
+              className={`ammo-option-image ${getCustomPenetrationRarityClass(ammo)}`}
+            />
+          ) : null}
           <div className="selected-ammo-text">
             <span className="selected-ammo-name">{ammo.name}</span>
             <span className="selected-ammo-caliber">{ammo.caliber}</span>
-            {ammo.description && (
+            {!ammo.isCustom && ammo.description && (
               <span className="selected-ammo-description">{ammo.description}</span>
             )}
           </div>
@@ -49,17 +62,19 @@ export const AmmoSelector = ({
       )}
       renderOption={ammo => (
         <>
-          <img
-            src={ammo.image}
-            alt={ammo.name}
-            className={`ammo-option-image ${getRarityClass(ammo.rarity)}`}
-          />
+          {ammo.image ? (
+            <img
+              src={ammo.image}
+              alt={ammo.name}
+              className={`ammo-option-image ${getCustomPenetrationRarityClass(ammo)}`}
+            />
+          ) : null}
           <div className="option-text-wrapper">
             <span className="option-ammo-name">{ammo.name}</span>
             <span className="option-ammo-caliber">{ammo.caliber}</span>
           </div>
           <div className="ammo-option-info">
-            {ammo.description && (
+            {!ammo.isCustom && ammo.description && (
               <span className="option-ammo-description">{ammo.description}</span>
             )}
           </div>

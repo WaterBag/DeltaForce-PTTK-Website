@@ -1,30 +1,52 @@
 import { GenericSelector } from '../public/GenericSelector.jsx';
-import './Selectors.css'; // 样式文件
+import './Selectors.css';
 import { weapons } from '../../assets/data/weapons';
 
-/**
- * 武器选择器组件 - 基于GenericSelector封装的专用武器选择器
- * 提供武器选择功能，显示武器图片和名称
- * 过滤掉变体武器，只显示基础武器选项
- *
- * @param {Object} props - 组件属性
- * @param {Object|null} props.selectedWeapon - 当前选中的武器对象
- * @param {Function} props.onSelect - 武器选择回调函数
- * @returns {JSX.Element} 武器选择器组件
- */
-export const WeaponSelector = ({ selectedWeapon, onSelect }) => {
-  // 过滤武器列表，只选择不是变体的武器 (isModification 不为 true)
-  // selectableWeapons: 模拟器里可被直接选择的“基础武器”列表（变体武器仅作为模板/数据源）
-  const selectableWeapons = weapons.filter(weapon => !weapon.isModification);
+const CREATE_CUSTOM_WEAPON_ID = '__create_custom_weapon__';
+
+export const WeaponSelector = ({
+  selectedWeapon,
+  onSelect,
+  options,
+  onCreateCustom,
+}) => {
+  const baseWeapons = Array.isArray(options)
+    ? options
+    : weapons.filter((weapon) => !weapon.isModification);
+
+  const createLabel = selectedWeapon?.isCustom ? '✎ 修改自定义枪械' : '＋ 添加自定义枪械';
+  const selectableWeapons = onCreateCustom
+    ? [{ id: CREATE_CUSTOM_WEAPON_ID, name: createLabel, isAction: true }, ...baseWeapons]
+    : baseWeapons;
+
+  const handleSelect = (weapon) => {
+    if (weapon?.id === CREATE_CUSTOM_WEAPON_ID) {
+      onCreateCustom(selectedWeapon);
+      return;
+    }
+    onSelect(weapon);
+  };
 
   return (
     <GenericSelector
       options={selectableWeapons}
       selectedOption={selectedWeapon}
-      onSelect={onSelect}
+      onSelect={handleSelect}
       placeholder="选择武器"
       className="weapon-selector"
-      renderSelected={weapon => (
+      renderOption={(weapon) => (
+        weapon.isAction ? (
+          <span className="weapon-create-option">{weapon.name}</span>
+        ) : (
+          <>
+            {weapon.image ? (
+              <img src={weapon.image} alt={weapon.name} className="weapon-option-image weapon-option-image-list" />
+            ) : null}
+            <span className="weapon-option-name">{weapon.name}</span>
+          </>
+        )
+      )}
+      renderSelected={(weapon) => (
         <>
           {weapon.image ? (
             <img src={weapon.image} alt={weapon.name} className="weapon-option-image" />

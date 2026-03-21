@@ -1,14 +1,18 @@
 .weapon-selector {
-  position: relative; /* 关键：让子元素的绝对定位基于此容器 */
+  position: relative;
   width: 100%;
   align-items: center;
-  gap: 8px; /* 可选：图片和文字的间距 */
+  gap: 8px;
 }
 
 .weapon-option-image {
-  display: block; /* 避免图片下方留白 */
-  height: 50px; /* 自定义图片高度 */
+  display: block;
+  height: 50px;
   width: auto;
+}
+
+.weapon-option-image-list {
+  height: 38px;
 }
 
 .weapon-option-name {
@@ -18,17 +22,23 @@
   margin-left: 10px;
 }
 
+.weapon-create-option {
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .ammo-selector {
-  position: relative; /* 关键：让子元素的绝对定位基于此容器 */
+  position: relative;
   width: 100%;
   align-items: center;
-  gap: 8px; /* 可选：图片和文字的间距 */
+  gap: 8px;
 }
 
 .ammo-option-image {
-  display: block; /* 避免图片下方留白 */
-  width: 50px; /* 自定义图片宽度 */
-  height: auto; /* 保持比例 */
+  display: block;
+  width: 50px;
+  height: auto;
   border-radius: 4px;
 }
 
@@ -40,15 +50,15 @@
 }
 
 .ammo-option-info {
-  display: flex; /* 使用 Flexbox */
-  justify-content: flex-end; /* 子元素靠右对齐 */
+  display: flex;
+  justify-content: flex-end;
   width: 100%;
   margin-right: 10px;
 }
 
 .ammo-option-info .stats > * {
-  display: flex; /* 内部也使用 Flexbox */
-  flex-direction: column; /* 垂直排列 */
-  align-items: flex-start; /* 内部元素左对齐 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 103px;
 }
