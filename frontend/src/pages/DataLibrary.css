@@ -107,6 +107,7 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-surface);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
 }
 
 .library-search-field span {
@@ -138,6 +139,17 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-surface-soft);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.library-search-field:hover,
+.filter-pill-field:hover {
+  border-color: var(--color-primary-border);
+  background: var(--color-surface);
+}
+
+.filter-pill-field:hover {
+  transform: translateY(-1px);
 }
 
 .filter-pill-field span {
@@ -211,6 +223,12 @@
   font-weight: 800;
   line-height: 1;
   text-align: left;
+  transition: color 0.16s ease;
+}
+
+.filter-pill-field:hover .library-select-button,
+.library-select.open .library-select-button {
+  color: var(--color-primary-hover);
 }
 
 .library-select-value {
@@ -226,6 +244,7 @@
   font-weight: 900;
   line-height: 1;
   transform: translateY(-1px);
+  transition: transform 0.16s ease, color 0.16s ease;
 }
 
 .library-select.open .library-select-arrow {
@@ -247,6 +266,7 @@
   background: var(--color-surface);
   box-shadow: 0 14px 30px rgba(22, 35, 33, 0.18);
   list-style: none;
+  animation: library-menu-in 130ms ease-out;
 }
 
 .library-select-option {
@@ -261,6 +281,7 @@
   font-size: 13px;
   font-weight: 700;
   text-align: left;
+  transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease;
 }
 
 .library-select-option:hover,
@@ -268,12 +289,24 @@
   outline: none;
   background: var(--color-surface-soft);
   color: var(--color-primary-hover);
+  transform: translateX(2px);
 }
 
 .library-select-option.selected {
   background: var(--color-primary-soft);
   color: var(--color-primary-hover);
   font-weight: 900;
+}
+
+@keyframes library-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .filter-select {
