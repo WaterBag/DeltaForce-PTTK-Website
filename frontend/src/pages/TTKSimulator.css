@@ -40,7 +40,7 @@
   border: 0;
   border-radius: 0;
   box-shadow: none;
-  padding: 0 0 72px;
+  padding: 0;
 }
 
 .ttk-card-flat .ttk-card-header {
@@ -355,18 +355,18 @@
 }
 
 .ttk-card-flat .ttk-actions {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
+  position: sticky;
+  bottom: -14px;
   z-index: 1100;
-  width: min(1092px, calc(96vw - 28px));
-  transform: translateX(-50%);
+  width: auto;
+  box-sizing: border-box;
+  transform: none;
   justify-content: flex-end;
-  padding: 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
-  box-shadow: 0 12px 30px rgba(22, 35, 33, 0.18);
+  padding: 10px 14px 14px;
+  margin: 12px -14px -14px;
+  border-top: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 97%, transparent);
+  box-shadow: 0 -8px 22px rgba(22, 35, 33, 0.12);
   backdrop-filter: blur(10px);
 }
 
@@ -1762,13 +1762,11 @@
   }
 
   .ttk-card-flat .ttk-actions {
-    left: 8px;
-    right: 8px;
-    bottom: calc(8px + env(safe-area-inset-bottom));
+    bottom: -10px;
     width: auto;
     transform: none;
-    padding: 8px;
-    border-radius: 12px;
+    padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    margin: 10px -10px -10px;
   }
 
   .ttk-actions .ttk-btn {
