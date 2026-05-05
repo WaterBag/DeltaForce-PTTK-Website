@@ -1,4 +1,4 @@
-﻿// 通用配件选择/槽位解锁工具
+// 通用配件选择/槽位解锁工具
 
 function normalizeSlotList(raw) {
   if (Array.isArray(raw)) {
@@ -106,11 +106,7 @@ export function isModSelectable(mod, unlockedSlots) {
   const requiresSlots = getRequiresSlots(mod);
   if (requiresSlots.length === 0) return true;
 
-  if (requiresSlots.every((slot) => unlockedSlots.has(slot))) return true;
-
-  // 兼容新数据：requiresSlots 与配件自身槽位一致时，视为基础槽位可用。
-  const modSlots = getModSlots(mod);
-  return requiresSlots.every((slot) => modSlots.includes(slot));
+  return requiresSlots.every((slot) => unlockedSlots.has(slot));
 }
 
 export function pruneSelectedMods(selectedModIds = [], modsById = {}) {

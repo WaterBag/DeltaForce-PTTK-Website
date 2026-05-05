@@ -18,7 +18,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modified-stat-item:last-child {
@@ -44,14 +44,14 @@
 
 .modified-stat-item .stat-label {
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
 .modified-stat-item .stat-value {
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-main);
   display: flex;
   align-items: center;
   gap: 8px;

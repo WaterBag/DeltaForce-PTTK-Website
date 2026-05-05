@@ -12,7 +12,14 @@ import { DamageDecayChart } from '../components/simulator/DamageDecayChart';
 import { TargetDummy } from '../components/simulator/TargetDummy';
 import { calculateSingleHit } from '../utils/simulationUtils';
 import { TargetStatus } from '../components/simulator/TargetStatus'; // 导入新组件
-import { buildModsById, computeUnlockedSlots, isModSelectable, toggleModSelection } from '../utils/modSelectionUtils';
+import {
+  buildModsById,
+  computeUnlockedSlots,
+  inferBaseUnlockedSlots,
+  isModSelectable,
+  mergeUnlockedSlots,
+  toggleModSelection,
+} from '../utils/modSelectionUtils';
 
 // 默认护甲/头盔：5级耐久最高
 const pickMaxDurabilityByLevel = (items, level) => {
@@ -312,6 +319,7 @@ export function Simulator() {
         isSelected,
         selectedModIds: prevSelectedIds,
         availableMods,
+        baseUnlockedSlots,
       })
     );
   };
@@ -400,10 +408,15 @@ export function Simulator() {
 
   // modsById: { [id]: mod }，用于快速取配件
   const modsById = useMemo(() => buildModsById(availableMods || []), [availableMods]);
+  const baseUnlockedSlots = useMemo(() => inferBaseUnlockedSlots(availableMods || []), [availableMods]);
   // unlockedSlots: 由已选配件解锁出来的槽位集合（用于 requiresSlots 禁用/可选性判断）
   const unlockedSlots = useMemo(
     () => computeUnlockedSlots(selectedMods, modsById),
     [selectedMods, modsById]
+  );
+  const effectiveUnlockedSlots = useMemo(
+    () => mergeUnlockedSlots(baseUnlockedSlots, unlockedSlots),
+    [baseUnlockedSlots, unlockedSlots]
   );
 
   /**
@@ -412,7 +425,9 @@ export function Simulator() {
   const groupedMods = useMemo(() => {
     if (!availableMods) return {};
 
-    return availableMods.reduce((groups, mod) => {
+    return availableMods
+      .filter((mod) => selectedMods.includes(mod.id) || isModSelectable(mod, effectiveUnlockedSlots))
+      .reduce((groups, mod) => {
       const type = mod.type[0] || '未分类';
       if (!groups[type]) {
         groups[type] = [];
@@ -420,7 +435,7 @@ export function Simulator() {
       groups[type].push(mod);
       return groups;
     }, {});
-  }, [availableMods]);
+  }, [availableMods, effectiveUnlockedSlots, selectedMods]);
 
   /**
    * 监听目标血量变化 - 自动检测击杀事件
@@ -608,11 +623,11 @@ export function Simulator() {
                           key={mod.id}
                           //根据 selectedMods 中是否包含 mod.id，动态添加 'selected' 类
                           className={`mod-option ${selectedMods.includes(mod.id) ? 'selected' : ''} ${
-                            isModSelectable(mod, unlockedSlots) ? '' : 'disabled'
+                            isModSelectable(mod, effectiveUnlockedSlots) ? '' : 'disabled'
                           }`}
                           //将点击事件直接绑定在 div 上
                           onClick={() => {
-                            if (!isModSelectable(mod, unlockedSlots)) return;
+                            if (!isModSelectable(mod, effectiveUnlockedSlots)) return;
                             //在点击时，手动切换选择状态
                             const isCurrentlySelected = selectedMods.includes(mod.id);
                             handleModChange(mod.id, !isCurrentlySelected);

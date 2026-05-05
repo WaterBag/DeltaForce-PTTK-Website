@@ -2,7 +2,7 @@
 /* 继承 ModificationModal 的样式设计 */
 
 .confirm-dialog {
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(9, 30, 66, 0.25);
   width: 600px;
@@ -32,7 +32,7 @@
 
 .warning-section p {
   margin: 8px 0;
-  color: #5e6c84;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.5;
 }
@@ -49,8 +49,8 @@
 
 /* 信息区域 */
 .info-section {
-  background-color: #e3f2fd;
-  border: 1px solid #90caf9;
+  background-color: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
   border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
@@ -58,20 +58,20 @@
 
 .info-section h3 {
   font-size: 0.95rem;
-  color: #1565c0;
+  color: var(--color-primary-hover);
   margin: 0 0 12px 0;
   font-weight: 600;
 }
 
 .info-section p {
   margin: 8px 0;
-  color: #5e6c84;
+  color: var(--color-text-muted);
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
 .info-text {
-  color: #1565c0 !important;
+  color: var(--color-primary-hover) !important;
   font-weight: 500;
 }
 
@@ -84,8 +84,8 @@
 
 .config-list li {
   padding: 8px 12px;
-  background-color: #ffffff;
-  border: 1px solid #dfe1e6;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   margin-bottom: 8px;
   display: flex;
@@ -98,7 +98,7 @@
 
 .config-name {
   font-size: 0.9rem;
-  color: #172b4d;
+  color: var(--color-text-main);
   font-weight: 500;
 }
 
@@ -144,8 +144,8 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
-  border-top: 1px solid #dfe1e6;
-  background-color: #ffffff;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
 }
 
 .cancel-button,
@@ -160,23 +160,23 @@
 }
 
 .cancel-button {
-  background-color: #f4f5f7;
-  color: #5e6c84;
-  border: 1px solid #dfe1e6;
+  background-color: var(--color-page-bg);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
 }
 
 .cancel-button:hover {
-  background-color: #ebecf0;
-  border-color: #c1c7d0;
+  background-color: var(--color-border);
+  border-color: var(--color-border);
 }
 
 .confirm-button {
-  background-color: #0052cc;
+  background-color: var(--color-primary);
   color: white;
 }
 
 .confirm-button:hover {
-  background-color: #0065ff;
+  background-color: var(--color-primary-hover);
 }
 
 /* 响应式样式 - 平板设备 */

@@ -130,7 +130,7 @@ export function DamageDecayChart({ weaponData }) {
               y="50%"
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#999"
+              fill="#5c6b68"
               fontSize="1em"
             >
               请先选择枪械

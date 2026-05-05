@@ -1,261 +1,269 @@
-/* 弹药列表容器 */
 .ammo-list-container {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 16px;
-  border-radius: 0 0 8px 8px;
-  background-color: #f4f5f7;
+  padding: 0 10px 10px;
+  background: var(--color-page-bg);
+}
+
+.ammo-grid-header {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(170px, 0.8fr) minmax(420px, 2fr);
+  gap: 10px;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .ammo-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  background: var(--color-surface);
 }
 
-/* 单个弹药条目 */
 .ammo-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(170px, 0.8fr) minmax(420px, 2fr);
+  gap: 10px;
   align-items: center;
-  gap: 20px;
-  padding: 14px 18px;
-  background-color: #ffffff;
-  border: 1px solid #e3e6ea;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  min-height: 54px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: background 0.14s ease;
+}
+
+.ammo-item:last-child {
+  border-bottom: 0;
 }
 
 .ammo-item:hover {
-  background-color: #f8f9fa;
-  border-color: #4a9eff;
-  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.15);
-  transform: translateY(-1px);
+  background: var(--color-primary-soft);
 }
 
-/* 弹药基本信息区 */
-.ammo-basic-info {
-  display: flex;
+.ammo-identity {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 8px;
   align-items: center;
-  gap: 12px;
-  min-width: 220px;
+  min-width: 0;
 }
 
 .ammo-image {
-  width: 60px;
-  height: 60px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
-  border-radius: 4px;
-  padding: 4px;
-  border: 1px solid #e0e0e0;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
 }
 
 .ammo-name-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .ammo-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
-
-.ammo-caliber {
-  font-size: 12px;
-  color: #666;
-}
-
-/* 稀有度区域 */
-.ammo-rarity {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 80px;
-}
-
-.rarity-emoji {
-  font-size: 20px;
-}
-
-.rarity-text {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* 核心属性区 */
-.ammo-core-stats {
-  display: flex;
-  gap: 20px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 80px;
-}
-
-.stat-label {
-  font-size: 11px;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.stat-value {
   font-size: 15px;
-  font-weight: 600;
-  color: #333;
-}
-
-/* 对护甲伤害区域 */
-.ammo-armor-damage {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  padding-left: 20px;
-  border-left: 1px solid #e0e0e0;
-}
-
-.armor-damage-label {
-  font-size: 12px;
-  color: #666;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.armor-damage-values {
+.ammo-meta {
   display: flex;
-  gap: 15px;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.ammo-caliber {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rarity-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 17px;
+  padding: 1px 5px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ammo-core-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  min-width: 0;
+}
+
+.ammo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 8px;
+  border-left: 1px solid var(--color-border);
+}
+
+.ammo-stat:first-child {
+  border-left: 0;
+}
+
+.ammo-stat .stat-label,
+.armor-level {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.ammo-stat .stat-value {
+  color: var(--color-text-main);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.armor-damage-values {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(42px, 1fr));
+  gap: 0;
+  min-width: 0;
 }
 
 .armor-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   align-items: center;
+  gap: 1px;
+  padding: 0 5px;
+  border-left: 1px solid var(--color-border);
 }
 
-.armor-level {
-  font-size: 10px;
-  color: #666;
-  text-transform: uppercase;
+.armor-stat:first-child {
+  border-left: 0;
 }
 
 .armor-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #4a9eff;
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
-/* 空列表提示 */
 .empty-list {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 300px;
-  color: #999;
-  font-size: 16px;
+  height: 220px;
+  color: var(--color-text-muted);
+  font-size: 14px;
 }
 
-/* 滚动条样式 */
 .ammo-list-container::-webkit-scrollbar {
   width: 8px;
 }
 
 .ammo-list-container::-webkit-scrollbar-track {
-  background: #f5f5f5;
+  background: var(--color-surface-soft);
 }
 
 .ammo-list-container::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
-.ammo-list-container::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
-}
-
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .ammo-item {
-    flex-wrap: wrap;
+@media (max-width: 1100px) {
+  .ammo-grid-header {
+    grid-template-columns: minmax(200px, 1fr) minmax(140px, 0.7fr);
   }
-  
-  .ammo-armor-damage {
-    width: 100%;
-    padding-left: 0;
-    padding-top: 10px;
-    border-left: none;
-    border-top: 1px solid #e0e0e0;
-    margin-top: 10px;
+
+  .ammo-grid-header span:nth-child(3) {
+    display: none;
+  }
+
+  .ammo-item {
+    grid-template-columns: minmax(200px, 1fr) minmax(140px, 0.7fr);
+  }
+
+  .armor-damage-values {
+    grid-column: 1 / -1;
+    padding-top: 6px;
+    border-top: 1px solid var(--color-border);
   }
 }
 
 @media (max-width: 768px) {
+  .ammo-list-container {
+    overflow: visible;
+    padding: 0 5px 8px;
+  }
+
+  .ammo-grid-header {
+    display: none;
+  }
+
+  .ammo-list {
+    gap: 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
   .ammo-item {
-    padding: 10px;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 0.7fr);
+    gap: 6px;
+    min-height: 0;
+    padding: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
   }
 
-  .ammo-basic-info {
-    min-width: 100%;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 8px;
+  .ammo-identity {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 7px;
   }
-  
+
   .ammo-image {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
+    padding: 2px;
   }
-  
+
   .ammo-name {
-    font-size: 15px;
+    font-size: 14px;
   }
-  
-  .ammo-core-stats {
-    width: 100%;
-    justify-content: space-around;
-    background-color: #f9f9f9;
-    padding: 8px;
-    border-radius: 4px;
+
+  .ammo-stat {
+    justify-content: center;
+    padding: 0 5px;
   }
-  
-  .stat-item {
-    min-width: 0;
-    align-items: center;
-  }
-  
+
   .armor-damage-values {
-    gap: 8px;
-    flex-wrap: wrap; /* 允许换行 */
-    justify-content: space-between;
-    width: 100%;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    padding-top: 5px;
   }
 
   .armor-stat {
-    flex: 1 0 30%; /* 每行3个 */
-    background-color: #f5f7fa;
-    padding: 4px;
-    border-radius: 4px;
-    align-items: center;
-  }
-
-  .ammo-armor-damage {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .armor-stat {
-    flex: 1 0 45%; /* 极小屏每行2个 */
-  }
-  
-  .ammo-core-stats {
-    gap: 15px;
+    padding: 0 3px;
   }
 }

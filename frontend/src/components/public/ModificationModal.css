@@ -17,7 +17,7 @@
 
 /* --- 2. 悬浮窗主体内容 --- */
 .modal-content {
-  background-color: #f4f5f7;
+  background-color: var(--color-page-bg);
   /* 使用我们全局的柔和灰色作为背景 */
   padding: 0;
   /* 我们将在内部 section 中控制 padding */
@@ -41,13 +41,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #dfe1e6;
-  background-color: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
 }
 
 .modal-header h2 {
   font-size: 1.25rem;
-  color: #172b4d;
+  color: var(--color-text-main);
   margin: 0;
 }
 
@@ -56,13 +56,13 @@
   border: none;
   font-size: 1.8rem;
   line-height: 1;
-  color: #5e6c84;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
 .close-button:hover {
-  color: #172b4d;
+  color: var(--color-text-main);
 }
 
 /* --- 4. 主体内容区 --- */
@@ -88,9 +88,9 @@
 /* --- 5. 通用的 Section 样式 --- */
 .mod-section h3 {
   font-size: 1rem;
-  color: #42526e;
+  color: var(--color-text-muted);
   margin-bottom: 12px;
-  border-bottom: 1px solid #dfe1e6;
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 8px;
 }
 
@@ -102,7 +102,7 @@
 .mod-group-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #5e6c84;
+  color: var(--color-text-muted);
   /* 使用柔和的灰色 */
   text-transform: uppercase;
   /* (可选) 让标题大写，更有设计感 */
@@ -121,10 +121,10 @@
 .mod-option {
   display: flex;
   align-items: center;
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   padding: 8px 12px;
   border-radius: 4px;
-  border: 1px solid #dfe1e6;
+  border: 1px solid var(--color-border);
   cursor: pointer;
   transition:
     border-color 0.2s ease,
@@ -136,7 +136,7 @@
 }
 
 .mod-option:hover {
-  border-color: #0052cc;
+  border-color: var(--color-primary);
 }
 
 .mod-option.disabled {
@@ -145,7 +145,7 @@
 }
 
 .mod-option.disabled:hover {
-  border-color: #dfe1e6;
+  border-color: var(--color-border);
   box-shadow: none;
 }
 
@@ -161,12 +161,12 @@
   justify-content: flex-end;
   /* 按钮靠右 */
   padding: 16px 24px;
-  border-top: 1px solid #dfe1e6;
-  background-color: #ffffff;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface);
 }
 
 .add-comparison-button {
-  background-color: #0052cc;
+  background-color: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 16px;
@@ -177,11 +177,11 @@
 }
 
 .add-comparison-button:hover {
-  background-color: #0065ff;
+  background-color: var(--color-primary-hover);
 }
 
 .add-comparison-button:disabled {
-  background-color: #a5adba;
+  background-color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
@@ -318,7 +318,7 @@
     text-align: center;
     /* 如果文字换行，也让它居中 */
 
-    background-color: #fafbfc;
+    background-color: var(--color-page-bg);
     padding: 8px;
     border-radius: 4px;
     /* ▼▼▼ 【核心修正 2】使用透明边框占位，防止跳动 ▼▼▼ */
@@ -326,31 +326,31 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 0.9em;
-    color: #172b4d;
+    color: var(--color-text-main);
   }
 
   .mod-option:hover {
     /* ▼▼▼ 【核心修正 3】悬停时显示灰色边框 ▼▼▼ */
-    border-color: #dfe1e6;
-    background-color: #f4f5f7;
+    border-color: var(--color-border);
+    background-color: var(--color-page-bg);
   }
 
   /* ▼▼▼ 【核心修正 4】为 .selected 类添加高亮样式 ▼▼▼ */
   .mod-option.selected {
-    background-color: #e6f0ff;
+    background-color: var(--color-primary-soft);
     /* 浅蓝色背景 */
-    border-color: #0052cc;
+    border-color: var(--color-primary);
     /* 品牌蓝色边框 */
-    color: #0052cc;
+    color: var(--color-primary);
     /* 品牌蓝色文字 */
     font-weight: 600;
     /* 字体加粗 */
   }
 
   .mod-option.selected:hover {
-    background-color: #dbe9fe;
+    background-color: var(--color-primary-soft);
     /* 选中状态下悬停，颜色稍深 */
-    border-color: #0041a3;
+    border-color: var(--color-primary-hover);
   }
 
   .modal-footer {
@@ -377,8 +377,8 @@
 /* --- 配件效果工具提示样式 --- */
 .mod-tooltip {
   position: fixed;
-  background-color: #ffffff;
-  border: 1px solid #dfe1e6;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 16px;
   box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
@@ -391,9 +391,9 @@
 .mod-tooltip h4 {
   margin: 0 0 12px 0;
   font-size: 1rem;
-  color: #172b4d;
+  color: var(--color-text-main);
   font-weight: 600;
-  border-bottom: 1px solid #dfe1e6;
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 8px;
 }
 
@@ -411,7 +411,7 @@
 }
 
 .effect-label {
-  color: #5e6c84;
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 

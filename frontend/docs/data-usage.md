@@ -42,6 +42,7 @@
   - `id`, `caliber`, `name`, `rarity`
   - 穿透：`penetration`、`secondaryPenetration`、`sameLevelPenetration`
   - 肉体/护甲伤害系数：`fleshDamageCoeff`, `armor1..armor6`
+  - 可选弹药部位倍率覆盖：`hitMultipliers`
   - `image`
 
 这些参数在伤害计算与穿透逻辑中使用（后端 BTK 或前端模拟）。

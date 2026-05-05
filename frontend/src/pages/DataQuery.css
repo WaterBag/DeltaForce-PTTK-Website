@@ -22,7 +22,7 @@
   min-width: 0;
   display: flex; /* 保持Flex布局，让图表能撑满 */
   align-items: center;
-  background-color: #f4f5f7; /* 与main-content保持一致 */
+  background-color: var(--color-page-bg); /* 与main-content保持一致 */
   padding: 24px; /* 2. 在图表周围留出一些内边距 */
   border-radius: 0 0 8px 8px; /* 只有下圆角 */
   box-shadow:
@@ -32,7 +32,7 @@
 
 /* 4. 通用 section 样式 */
 .config-section {
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   padding: 16px;
   border-radius: 6px;
   box-shadow:
@@ -76,12 +76,12 @@
 }
 .interactive-column h4 {
   margin-bottom: 8px;
-  color: #091e42;
+  color: var(--color-text-main);
   font-size: 1em;
 }
 .gun-selector-container,
 .comparison-list-container {
-  border: 1px solid #dfe1e6;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   height: 100%;
   padding: 4px;
@@ -94,7 +94,7 @@
   width: 3px;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #dfe1e6;
+  background-color: var(--color-border);
   border-radius: 3px;
 }
 

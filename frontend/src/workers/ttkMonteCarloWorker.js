@@ -19,23 +19,18 @@ function getDecay(gun, distance) {
   return gun.decay5;
 }
 
+function getPartMultiplier(gun, ammo, hitSite) {
+  const multiplierKey = `${hitSite}Multiplier`;
+  return ammo?.hitMultipliers?.[multiplierKey] ?? gun?.[multiplierKey] ?? 1.0;
+}
+
 function calculateSingleHit(gun, ammo, helmet, armor, currentHelmetDurability, currentArmorDurability, hitSite, distance) {
   const isHeadshot = hitSite === 'head';
   const targetArmorPiece = isHeadshot ? helmet : armor;
   let currentDurability = isHeadshot ? currentHelmetDurability : currentArmorDurability;
   const armorLevel = targetArmorPiece?.level || 0;
 
-  let partMultiplier = 1.0;
-  switch (hitSite) {
-  case 'head': partMultiplier = gun.headMultiplier; break;
-  case 'chest': partMultiplier = gun.chestMultiplier; break;
-  case 'abdomen': partMultiplier = gun.abdomenMultiplier; break;
-  case 'upperArm': partMultiplier = gun.upperArmMultiplier; break;
-  case 'lowerArm': partMultiplier = gun.lowerArmMultiplier; break;
-  case 'thigh': partMultiplier = gun.thighMultiplier; break;
-  case 'calf': partMultiplier = gun.calfMultiplier; break;
-  default: partMultiplier = 1.0;
-  }
+  const partMultiplier = getPartMultiplier(gun, ammo, hitSite);
 
   const trueDamage = gun.damage * partMultiplier * (ammo?.fleshDamageCoeff || 1);
   const decay = getDecay(gun, distance);

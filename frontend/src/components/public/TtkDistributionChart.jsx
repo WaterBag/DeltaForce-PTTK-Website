@@ -16,7 +16,7 @@ const renderCustomBarLabel = ({ x, y, width, value }) => {
       x={x + width / 2}
       y={y}
       dy={-4}
-      fill="#666"
+      fill="#5c6b68"
       fontSize={10}
       textAnchor="middle"
     >
@@ -44,7 +44,7 @@ export function TtkDistributionChart({ ttkData = [] }) {
         )}
 
         {isEmpty && (
-          <text x="43%" y="45%" fill="#999" fontSize="1em" fontFamily="inherit">
+          <text x="43%" y="45%" fill="#5c6b68" fontSize="1em" fontFamily="inherit">
             请先运行模拟
           </text>
         )}

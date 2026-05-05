@@ -16,22 +16,22 @@
 
   /* [美化] 调整内边距、背景和边框，使其更现代化 */
   padding: 8px 12px;
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   border-radius: 4px;
   cursor: pointer;
-  border: 1px solid #dfe1e6; /* 使用更柔和的灰色边框 */
+  border: 1px solid var(--color-border); /* 使用更柔和的灰色边框 */
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease; /* 添加平滑过渡 */
 }
 
 .selector-trigger:hover {
-  border-color: #0052cc; /* 悬停时边框变蓝 */
+  border-color: var(--color-primary); /* 悬停时边框变蓝 */
 }
 
 .selector-trigger:focus-within {
   /* (推荐) 当内部输入框聚焦时，也显示高亮 */
-  border-color: #0052cc;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
 }
 
@@ -56,11 +56,11 @@
 .option-name {
   font-size: 14px;
   font-weight: 500; /* 使用 500 代替 bold，字体更优雅 */
-  color: #172b4d; /* 使用我们全局的深蓝色文字 */
+  color: var(--color-text-main); /* 使用我们全局的深蓝色文字 */
 }
 
 .placeholder {
-  color: #5e6c84; /* 使用更柔和的占位符颜色 */
+  color: var(--color-text-muted); /* 使用更柔和的占位符颜色 */
 }
 
 /* --- 4. 下拉菜单 --- */
@@ -71,7 +71,7 @@
   width: 100%;
   max-height: 300px; /* [调整] 稍微降低一点高度 */
   background-color: white;
-  border: 1px solid #dfe1e6;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15); /* [美化] 使用更现代的阴影 */
   z-index: 1000;
@@ -81,7 +81,7 @@
 /* --- 5. 搜索框 --- */
 .search-container {
   padding: 8px; /* [微调] */
-  border-bottom: 1px solid #dfe1e6;
+  border-bottom: 1px solid var(--color-border);
   position: sticky; /* (推荐) 让搜索框在列表滚动时“粘”在顶部 */
   top: 0;
   background-color: white;
@@ -91,7 +91,7 @@
 .search-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #dfe1e6;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   outline: none;
 }
@@ -106,7 +106,7 @@
   align-items: center;
   padding: 8px 12px; /* [微调] */
   cursor: pointer;
-  border-bottom: 1px solid #f4f5f7; /* 使用更浅的分割线 */
+  border-bottom: 1px solid var(--color-page-bg); /* 使用更浅的分割线 */
 }
 
 .option-item:last-child {
@@ -114,11 +114,11 @@
 }
 
 .option-item:hover {
-  background-color: #f4f5f7; /* 使用我们全局的柔和灰色 */
+  background-color: var(--color-page-bg); /* 使用我们全局的柔和灰色 */
 }
 
 .option-item.selected {
-  background-color: #e6f0ff; /* 使用我们全局的激活蓝色 */
+  background-color: var(--color-primary-soft); /* 使用我们全局的激活蓝色 */
   font-weight: 500;
 }
 
@@ -129,12 +129,12 @@
 
 .option-description {
   font-size: 12px;
-  color: #5e6c84;
+  color: var(--color-text-muted);
 }
 
 /* --- 7. 无结果提示 --- */
 .no-results {
   padding: 16px;
   text-align: center;
-  color: #5e6c84;
+  color: var(--color-text-muted);
 }

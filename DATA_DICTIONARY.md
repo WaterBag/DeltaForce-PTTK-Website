@@ -77,12 +77,14 @@
 - `sameLevelPenetration` number：对“同级护甲”时穿透率
 - `fleshDamageCoeff` number：肉伤系数
 - `armor1`~`armor6` number：对 1~6 级护甲甲伤系数
+- `hitMultipliers` object，可选：弹药覆盖部位倍率，键名同武器部位倍率字段（如 `headMultiplier`、`abdomenMultiplier`、`upperArmMultiplier`、`lowerArmMultiplier`、`thighMultiplier`、`calfMultiplier`）
 - `image` string
 
 计算用途：
 - `calculateSingleHit` 使用 `penetration/secondaryPenetration/sameLevelPenetration`
 - 肉伤计算使用 `fleshDamageCoeff`
 - 甲伤计算使用 `armor${armorLevel}`
+- 部位伤害倍率优先使用 `hitMultipliers`，未提供时回退到武器自身部位倍率
 
 ## 5. Armor 字段
 

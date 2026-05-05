@@ -150,13 +150,13 @@ export function TtkChart({ data }) {
         <XAxis
           dataKey="distance"
           type="number"
-          stroke="#5e6c84"
+          stroke="#5c6b68"
           tick={{ fontSize: isMobile ? 10 : 12 }}
           label={{
             value: '距离 (米)',
             position: 'insideBottom',
             offset: 0,
-            fill: '#5e6c84',
+            fill: '#5c6b68',
             fontSize: isMobile ? 10 : 12,
           }}
           domain={isEmpty ? [0, 100] : ['dataMin', 'dataMax']} // 为空时定义默认范围
@@ -164,14 +164,14 @@ export function TtkChart({ data }) {
 
         {/* Y轴 - TTK轴 */}
         <YAxis
-          stroke="#5e6c84"
+          stroke="#5c6b68"
           tick={{ fontSize: isMobile ? 10 : 12 }}
           label={{
             value: 'TTK (毫秒)',
             angle: -90,
             position: 'insideLeft',
             offset: 25,
-            fill: '#5e6c84',
+            fill: '#5c6b68',
             fontSize: isMobile ? 10 : 12,
           }}
           domain={
@@ -183,7 +183,7 @@ export function TtkChart({ data }) {
         {/* 自定义工具提示 */}
         <Tooltip
           content={<CustomTooltip />}
-          cursor={{ stroke: '#0052cc', strokeWidth: 1, strokeDasharray: '3 3' }} // 悬停时的垂直虚线光标
+          cursor={{ stroke: '#2f6f73', strokeWidth: 1, strokeDasharray: '3 3' }} // 悬停时的垂直虚线光标
         />
 
         {/* 图例 */}
@@ -217,7 +217,7 @@ export function TtkChart({ data }) {
             y="43%"
             textAnchor="middle"
             dominantBaseline="middle"
-            fill="#999"
+            fill="#5c6b68"
             fontSize="1.2em"
           >
             请先添加武器配置以进行对比

@@ -40,7 +40,7 @@
   flex: 1;
   font-size: 14px;
   line-height: 1.4;
-  color: #333;
+  color: var(--color-text-main);
   word-wrap: break-word;
   text-align: center;
 }
@@ -50,15 +50,15 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-muted);
   border-radius: 4px;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
 .alert-close:hover {
-  background: #f5f5f5;
-  color: #333;
+  background: var(--color-surface-soft);
+  color: var(--color-text-main);
 }
 
 .alert-close:active {
@@ -67,11 +67,11 @@
 
 /* 不同类型的alert样式 */
 .alert-info {
-  border-left-color: #c8e5ff;
+  border-left-color: var(--color-primary-border);
 }
 
 .alert-info .alert-icon {
-  color: #1890ff;
+  color: var(--color-primary);
 }
 
 .alert-warning {
@@ -145,36 +145,36 @@
 /* 暗色主题支持 */
 @media (prefers-color-scheme: dark) {
   .alert {
-    background: #2d2d2d;
+    background: var(--color-text-main);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .alert-message {
-    color: #e0e0e0;
+    color: var(--color-border);
   }
 
   .alert-close {
-    color: #999;
+    color: var(--color-text-muted);
   }
 
   .alert-close:hover {
-    background: #3d3d3d;
-    color: #e0e0e0;
+    background: var(--color-text-main);
+    color: var(--color-border);
   }
 
   .alert-info {
-    background: linear-gradient(135deg, #1a3c5a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, #1a3c5a 0%, var(--color-text-main) 100%);
   }
 
   .alert-warning {
-    background: linear-gradient(135deg, #5c4a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, #5c4a1a 0%, var(--color-text-main) 100%);
   }
 
   .alert-error {
-    background: linear-gradient(135deg, #5c2a2a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, #5c2a2a 0%, var(--color-text-main) 100%);
   }
 
   .alert-success {
-    background: linear-gradient(135deg, #2d5a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, #2d5a1a 0%, var(--color-text-main) 100%);
   }
 }

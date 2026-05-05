@@ -10,37 +10,26 @@ export function Sidebar({ currentView, setCurrentView }) {
     totalHits: 348,
   };
 
+  const navItems = [
+    { id: 'ttkSimulator', label: '模拟TTK' },
+    { id: 'dataQuery', label: '查询TTK' },
+    { id: 'simulator', label: '伤害模拟器' },
+    { id: 'dataLibrary', label: '数据图鉴' },
+  ];
+
   return (
     <aside className="app-sidebar">
       <nav className="sidebar-nav">
         <ul>
-          <li
-            className={`nav-item ${currentView === 'ttkSimulator' ? 'active' : ''}`}
-            onClick={() => setCurrentView('ttkSimulator')}
-          >
-            模拟期望击杀时间
-          </li>
-
-          <li
-            className={`nav-item ${currentView === 'dataQuery' ? 'active' : ''}`}
-            onClick={() => setCurrentView('dataQuery')}
-          >
-            查询期望击杀时间
-          </li>
-
-          <li
-            className={`nav-item ${currentView === 'simulator' ? 'active' : ''}`}
-            onClick={() => setCurrentView('simulator')}
-          >
-            伤害模拟器
-          </li>
-
-          <li
-            className={`nav-item ${currentView === 'dataLibrary' ? 'active' : ''}`}
-            onClick={() => setCurrentView('dataLibrary')}
-          >
-            数据图鉴
-          </li>
+          {navItems.map((item) => (
+            <li
+              key={item.id}
+              className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+              onClick={() => setCurrentView(item.id)}
+            >
+              {item.label}
+            </li>
+          ))}
         </ul>
       </nav>
 

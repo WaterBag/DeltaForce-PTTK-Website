@@ -36,6 +36,11 @@ const hitSiteTranslations = {
   calf: '小腿',
 };
 
+function getPartMultiplier(gun, ammo, hitSite) {
+  const multiplierKey = `${hitSite}Multiplier`;
+  return ammo?.hitMultipliers?.[multiplierKey] ?? gun?.[multiplierKey] ?? 1.0;
+}
+
 /**
  * 专门处理 PD12 双头弹的计算函数 (已正确处理无甲及零耐久情况)
  */
@@ -52,30 +57,7 @@ function calculatePD12Damage(
   const decay = getDecay(gun, distance);
 
   // 1. 计算理论肉体伤害基数，以备后用
-  let partMultiplier = 1.0;
-  switch (hitSite) {
-  case 'head':
-    partMultiplier = gun.headMultiplier;
-    break;
-  case 'chest':
-    partMultiplier = gun.chestMultiplier;
-    break;
-  case 'abdomen':
-    partMultiplier = gun.abdomenMultiplier;
-    break;
-  case 'upperArm':
-    partMultiplier = gun.upperArmMultiplier;
-    break;
-  case 'lowerArm':
-    partMultiplier = gun.lowerArmMultiplier;
-    break;
-  case 'thigh':
-    partMultiplier = gun.thighMultiplier;
-    break;
-  case 'calf':
-    partMultiplier = gun.calfMultiplier;
-    break;
-  }
+  const partMultiplier = getPartMultiplier(gun, ammo, hitSite);
   const trueDamage = 37 * 2 * partMultiplier;
 
   // 2. 确定生效的护甲和耐久
@@ -196,32 +178,7 @@ export function calculateSingleHit(
 
   // 1.2: 确定部位伤害倍率。
   //      不同身体部位有不同的伤害倍率，影响最终伤害计算
-  let partMultiplier = 1.0;
-  switch (hitSite) {
-  case 'head':
-    partMultiplier = gun.headMultiplier;
-    break; // 头部伤害倍率
-  case 'chest':
-    partMultiplier = gun.chestMultiplier;
-    break; // 胸部伤害倍率
-  case 'abdomen':
-    partMultiplier = gun.abdomenMultiplier;
-    break; // 腹部伤害倍率
-  case 'upperArm':
-    partMultiplier = gun.upperArmMultiplier;
-    break; // 上臂伤害倍率
-  case 'lowerArm':
-    partMultiplier = gun.lowerArmMultiplier;
-    break; // 下臂伤害倍率
-  case 'thigh':
-    partMultiplier = gun.thighMultiplier;
-    break; // 大腿伤害倍率
-  case 'calf':
-    partMultiplier = gun.calfMultiplier;
-    break; // 小腿伤害倍率
-  default:
-    partMultiplier = 1.0; // 胸部默认1.0倍率
-  }
+  const partMultiplier = getPartMultiplier(gun, ammo, hitSite);
 
   // 1.3: 计算"裸伤" (trueDamage)。
   //      基础伤害 = 武器伤害 × 部位倍率 × 弹药肉体伤害系数

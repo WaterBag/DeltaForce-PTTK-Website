@@ -34,11 +34,18 @@ const hydrateImages = (remoteList, localList) => {
 
   const byId = new Map(localList.map(item => [String(item?.id), item]));
   const byName = new Map(localList.map(item => [item?.name, item]));
+  const byCaliber = new Map();
+  localList.forEach(item => {
+    if (item?.caliber && item?.image && !byCaliber.has(item.caliber)) {
+      byCaliber.set(item.caliber, item);
+    }
+  });
 
   return remoteList.map(item => {
     const localById = byId.get(String(item?.id));
     const localByName = byName.get(item?.name);
-    const local = localById || localByName;
+    const localByCaliber = byCaliber.get(item?.caliber);
+    const local = localById || localByName || localByCaliber;
 
     if (!local || !local.image) return item;
     if (item.image) return item;

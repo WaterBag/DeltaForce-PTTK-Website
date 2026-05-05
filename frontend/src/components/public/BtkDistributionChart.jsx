@@ -21,7 +21,7 @@ const renderCustomBarLabel = ({ x, y, width, value }) => {
       x={x + width / 2} // 水平位置：柱子的中点
       y={y} // 垂直位置：柱子的顶端
       dy={-4} // 垂直微调：在顶端的基础上，再往上移4个像素
-      fill="#666"
+      fill="#5c6b68"
       fontSize={10}
       textAnchor="middle"
     >
@@ -81,7 +81,7 @@ export function BtkDistributionChart({ btkData }) {
         )}
 
         {isEmpty && (
-          <text x="44%" y="45%" fill="#999" fontSize="1em" fontFamily="inherit">
+          <text x="44%" y="45%" fill="#5c6b68" fontSize="1em" fontFamily="inherit">
             请选择弹药
           </text>
         )}

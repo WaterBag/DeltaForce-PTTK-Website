@@ -6,7 +6,7 @@
   margin-bottom: 10px;
   text-align: center;
   font-size: 0.9em;
-  color: #091e42;
+  color: var(--color-text-main);
 }
 
 .custom-decay-tooltip {

@@ -16,7 +16,7 @@ export function RangeDecayChart({ weapon, rangeModifier = 0 }) {
     if (!weapon) return [];
 
     const data = [];
-    
+
     // 收集所有有效的射程段，应用rangeModifier
     const ranges = [
       { range: weapon.range1, decay: weapon.decay1 },
@@ -31,10 +31,10 @@ export function RangeDecayChart({ weapon, rangeModifier = 0 }) {
         range: (item.range >= 500 || item.range === 999) ? 999 : Math.round(item.range * (1 + rangeModifier)),
         decay: item.decay
       }));
-    
+
     // 第一段：从0开始，伤害100%
     data.push({ distance: 0, decay: 100 });
-    
+
     // 为每个射程段添加数据点
     ranges.forEach((item) => {
       if (item.range === 999) {
@@ -45,7 +45,7 @@ export function RangeDecayChart({ weapon, rangeModifier = 0 }) {
         data.push({ distance: item.range, decay: item.decay * 100 });
       }
     });
-    
+
     return data;
   }, [weapon, rangeModifier]);
 
@@ -55,36 +55,36 @@ export function RangeDecayChart({ weapon, rangeModifier = 0 }) {
     <div className="range-decay-chart-mini">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
-          <XAxis 
-            dataKey="distance" 
-            stroke="#666"
-            tick={{ fill: '#666', fontSize: 10 }}
-            label={{ value: '距离(m)', position: 'insideBottom', offset: -5, fill: '#666', fontSize: 10 }}
+          <CartesianGrid strokeDasharray="3 3" stroke="#dde4e2" />
+          <XAxis
+            dataKey="distance"
+            stroke="#5c6b68"
+            tick={{ fill: '#5c6b68', fontSize: 10 }}
+            label={{ value: '距离(m)', position: 'insideBottom', offset: -5, fill: '#5c6b68', fontSize: 10 }}
           />
-          <YAxis 
-            stroke="#666"
-            tick={{ fill: '#666', fontSize: 10 }}
+          <YAxis
+            stroke="#5c6b68"
+            tick={{ fill: '#5c6b68', fontSize: 10 }}
             domain={[0, 100]}
-            label={{ value: '伤害%', angle: -90, position: 'insideLeft', fill: '#666', fontSize: 10 }}
+            label={{ value: '伤害%', angle: -90, position: 'insideLeft', fill: '#5c6b68', fontSize: 10 }}
           />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: '#ffffff', 
-              border: '1px solid #ddd',
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #dde4e2',
               borderRadius: '4px',
               fontSize: '12px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}
-            labelStyle={{ color: '#4a9eff', fontWeight: '600' }}
-            itemStyle={{ color: '#333' }}
+            labelStyle={{ color: '#2f6f73', fontWeight: '600' }}
+            itemStyle={{ color: '#162321' }}
             formatter={(value) => [`${value.toFixed(0)}%`, '伤害']}
             labelFormatter={(label) => label === '∞' ? '距离: ∞' : `距离: ${label}m`}
           />
-          <Line 
+          <Line
             type="stepBefore"
-            dataKey="decay" 
-            stroke="#4a9eff" 
+            dataKey="decay"
+            stroke="#2f6f73"
             strokeWidth={2}
             dot={false}
             activeDot={false}

@@ -1,7 +1,7 @@
 /* 配件面板容器 */
 .weapon-mod-panel {
   padding: 15px;
-  background-color: #fafafa;
+  background-color: var(--color-surface-soft);
   max-height: 220px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -13,12 +13,12 @@
 }
 
 .weapon-mod-panel::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: var(--color-border);
   border-radius: 3px;
 }
 
 .weapon-mod-panel::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--color-border);
   border-radius: 3px;
 }
 
@@ -28,7 +28,7 @@
 
 .no-mods-message {
   text-align: center;
-  color: #999;
+  color: var(--color-text-muted);
   padding: 20px;
   font-size: 14px;
 }
@@ -40,14 +40,14 @@
   align-items: center;
   margin-bottom: 15px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--color-border);
 }
 
 .mod-panel-header h4 {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: #555;
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -61,17 +61,17 @@
 .reset-mods-button {
   padding: 6px 12px;
   font-size: 13px;
-  color: #666;
-  background-color: #fff;
-  border: 1px solid #ddd;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .reset-mods-button:hover:not(:disabled) {
-  background-color: #f5f5f5;
-  border-color: #ccc;
+  background-color: var(--color-surface-soft);
+  border-color: var(--color-border);
 }
 
 .reset-mods-button:disabled {
@@ -95,11 +95,11 @@
 .mod-group-title {
   font-size: 12px;
   font-weight: 600;
-  color: #4a9eff;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 4px;
-  border-bottom: 2px solid #4a9eff;
+  border-bottom: 2px solid var(--color-primary);
   display: inline-block;
 }
 
@@ -112,11 +112,11 @@
 
 .mod-option {
   padding: 8px 14px;
-  background-color: #fff;
-  border: 2px solid #e0e0e0;
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
   border-radius: 6px;
   font-size: 13px;
-  color: #333;
+  color: var(--color-text-main);
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
@@ -125,35 +125,35 @@
 }
 
 .mod-option:hover {
-  border-color: #4a9eff;
-  background-color: #f0f8ff;
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
 }
 
 .mod-option.selected {
-  background-color: #e6f0ff;
-  border-color: #4a9eff;
-  color: #4a9eff;
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(74, 158, 255, 0.2);
 }
 
 .mod-option.selected:hover {
-  background-color: #dbe9fe;
-  border-color: #3a8eef;
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
 }
 
 .mod-option.disabled {
   opacity: 0.45;
   cursor: not-allowed;
-  background-color: #f6f6f6;
-  border-color: #e0e0e0;
-  color: #777;
+  background-color: var(--color-surface-soft);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
   box-shadow: none;
 }
 
 .mod-option.disabled:hover {
-  border-color: #e0e0e0;
-  background-color: #f6f6f6;
+  border-color: var(--color-border);
+  background-color: var(--color-surface-soft);
 }
 
 /* 响应式设计 */

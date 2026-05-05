@@ -23,7 +23,7 @@
 }
 
 .weapon-create-option {
-  color: #1d4ed8;
+  color: var(--color-primary-hover);
   font-size: 14px;
   font-weight: 700;
 }
