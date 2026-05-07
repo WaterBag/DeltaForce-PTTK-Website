@@ -1,6 +1,6 @@
 import React from 'react';
 import './GunSelector.css';
-import { weapons } from '../../assets/data/weapons';
+import { weapons } from '../../assets/data/firefight/weapons';
 
 /**
  * 武器名称到武器详细信息的映射对象

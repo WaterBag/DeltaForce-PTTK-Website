@@ -1,9 +1,9 @@
 /* eslint-disable indent */
 import React, { useMemo, useState } from 'react';
 import './DataLibrary.css';
-import { WeaponList } from '../components/data_library/WeaponList';
-import { AmmoList } from '../components/data_library/AmmoList';
-import { useGameData } from '../hooks/useGameData';
+import { WeaponList } from '../../components/data_library/WeaponList';
+import { AmmoList } from '../../components/data_library/AmmoList';
+import { useGameData } from '../../hooks/useGameData';
 
 const WEAPON_SORT_OPTIONS = [
   { value: 'name', label: '名称' },

@@ -3,8 +3,8 @@ import './ModificationModal.css';
 import { BtkDistributionChart } from './BtkDistributionChart';
 import { AmmoSelector } from './AmmoSelector.jsx';
 import { UniversalSlider } from './UniversalSlider';
-import { weapons } from '../../assets/data/weapons';
-import { ammos } from '../../assets/data/ammos';
+import { weapons } from '../../assets/data/firefight/weapons';
+import { ammos } from '../../assets/data/firefight/ammos';
 import { buildModsById, computeUnlockedSlots, isModSelectable, toggleModSelection } from '../../utils/modSelectionUtils';
 
 // weaponInfoMap: { [weaponName]: weapon }，用于快速从枪名取口径/基础属性

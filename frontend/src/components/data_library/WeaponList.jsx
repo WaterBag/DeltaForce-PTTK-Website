@@ -2,7 +2,7 @@ import React from 'react';
 import './WeaponList.css';
 import { WeaponModPanel } from './WeaponModPanel';
 import { ModifiedWeaponStats } from './ModifiedWeaponStats';
-import { modifications } from '../../assets/data/modifications';
+import { modifications } from '../../assets/data/firefight/modifications';
 
 function numberValue(value) {
   return Number(value) || 0;

@@ -1,9 +1,9 @@
 import React from 'react';
 import './ComparisonList.css';
 import { getRarityClass } from '../../utils/styleUtils';
-import { weapons } from '../../assets/data/weapons.js';
-import { ammos } from '../../assets/data/ammos.js';
-import { modifications } from '../../assets/data/modifications.js';
+import { weapons } from '../../assets/data/firefight/weapons.js';
+import { ammos } from '../../assets/data/firefight/ammos.js';
+import { modifications } from '../../assets/data/firefight/modifications.js';
 
 /**
  * 武器信息映射表 - 将武器名称映射到对应的武器信息对象

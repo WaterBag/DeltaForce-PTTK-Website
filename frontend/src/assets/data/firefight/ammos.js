@@ -16,25 +16,25 @@
  * - image: 弹药图片资源
  */
 
-import Image50AE from '../../assets/images/ammo/.50-AE.png';
-import Image338 from '../../assets/images/ammo/.338.png';
-import Image46x30mm from '../../assets/images/ammo/4.6x30mm.png';
-import Image57x28mm from '../../assets/images/ammo/5.7x28mm.png';
-import Image58x42mm from '../../assets/images/ammo/5.8x42mm.png';
-import Image545x39mm from '../../assets/images/ammo/5.45x39mm.png';
-import Image556x45mm from '../../assets/images/ammo/5.56x45mm.png';
-import Image68x51mm from '../../assets/images/ammo/6.8x51mm.png';
-import Image762x39mm from '../../assets/images/ammo/7.62x39mm.png';
-import Image762x51mm from '../../assets/images/ammo/7.62x51mm.png';
-import Image762x54R from '../../assets/images/ammo/7.62x54R.png';
-import Image9x19mm from '../../assets/images/ammo/9x19mm.png';
-import Image9x39mm from '../../assets/images/ammo/9x39mm.png';
-import Image127x55mm from '../../assets/images/ammo/12.7x55mm.png';
-import Image12Gauge from '../../assets/images/ammo/12-Gauge.png';
-import Image45ACP from '../../assets/images/ammo/45-ACP.png';
-import Image300BLK from '../../assets/images/ammo/300BLK.png';
-import Image357Magnum from '../../assets/images/ammo/357-Magnum.png';
-import Image4570Govt from '../../assets/images/ammo/45-70-GOVT.png';
+import Image50AE from '../../images/ammo/.50-AE.png';
+import Image338 from '../../images/ammo/.338.png';
+import Image46x30mm from '../../images/ammo/4.6x30mm.png';
+import Image57x28mm from '../../images/ammo/5.7x28mm.png';
+import Image58x42mm from '../../images/ammo/5.8x42mm.png';
+import Image545x39mm from '../../images/ammo/5.45x39mm.png';
+import Image556x45mm from '../../images/ammo/5.56x45mm.png';
+import Image68x51mm from '../../images/ammo/6.8x51mm.png';
+import Image762x39mm from '../../images/ammo/7.62x39mm.png';
+import Image762x51mm from '../../images/ammo/7.62x51mm.png';
+import Image762x54R from '../../images/ammo/7.62x54R.png';
+import Image9x19mm from '../../images/ammo/9x19mm.png';
+import Image9x39mm from '../../images/ammo/9x39mm.png';
+import Image127x55mm from '../../images/ammo/12.7x55mm.png';
+import Image12Gauge from '../../images/ammo/12-Gauge.png';
+import Image45ACP from '../../images/ammo/45-ACP.png';
+import Image300BLK from '../../images/ammo/300BLK.png';
+import Image357Magnum from '../../images/ammo/357-Magnum.png';
+import Image4570Govt from '../../images/ammo/45-70-GOVT.png';
 
 export const ammos = [
   {

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import './WeaponModPanel.css';
-import { modifications } from '../../assets/data/modifications';
+import { modifications } from '../../assets/data/firefight/modifications';
 import {
   buildModsById,
   computeUnlockedSlots,

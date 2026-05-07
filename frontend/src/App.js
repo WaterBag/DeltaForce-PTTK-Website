@@ -1,33 +1,37 @@
-/**
- * 应用主组件
- * 负责管理应用状态和路由视图切换
- */
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from './components/layout/Layout';
-import { DataQuery } from './pages/DataQuery';
-import { Simulator } from './pages/Simulator';
-import { DataLibrary } from './pages/DataLibrary';
-import { TTKSimulator } from './pages/TTKSimulator';
+import { DataQuery } from './pages/firefight/DataQuery';
+import { Simulator as FirefightSimulator } from './pages/firefight/Simulator';
+import { DataLibrary as FirefightDataLibrary } from './pages/firefight/DataLibrary';
+import { TTKSimulator } from './pages/firefight/TTKSimulator';
+import { BattlefieldTTK } from './pages/battlefield/BattlefieldTTK';
+import { BattlefieldSimulator } from './pages/battlefield/BattlefieldSimulator';
+import { BattlefieldDataLibrary } from './pages/battlefield/BattlefieldDataLibrary';
+import { DEFAULT_GAME_MODE, getGameModeConfig } from './config/gameModes';
 
-/**
- * 主应用组件
- * @returns {JSX.Element} 渲染的应用界面
- */
 function App() {
-  // 当前视图状态：'dataQuery'、'simulator' 或 'dataLibrary'
-  const [currentView, setCurrentView] = useState('ttkSimulator');
+  const [currentMode, setCurrentMode] = useState(DEFAULT_GAME_MODE);
+  const [currentView, setCurrentView] = useState(getGameModeConfig(DEFAULT_GAME_MODE).defaultView);
 
-  /**
-   * 根据当前视图状态渲染对应的内容组件
-   * @returns {JSX.Element} 对应的视图组件
-   */
-  const renderContent = () => {
+  useEffect(() => {
+    const modeConfig = getGameModeConfig(currentMode);
+    if (!modeConfig.views.some((view) => view.id === currentView)) {
+      setCurrentView(modeConfig.defaultView);
+    }
+  }, [currentMode, currentView]);
+
+  const handleModeChange = (mode) => {
+    const modeConfig = getGameModeConfig(mode);
+    setCurrentMode(modeConfig.id);
+    setCurrentView(modeConfig.defaultView);
+  };
+
+  const renderFirefightContent = () => {
     switch (currentView) {
     case 'simulator':
-      return <Simulator />;
+      return <FirefightSimulator />;
     case 'dataLibrary':
-      return <DataLibrary />;
+      return <FirefightDataLibrary />;
     case 'ttkSimulator':
       return <TTKSimulator />;
     case 'dataQuery':
@@ -36,8 +40,32 @@ function App() {
     }
   };
 
+  const renderBattlefieldContent = () => {
+    switch (currentView) {
+    case 'simulator':
+      return <BattlefieldSimulator />;
+    case 'dataLibrary':
+      return <BattlefieldDataLibrary />;
+    case 'ttk':
+    default:
+      return <BattlefieldTTK />;
+    }
+  };
+
+  const renderContent = () => {
+    if (currentMode === 'battlefield') {
+      return renderBattlefieldContent();
+    }
+    return renderFirefightContent();
+  };
+
   return (
-    <Layout currentView={currentView} setCurrentView={setCurrentView}>
+    <Layout
+      currentMode={currentMode}
+      setCurrentMode={handleModeChange}
+      currentView={currentView}
+      setCurrentView={setCurrentView}
+    >
       {renderContent()}
     </Layout>
   );

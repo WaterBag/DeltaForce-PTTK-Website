@@ -13,12 +13,23 @@
   list-style-type: none;
 }
 
+.sidebar-nav li {
+  display: flex;
+  margin: 0;
+}
+
 .nav-item {
+  display: block;
+  width: 100%;
   padding: 12px 24px;
+  border: 0;
   border-left: 3px solid transparent;
+  background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  font: inherit;
   font-weight: 500;
+  text-align: left;
   transition: background-color 0.2s ease, color 0.2s ease;
   white-space: nowrap;
 }
@@ -144,8 +155,11 @@
     display: none;
   }
 
-  .nav-item {
+  .sidebar-nav li {
     flex: 1 1 calc(50% - 4px);
+  }
+
+  .nav-item {
     border-bottom: 3px solid transparent;
     border-left: 0;
     padding: 8px 12px;

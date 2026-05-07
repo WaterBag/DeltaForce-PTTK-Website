@@ -1,0 +1,106 @@
+.battlefield-page {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+}
+
+.battlefield-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 14px;
+  gap: 12px;
+}
+
+.battlefield-kicker {
+  margin: 0 0 4px;
+  color: var(--color-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.battlefield-header h1 {
+  margin: 0;
+  color: var(--color-text-main);
+  font-size: 1.45rem;
+}
+
+.battlefield-data-chip {
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.battlefield-empty-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  padding: 16px;
+  gap: 14px;
+}
+
+.battlefield-empty-main h2 {
+  margin: 0 0 8px;
+  color: var(--color-text-main);
+  font-size: 1.05rem;
+}
+
+.battlefield-empty-main p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.battlefield-empty-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.battlefield-empty-grid div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-page-bg);
+  padding: 9px 10px;
+  gap: 10px;
+}
+
+.battlefield-empty-grid span {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.battlefield-empty-grid strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-main);
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .battlefield-page {
+    padding: 12px;
+  }
+
+  .battlefield-empty-panel {
+    grid-template-columns: 1fr;
+  }
+}

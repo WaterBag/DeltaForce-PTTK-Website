@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { WeaponSelector } from '../components/simulator/Selectors';
-import { AmmoSelector } from '../components/public/AmmoSelector';
-import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
-import { UniversalSlider } from '../components/public/UniversalSlider';
-import { BtkDistributionChart } from '../components/public/BtkDistributionChart';
-import { TtkDistributionChart } from '../components/public/TtkDistributionChart';
-import { useGameData } from '../hooks/useGameData';
-import { generateDurabilityValues } from '../utils/numberUtils';
+import { WeaponSelector } from '../../components/simulator/Selectors';
+import { AmmoSelector } from '../../components/public/AmmoSelector';
+import { ArmorSelector, HelmetSelector } from '../../components/public/ArmorSittings';
+import { UniversalSlider } from '../../components/public/UniversalSlider';
+import { BtkDistributionChart } from '../../components/public/BtkDistributionChart';
+import { TtkDistributionChart } from '../../components/public/TtkDistributionChart';
+import { useGameData } from '../../hooks/useGameData';
+import { generateDurabilityValues } from '../../utils/numberUtils';
 import {
   buildModsById,
   computeUnlockedSlots,
@@ -15,10 +15,10 @@ import {
   isModSelectable,
   mergeUnlockedSlots,
   toggleModSelection,
-} from '../utils/modSelectionUtils';
-import { buildConfiguredWeapon } from '../utils/weaponConfigUtils';
-import { DEFAULT_HIT_PROBABILITIES, runMonteCarlo } from '../utils/ttkMonteCarlo';
-import { getRarityClass, getProtectionLevelClass } from '../utils/styleUtils';
+} from '../../utils/modSelectionUtils';
+import { buildConfiguredWeapon } from '../../utils/weaponConfigUtils';
+import { DEFAULT_HIT_PROBABILITIES, runMonteCarlo } from '../../utils/ttkMonteCarlo';
+import { getRarityClass, getProtectionLevelClass } from '../../utils/styleUtils';
 import {
   ResponsiveContainer,
   XAxis,
@@ -1563,7 +1563,7 @@ export function TTKSimulator() {
   const runMonteCarloWithWorker = (cfgId, payload) => new Promise((resolve, reject) => {
     try {
       if (!workerRef.current) {
-        workerRef.current = new Worker(new URL('../workers/ttkMonteCarloWorker.js', import.meta.url));
+        workerRef.current = new Worker(new URL('../../workers/ttkMonteCarloWorker.js', import.meta.url));
       }
 
       const requestId = `${Date.now()}-${requestSeedRef.current++}`;
@@ -2077,7 +2077,6 @@ export function TTKSimulator() {
     </div>
   );
 }
-
 
 
 

@@ -1,6 +1,6 @@
 import { GenericSelector } from '../public/GenericSelector.jsx';
 import './Selectors.css';
-import { weapons } from '../../assets/data/weapons';
+import { weapons } from '../../assets/data/firefight/weapons';
 
 const CREATE_CUSTOM_WEAPON_ID = '__create_custom_weapon__';
 

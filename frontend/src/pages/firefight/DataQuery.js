@@ -2,26 +2,26 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
 // 组件导入
-import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
-import { UniversalSlider } from '../components/public/UniversalSlider';
-import { TtkChart } from '../components/data_query/TtkChart';
-import { GunSelector } from '../components/data_query/GunSelector';
-import { ModificationModal } from '../components/public/ModificationModal';
-import { ComparisonList } from '../components/data_query/ComparisonList.jsx';
-import { Alert } from '../components/public/Alert';
-import { ConfirmDialog } from '../components/public/ConfirmDialog';
-import { useAlert } from '../hooks/useAlert';
-import { useGameData } from '../hooks/useGameData';
+import { ArmorSelector, HelmetSelector } from '../../components/public/ArmorSittings';
+import { UniversalSlider } from '../../components/public/UniversalSlider';
+import { TtkChart } from '../../components/data_query/TtkChart';
+import { GunSelector } from '../../components/data_query/GunSelector';
+import { ModificationModal } from '../../components/public/ModificationModal';
+import { ComparisonList } from '../../components/data_query/ComparisonList.jsx';
+import { Alert } from '../../components/public/Alert';
+import { ConfirmDialog } from '../../components/public/ConfirmDialog';
+import { useAlert } from '../../hooks/useAlert';
+import { useGameData } from '../../hooks/useGameData';
 
 // API函数
-import { fetchAvailableGuns, fetchGunDetails } from '../api/ttkAPI';
+import { fetchAvailableGuns, fetchGunDetails } from '../../api/ttkAPI';
 
 // 工具函数
-import { processChartData } from '../utils/dataProcessor';
-import { generateDurabilityValues } from '../utils/numberUtils.js';
+import { processChartData } from '../../utils/dataProcessor';
+import { generateDurabilityValues } from '../../utils/numberUtils.js';
 
 // 配置和规则
-import { selectionRules } from '../config/selectionRules.js';
+import { selectionRules } from '../../config/selectionRules.js';
 
 // 样式文件
 

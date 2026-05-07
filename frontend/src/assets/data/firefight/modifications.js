@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const pistol = ['93R', '.357左轮', 'G17', 'G18', 'M1911', 'QSZ92G', '沙漠之鹰'];
 const shotgun = ['725双管', 'S12K', 'M1014', 'M870'];
 const sniper = ['AWM', 'SR-25', 'M700', 'SVD', 'PSG-1', 'G3', 'PTR-32', 'SV-98', 'R93', 'SR9'];

@@ -1,27 +1,39 @@
 import { useEffect, useState } from 'react';
-import { weapons as localWeapons } from '../assets/data/weapons';
-import { ammos as localAmmos } from '../assets/data/ammos';
-import localArmors from '../assets/data/armors';
-import localHelmets from '../assets/data/helmets';
-import { modifications as localModifications } from '../assets/data/modifications';
+import { weapons as firefightWeapons } from '../assets/data/firefight/weapons';
+import { ammos as firefightAmmos } from '../assets/data/firefight/ammos';
+import firefightArmors from '../assets/data/firefight/armors';
+import firefightHelmets from '../assets/data/firefight/helmets';
+import { modifications as firefightModifications } from '../assets/data/firefight/modifications';
+import { weapons as battlefieldWeapons } from '../assets/data/battlefield/weapons';
+import { modifications as battlefieldModifications } from '../assets/data/battlefield/modifications';
+import { DEFAULT_GAME_MODE, getGameModeConfig } from '../config/gameModes';
 
 const DATA_BASE_URL = process.env.REACT_APP_DATA_BASE_URL || '/data';
 
-const fallbackData = {
-  weapons: localWeapons,
-  ammos: localAmmos,
-  armors: localArmors,
-  helmets: localHelmets,
-  modifications: localModifications,
+const fallbackByMode = {
+  firefight: {
+    weapons: firefightWeapons,
+    ammos: firefightAmmos,
+    armors: firefightArmors,
+    helmets: firefightHelmets,
+    modifications: firefightModifications,
+  },
+  battlefield: {
+    weapons: battlefieldWeapons,
+    ammos: [],
+    armors: [],
+    helmets: [],
+    modifications: battlefieldModifications,
+  },
 };
 
-let cachedGameData = null;
-let loadingPromise = null;
+const cachedGameData = {};
+const loadingPromises = {};
 
 const fetchJson = async (url) => {
   const response = await fetch(url, { cache: 'no-store' });
   if (!response.ok) {
-    throw new Error(`请求失败: ${url} (${response.status})`);
+    throw new Error(`Request failed: ${url} (${response.status})`);
   }
   return response.json();
 };
@@ -57,34 +69,53 @@ const hydrateImages = (remoteList, localList) => {
   });
 };
 
-const loadRemoteGameData = async () => {
-  const manifest = await fetchJson(`${DATA_BASE_URL}/manifest.json`);
+const createEmptyData = (mode) => ({
+  weapons: [],
+  ammos: [],
+  armors: [],
+  helmets: [],
+  modifications: [],
+  ...(fallbackByMode[mode] || fallbackByMode[DEFAULT_GAME_MODE]),
+});
 
-  const [weapons, ammos, armors, helmets, modifications] = await Promise.all([
-    fetchJson(`${DATA_BASE_URL}/weapons.json`),
-    fetchJson(`${DATA_BASE_URL}/ammos.json`),
-    fetchJson(`${DATA_BASE_URL}/armors.json`),
-    fetchJson(`${DATA_BASE_URL}/helmets.json`),
-    fetchJson(`${DATA_BASE_URL}/modifications.json`),
-  ]);
+const getRemoteDataPath = (modeConfig) => {
+  const normalizedBase = DATA_BASE_URL.replace(/\/$/, '');
+  return `${normalizedBase}/${modeConfig.id}`;
+};
+
+const loadRemoteGameData = async (mode) => {
+  const modeConfig = getGameModeConfig(mode);
+  const fallbackData = createEmptyData(modeConfig.id);
+  const dataPath = getRemoteDataPath(modeConfig);
+  const manifest = await fetchJson(`${dataPath}/manifest.json`);
+
+  const loadedFiles = await Promise.all(
+    modeConfig.dataFiles.map(async (fileKey) => [
+      fileKey,
+      await fetchJson(`${dataPath}/${fileKey}.json`),
+    ])
+  );
+
+  const remoteData = Object.fromEntries(loadedFiles);
 
   return {
     ...fallbackData,
     manifest,
-    weapons: hydrateImages(weapons, localWeapons),
-    ammos: hydrateImages(ammos, localAmmos),
-    armors: hydrateImages(armors, localArmors),
-    helmets: hydrateImages(helmets, localHelmets),
-    modifications,
+    ...remoteData,
+    weapons: hydrateImages(remoteData.weapons || fallbackData.weapons, fallbackData.weapons),
+    ammos: hydrateImages(remoteData.ammos || fallbackData.ammos, fallbackData.ammos),
+    armors: hydrateImages(remoteData.armors || fallbackData.armors, fallbackData.armors),
+    helmets: hydrateImages(remoteData.helmets || fallbackData.helmets, fallbackData.helmets),
+    modifications: remoteData.modifications || fallbackData.modifications,
   };
 };
 
-const loadRemoteGameDataWithRetry = async (maxAttempts = 3) => {
+const loadRemoteGameDataWithRetry = async (mode, maxAttempts = 3) => {
   let lastError = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      return await loadRemoteGameData();
+      return await loadRemoteGameData(mode);
     } catch (error) {
       lastError = error;
       if (attempt < maxAttempts) {
@@ -96,34 +127,52 @@ const loadRemoteGameDataWithRetry = async (maxAttempts = 3) => {
   throw lastError;
 };
 
-export function useGameData() {
+export function useGameData(mode = DEFAULT_GAME_MODE) {
+  const modeConfig = getGameModeConfig(mode);
+  const modeId = modeConfig.id;
+  const fallbackData = createEmptyData(modeId);
+
   const [state, setState] = useState({
-    data: cachedGameData || fallbackData,
-    loading: !cachedGameData,
-    source: cachedGameData ? 'remote-cache' : 'local-fallback',
+    data: cachedGameData[modeId] || fallbackData,
+    loading: !cachedGameData[modeId],
+    source: cachedGameData[modeId] ? 'remote-cache' : 'local-fallback',
     error: null,
   });
 
   useEffect(() => {
-    if (cachedGameData) {
+    const latestFallbackData = createEmptyData(modeId);
+
+    if (cachedGameData[modeId]) {
+      setState({
+        data: cachedGameData[modeId],
+        loading: false,
+        source: 'remote-cache',
+        error: null,
+      });
       return;
     }
 
-    if (!loadingPromise) {
-      loadingPromise = loadRemoteGameDataWithRetry()
+    setState({
+      data: latestFallbackData,
+      loading: true,
+      source: 'local-fallback',
+      error: null,
+    });
+
+    if (!loadingPromises[modeId]) {
+      loadingPromises[modeId] = loadRemoteGameDataWithRetry(modeId)
         .then((data) => {
-          cachedGameData = data;
+          cachedGameData[modeId] = data;
           return data;
         })
         .catch((error) => {
-          // Allow future mounts to retry after transient fetch failures.
-          loadingPromise = null;
-          console.warn('加载远程游戏数据失败，使用本地静态数据兜底:', error);
+          loadingPromises[modeId] = null;
+          console.warn(`Failed to load remote game data for ${modeId}; using local fallback.`, error);
           return null;
         });
     }
 
-    loadingPromise.then((data) => {
+    loadingPromises[modeId].then((data) => {
       if (data) {
         setState({
           data,
@@ -133,14 +182,14 @@ export function useGameData() {
         });
       } else {
         setState({
-          data: fallbackData,
+          data: latestFallbackData,
           loading: false,
           source: 'local-fallback',
-          error: '远程数据加载失败，已回退本地静态数据。',
+          error: 'Remote data failed to load; local fallback is in use.',
         });
       }
     });
-  }, []);
+  }, [modeId]);
 
   return state;
 }

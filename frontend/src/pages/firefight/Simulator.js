@@ -1,17 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { WeaponSelector } from '../components/simulator/Selectors';
-import { AmmoSelector } from '../components/public/AmmoSelector';
-import { Alert } from '../components/public/Alert';
-import { useAlert } from '../hooks/useAlert';
-import { useGameData } from '../hooks/useGameData';
+import { WeaponSelector } from '../../components/simulator/Selectors';
+import { AmmoSelector } from '../../components/public/AmmoSelector';
+import { Alert } from '../../components/public/Alert';
+import { useAlert } from '../../hooks/useAlert';
+import { useGameData } from '../../hooks/useGameData';
 import './Simulator.css';
-import { ArmorSelector, HelmetSelector } from '../components/public/ArmorSittings';
-import { UniversalSlider } from '../components/public/UniversalSlider';
-import { generateDurabilityValues } from '../utils/numberUtils';
-import { DamageDecayChart } from '../components/simulator/DamageDecayChart';
-import { TargetDummy } from '../components/simulator/TargetDummy';
-import { calculateSingleHit } from '../utils/simulationUtils';
-import { TargetStatus } from '../components/simulator/TargetStatus'; // 导入新组件
+import { ArmorSelector, HelmetSelector } from '../../components/public/ArmorSittings';
+import { UniversalSlider } from '../../components/public/UniversalSlider';
+import { generateDurabilityValues } from '../../utils/numberUtils';
+import { DamageDecayChart } from '../../components/simulator/DamageDecayChart';
+import { TargetDummy } from '../../components/simulator/TargetDummy';
+import { calculateSingleHit } from '../../utils/simulationUtils';
+import { TargetStatus } from '../../components/simulator/TargetStatus'; // 导入新组件
 import {
   buildModsById,
   computeUnlockedSlots,
@@ -19,7 +19,7 @@ import {
   isModSelectable,
   mergeUnlockedSlots,
   toggleModSelection,
-} from '../utils/modSelectionUtils';
+} from '../../utils/modSelectionUtils';
 
 // 默认护甲/头盔：5级耐久最高
 const pickMaxDurabilityByLevel = (items, level) => {

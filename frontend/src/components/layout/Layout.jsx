@@ -12,12 +12,12 @@ import './Layout.css';
  * @param {Function} props.setCurrentView - 设置当前视图的函数
  * @returns {JSX.Element} 布局组件
  */
-export function Layout({ children, currentView, setCurrentView }) {
+export function Layout({ children, currentMode, setCurrentMode, currentView, setCurrentView }) {
   return (
     <div className="app-layout">
-      <Header />
+      <Header currentMode={currentMode} setCurrentMode={setCurrentMode} />
       <div className="app-content">
-        <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
+        <Sidebar currentMode={currentMode} currentView={currentView} setCurrentView={setCurrentView} />
         <main className="main-content">{children}</main>
       </div>
     </div>
