@@ -1,14 +1,18 @@
 {
   "mode": "battlefield",
-  "version": "pending",
-  "generatedAt": null,
-  "source": "pending",
+  "version": "20260507120000",
+  "generatedAt": "2026-05-07T12:00:00.000+08:00",
+  "source": "user-provided battlefield screenshots",
   "files": {
     "weapons.json": {
-      "records": 0
+      "records": 35,
+      "size": 30607,
+      "sha256": "5d1547506779a4b49e0a8fc0dd79dc2e8491d5851093a5aaff7ba20f491ba34a"
     },
     "modifications.json": {
-      "records": 0
+      "records": 0,
+      "size": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
     }
   }
 }
