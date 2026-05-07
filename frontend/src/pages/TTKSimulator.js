@@ -89,7 +89,7 @@ const PROBABILITY_PRESETS = [
   {
     key: 'even',
     label: '均匀命中',
-    values: { head: 0.2, chest: 0.2, abdomen: 0.2, upperArm: 0.2, limbs: 0.2 },
+    values: { head: 0.25, chest: 0.25, abdomen: 0.25, upperArm: 0.0625, limbs: 0.1875 },
   },
   {
     key: 'center',
