@@ -6,6 +6,29 @@
   padding: 18px;
 }
 
+.mode-battlefield {
+  --color-primary: #426a9a;
+  --color-primary-hover: #2f527a;
+  --color-primary-soft: #eef4fb;
+  --color-primary-border: #c8d6ea;
+  --color-secondary: #b66f28;
+}
+
+.mode-battlefield .mode-switch-btn.active {
+  background: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(66, 106, 154, 0.2);
+}
+
+.mode-battlefield .bilibili-link {
+  color: var(--color-primary);
+}
+
+.mode-battlefield .battlefield-stage-hint {
+  background: #f6eadf;
+  border-color: #e2bd94;
+  color: #9a5c21;
+}
+
 .battlefield-page.dense {
   gap: 10px;
 }
@@ -452,6 +475,889 @@
   margin-top: 0;
 }
 
+.battlefield-ttk-layout,
+.battlefield-sim-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+}
+
+.battlefield-left-panel,
+.battlefield-sim-left {
+  display: grid;
+  gap: 10px;
+}
+
+.battlefield-left-panel {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  padding: 10px;
+}
+
+.battlefield-main-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.battlefield-panel-title,
+.battlefield-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.battlefield-panel-title h1,
+.battlefield-panel-title h2,
+.battlefield-section-head h2 {
+  margin: 0;
+  color: var(--color-text-main);
+  font-size: 1.1rem;
+}
+
+.battlefield-panel-title span,
+.battlefield-section-head span {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.battlefield-section-head button {
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 32px;
+  padding: 5px 10px;
+}
+
+.battlefield-config-actions {
+  display: grid;
+  grid-template-columns: 1fr 82px;
+  gap: 8px;
+}
+
+.battlefield-config-actions button,
+.battlefield-segment button {
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 36px;
+  padding: 7px 10px;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.battlefield-config-actions button:first-child,
+.battlefield-segment button.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.battlefield-config-actions button:hover,
+.battlefield-segment button:hover {
+  transform: translateY(-1px);
+}
+
+.battlefield-config-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
+.battlefield-config-list {
+  display: grid;
+  gap: 8px;
+}
+
+.battlefield-config-card {
+  display: grid;
+  grid-template-columns: 5px minmax(0, 1fr);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-page-bg);
+  cursor: pointer;
+  padding: 8px;
+  gap: 6px 9px;
+  text-align: left;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.battlefield-config-card:hover,
+.battlefield-config-card.active {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(31, 55, 52, 0.1);
+  transform: translateY(-1px);
+}
+
+.battlefield-config-card i {
+  grid-row: 1 / span 3;
+  width: 5px;
+  border-radius: 999px;
+}
+
+.battlefield-config-card strong {
+  overflow: hidden;
+  color: var(--color-text-main);
+  font-size: 0.94rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.battlefield-config-card span,
+.battlefield-config-card small {
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.battlefield-ttk-controls {
+  grid-template-columns: minmax(220px, 1.5fr) 96px 96px;
+  margin-top: 10px;
+}
+
+.battlefield-chart-panel {
+  min-height: 430px;
+}
+
+.battlefield-chart-wrap {
+  width: 100%;
+  height: 310px;
+  margin-top: 10px;
+}
+
+.battlefield-mod-editor {
+  margin-top: 12px;
+}
+
+.battlefield-mod-groups {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.battlefield-mod-group {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-page-bg);
+  padding: 8px;
+}
+
+.battlefield-mod-group h3 {
+  margin: 0 0 7px;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.battlefield-mod-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.battlefield-mod-chip {
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-height: 31px;
+  padding: 5px 9px;
+}
+
+.battlefield-mod-chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.battlefield-mod-chip.selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.battlefield-mod-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.battlefield-no-mods {
+  margin: 8px 0 0;
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  background: var(--color-page-bg);
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 9px;
+}
+
+.battlefield-segment {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-page-bg);
+  padding: 3px;
+  gap: 3px;
+}
+
+.battlefield-chart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.battlefield-ttk-modal-content {
+  padding: 14px;
+}
+
+.battlefield-modal-section {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-page-bg);
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.battlefield-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.4fr) repeat(2, minmax(110px, 0.55fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.battlefield-modal-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.battlefield-modal-field span,
+.battlefield-modal-section .battlefield-prob-grid span {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.battlefield-modal-field input,
+.battlefield-modal-section input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  font: inherit;
+  min-height: 36px;
+  padding: 6px 9px;
+}
+
+.modal-mod-groups {
+  max-height: 310px;
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.modal-prob-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.battlefield-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--color-border);
+  margin-top: 12px;
+  padding-top: 10px;
+  gap: 8px;
+}
+
+.battlefield-segment button {
+  min-height: 32px;
+  border-color: transparent;
+  background: transparent;
+  padding: 5px 12px;
+}
+
+.battlefield-sim-layout {
+  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+}
+
+.simulator-controls {
+  grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(72px, 0.5fr));
+}
+
+.battlefield-dummy-panel {
+  min-height: 620px;
+}
+
+.battlefield-dummy-stage {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) minmax(220px, 1fr);
+  align-items: center;
+  margin-top: 12px;
+  gap: 16px;
+}
+
+.battlefield-dummy-stage .image-dummy-container {
+  justify-self: center;
+}
+
+.battlefield-table button.battlefield-table-row {
+  width: 100%;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.battlefield-table button.battlefield-table-row:hover {
+  background: var(--color-primary-soft);
+}
+
+.battlefield-library-toolbar.compact {
+  grid-template-columns: minmax(160px, 1fr) 140px 150px;
+  padding: 7px;
+}
+
+.battlefield-dense-table {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.battlefield-simulator-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 330px) minmax(380px, 1fr) minmax(340px, 390px);
+  align-items: stretch;
+  gap: 12px;
+  height: calc(100vh - 84px);
+  min-height: 0;
+  padding: 12px;
+}
+
+.battlefield-sim-column {
+  display: grid;
+  grid-auto-rows: max-content;
+  min-width: 0;
+  min-height: 0;
+  align-content: start;
+  gap: 10px;
+}
+
+.battlefield-sim-stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.battlefield-dummy-stage.single {
+  display: grid;
+  min-height: 0;
+  height: 100%;
+  place-items: center;
+}
+
+.battlefield-stage-hint {
+  justify-self: center;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 7px 12px;
+}
+
+.battlefield-sim-stage .reset-simulation-button {
+  display: block;
+  width: min(220px, 100%);
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 36px;
+  margin: 0 auto;
+  padding: 7px 12px;
+}
+
+.battlefield-dummy-stage.single .image-dummy-container {
+  justify-self: center;
+  align-self: center;
+  max-height: 100%;
+}
+
+.battlefield-sim-params {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 10px;
+}
+
+.battlefield-hp-compact {
+  margin-top: 10px;
+}
+
+.battlefield-log-panel {
+  height: 220px;
+  overflow: auto;
+}
+
+.battlefield-log-panel {
+  align-content: start;
+  gap: 6px;
+}
+
+.battlefield-log-panel div {
+  display: flex;
+  min-height: 36px;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 8px;
+  line-height: 1.35;
+}
+
+.battlefield-log-panel p {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 8px;
+  line-height: 1.35;
+}
+
+.battlefield-log div.is-kill {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.battlefield-selector-block {
+  margin-top: 0;
+}
+
+.battlefield-sim-column .battlefield-mod-editor {
+  max-height: 246px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.summary-panel {
+  align-self: start;
+}
+
+.summary-panel .battlefield-final-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 0;
+}
+
+.summary-panel .battlefield-final-grid div {
+  padding: 6px 7px;
+}
+
+.summary-panel .battlefield-final-grid strong {
+  font-size: 0.9rem;
+}
+
+.simulator-ranges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 7px;
+}
+
+.simulator-ranges div {
+  min-width: 0;
+}
+
+.simulator-weapon-strip {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+.simulator-weapon-strip .battlefield-stat-inline {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+}
+
+.battlefield-final-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.battlefield-final-grid div {
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-page-bg);
+  padding: 8px;
+}
+
+.battlefield-final-grid span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.battlefield-final-grid strong {
+  display: block;
+  color: var(--color-text-main);
+  font-size: 1rem;
+  margin-top: 3px;
+}
+
+.battlefield-mod-tooltip {
+  position: fixed;
+  z-index: 1000;
+  max-width: 280px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  box-shadow: 0 10px 28px rgba(31, 55, 52, 0.16);
+  color: var(--color-text-main);
+  pointer-events: none;
+  padding: 9px 10px;
+}
+
+.battlefield-mod-tooltip strong,
+.battlefield-mod-tooltip span {
+  display: block;
+}
+
+.battlefield-mod-tooltip strong {
+  font-size: 0.84rem;
+}
+
+.battlefield-mod-tooltip span {
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.battlefield-library-container {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.battlefield-library-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(120px, 150px) minmax(120px, 150px) minmax(130px, 160px);
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  margin: 6px 10px;
+  padding: 7px;
+  gap: 8px;
+}
+
+.battlefield-library-filters label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.battlefield-library-filters span {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.battlefield-library-filters input,
+.battlefield-library-filters select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-page-bg);
+  color: var(--color-text-main);
+  font: inherit;
+  min-height: 34px;
+  padding: 6px 9px;
+}
+
+.battlefield-rich-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 10px 14px;
+}
+
+.battlefield-rich-row {
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+}
+
+.battlefield-rich-row.expanded {
+  border-color: var(--color-primary-border);
+}
+
+.battlefield-rich-main {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(760px, 2.1fr) minmax(250px, 0.75fr);
+  align-items: center;
+  min-height: 50px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 5px 8px;
+  gap: 8px;
+  text-align: left;
+}
+
+.battlefield-rich-main:hover {
+  background: var(--color-primary-soft);
+}
+
+.battlefield-rich-identity {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.battlefield-rich-identity img {
+  width: 62px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.battlefield-rich-identity strong,
+.battlefield-rich-identity em {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.battlefield-rich-identity strong {
+  color: var(--color-text-main);
+  font-size: 0.94rem;
+}
+
+.battlefield-rich-identity em {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 700;
+  margin-top: 3px;
+}
+
+.battlefield-rich-stats {
+  display: grid;
+  grid-template-columns: 54px 58px 58px 58px 118px 118px 118px 118px;
+  gap: 3px;
+  min-width: 0;
+}
+
+.battlefield-rich-stats i {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-style: normal;
+  min-width: 0;
+  padding: 0 5px;
+  gap: 4px;
+  border-left: 1px solid var(--color-border);
+}
+
+.battlefield-rich-stats b {
+  color: var(--color-text-main);
+  overflow: visible;
+  font-size: 0.74rem;
+  line-height: 1.05;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.battlefield-rich-stats small {
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.battlefield-rich-decay {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  min-width: 0;
+}
+
+.battlefield-rich-decay i {
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-page-bg);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  font-size: 0.64rem;
+  font-style: normal;
+  font-weight: 700;
+  padding: 2px 4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.battlefield-rich-expanded {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
+  border-top: 1px solid var(--color-border);
+  padding: 8px 9px 9px;
+  gap: 8px;
+}
+
+.battlefield-rich-mods,
+.battlefield-rich-final {
+  min-width: 0;
+}
+
+.expanded-ranges {
+  margin-top: 7px;
+}
+
+.battlefield-library-container .battlefield-section-head {
+  margin-bottom: 6px;
+}
+
+.battlefield-library-container .battlefield-final-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.battlefield-library-container .battlefield-final-grid div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  border-radius: 5px;
+  padding: 4px 6px;
+}
+
+.battlefield-library-container .battlefield-final-grid span {
+  font-size: 0.64rem;
+  white-space: nowrap;
+}
+
+.battlefield-library-container .battlefield-final-grid strong {
+  margin-top: 0;
+  font-size: 0.84rem;
+  text-align: right;
+}
+
+.battlefield-library-container .battlefield-range-list.compact-ranges {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.battlefield-dense-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.2fr) 66px 48px 58px 52px 62px repeat(5, 54px) minmax(230px, 1.4fr);
+  align-items: center;
+  min-width: 1120px;
+  border-top: 1px solid var(--color-border);
+}
+
+.battlefield-dense-row:first-child {
+  border-top: 0;
+}
+
+.battlefield-dense-row.head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-primary-soft);
+}
+
+.battlefield-dense-row > span {
+  overflow: hidden;
+  border-left: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 6px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.battlefield-dense-row > span:first-child {
+  border-left: 0;
+}
+
+.battlefield-dense-row.head > span {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
+.dense-weapon-cell {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.dense-weapon-cell img {
+  width: 48px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.dense-weapon-cell strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dense-range-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.dense-range-cell i {
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-page-bg);
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  padding: 2px 4px;
+}
+
 .battlefield-empty-panel {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
@@ -518,12 +1424,66 @@
   }
 
   .battlefield-workbench,
-  .battlefield-weapon-row {
+  .battlefield-weapon-row,
+  .battlefield-ttk-layout,
+  .battlefield-sim-layout,
+  .battlefield-dummy-stage,
+  .battlefield-rich-expanded,
+  .battlefield-rich-main,
+  .battlefield-rich-header {
     grid-template-columns: 1fr;
   }
 
+  .battlefield-simulator-shell {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    padding: 10px;
+  }
+
+  .battlefield-sim-stage {
+    order: 2;
+    min-height: 430px;
+    height: 430px;
+  }
+
+  .battlefield-sim-column:first-of-type {
+    order: 1;
+  }
+
+  .battlefield-sim-column:last-of-type {
+    order: 3;
+  }
+
+  .battlefield-dummy-stage.single .image-dummy-container {
+    transform: scale(0.78);
+  }
+
+  .battlefield-log-panel {
+    height: 150px;
+  }
+
+  .battlefield-sim-column .battlefield-mod-editor {
+    max-height: 220px;
+  }
+
+  .summary-panel .battlefield-final-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .simulator-ranges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .battlefield-control-grid,
-  .battlefield-library-toolbar {
+  .battlefield-library-toolbar,
+  .battlefield-ttk-controls,
+  .simulator-controls,
+  .battlefield-library-toolbar.compact,
+  .battlefield-library-filters,
+  .battlefield-modal-grid,
+  .modal-prob-grid {
     grid-template-columns: 1fr;
   }
 
@@ -541,12 +1501,235 @@
   }
 
   .battlefield-result-grid,
-  .battlefield-stat-matrix {
+  .battlefield-stat-matrix,
+  .battlefield-final-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .battlefield-range-list,
   .compact-ranges {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .battlefield-rich-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 10px;
+  }
+
+  .battlefield-rich-stats i {
+    padding: 0;
+    border-left: 0;
+  }
+
+  .battlefield-rich-stats b {
+    font-size: 0.68rem;
+  }
+
+  .battlefield-rich-stats small {
+    font-size: 0.58rem;
+  }
+
+  .battlefield-rich-decay {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .battlefield-probabilities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.battlefield-simulator-shell {
+  grid-template-columns: 330px minmax(420px, 1fr) 390px;
+}
+
+.battlefield-sim-column {
+  height: 100%;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.battlefield-log-panel {
+  height: auto;
+  min-height: 0;
+}
+
+.battlefield-sim-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.battlefield-dummy-stage.single {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.battlefield-dummy-stage.single .image-dummy-container {
+  width: min(58%, 340px);
+  max-width: 340px;
+  margin: 0 auto;
+  transform: none;
+}
+
+.summary-panel {
+  align-self: stretch;
+}
+
+.battlefield-config-top-grid {
+  grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+}
+
+.battlefield-config-top-grid .field-card,
+.battlefield-config-top-grid .run-config-wrap {
+  min-width: 0;
+  margin: 0;
+}
+
+.battlefield-run-inline .run-row-73 {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.ttk-modal-content .probabilities.battlefield-probabilities {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  align-items: stretch;
+}
+
+.ttk-modal-content .probabilities.battlefield-probabilities .prob-item {
+  grid-column: auto !important;
+  width: auto;
+}
+
+.battlefield-library-container .weapon-list-container {
+  padding: 0 10px 14px;
+}
+
+.battlefield-library-container .weapon-grid-header {
+  grid-template-columns: minmax(220px, 1fr) minmax(620px, 2.25fr) minmax(250px, 0.8fr);
+}
+
+.battlefield-library-container .weapon-row {
+  grid-template-columns: minmax(220px, 1fr) minmax(620px, 2.25fr) minmax(250px, 0.8fr) 22px;
+}
+
+.battlefield-library-container .weapon-stat-strip {
+  grid-template-columns: repeat(6, minmax(72px, 1fr));
+}
+
+.battlefield-library-container .weapon-stat-col .stat-value,
+.battlefield-library-container .weapon-stat-col .stat-sub-value {
+  white-space: normal;
+}
+
+.battlefield-library-container .weapon-expanded-content {
+  grid-template-columns: minmax(320px, 1fr) minmax(420px, 1fr);
+}
+
+.battlefield-library-container .weapon-expanded-content .expanded-middle-section {
+  overflow: visible;
+}
+
+.battlefield-library-container .weapon-caliber {
+  cursor: default;
+}
+
+.battlefield-library-container .weapon-caliber:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+@media (max-width: 1260px) {
+  .battlefield-library-container .weapon-grid-header {
+    grid-template-columns: minmax(190px, 0.9fr) minmax(520px, 1.9fr) minmax(220px, 0.8fr);
+  }
+
+  .battlefield-library-container .weapon-row {
+    grid-template-columns: minmax(190px, 0.9fr) minmax(520px, 1.9fr) minmax(220px, 0.8fr) 22px;
+  }
+}
+
+@media (max-width: 900px) {
+  .battlefield-simulator-shell {
+    grid-template-columns: 300px minmax(360px, 1fr);
+  }
+
+  .battlefield-library-container .weapon-grid-header {
+    grid-template-columns: minmax(170px, 0.8fr) minmax(430px, 1.6fr) minmax(190px, 0.7fr);
+  }
+
+  .battlefield-library-container .weapon-row {
+    grid-template-columns: minmax(170px, 0.8fr) minmax(430px, 1.6fr) minmax(190px, 0.7fr) 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .battlefield-simulator-shell {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
+
+  .battlefield-sim-column {
+    height: auto;
+    grid-template-rows: auto auto;
+  }
+
+  .battlefield-sim-stage {
+    height: 320px;
+    min-height: 320px;
+    gap: 8px;
+  }
+
+  .battlefield-dummy-stage.single {
+    flex: 0 0 230px;
+    height: 230px;
+  }
+
+  .battlefield-dummy-stage.single .image-dummy-container {
+    width: min(40vw, 175px);
+    max-width: 175px;
+    transform: none;
+  }
+
+  .battlefield-log-panel {
+    height: 150px;
+  }
+
+  .battlefield-config-top-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ttk-modal-content .probabilities.battlefield-probabilities {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .battlefield-library-container .weapon-list-container {
+    padding: 0 5px 8px;
+  }
+
+  .battlefield-library-container .weapon-row {
+    grid-template-columns: minmax(0, 1fr) 18px;
+  }
+
+  .battlefield-library-container .weapon-stat-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .battlefield-library-container .weapon-expanded-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .battlefield-library-container .weapon-stat-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }

@@ -119,18 +119,19 @@
 
 @media (max-width: 480px) {
   .header {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     min-height: 50px;
-    height: auto;
-    padding: 8px 12px;
-    gap: 8px;
+    height: 50px;
+    padding: 6px 12px;
+    gap: 6px;
   }
 
   .logo {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .logo-wrap {
+    flex: 1 1 auto;
     gap: 6px;
   }
 
@@ -141,14 +142,18 @@
   }
 
   .mode-switch {
-    order: 3;
-    width: 100%;
-    justify-content: stretch;
+    order: 0;
+    padding: 2px;
+    border-radius: 7px;
+    gap: 1px;
   }
 
   .mode-switch-btn {
-    flex: 1;
-    padding: 7px 8px;
+    flex: 0 0 auto;
+    min-width: 34px;
+    border-radius: 5px;
+    font-size: 0.68rem;
+    padding: 5px 8px;
   }
 
   .bilibili-link span {

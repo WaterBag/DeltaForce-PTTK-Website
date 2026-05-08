@@ -14,7 +14,7 @@ import './Layout.css';
  */
 export function Layout({ children, currentMode, setCurrentMode, currentView, setCurrentView }) {
   return (
-    <div className="app-layout">
+    <div className={`app-layout mode-${currentMode}`}>
       <Header currentMode={currentMode} setCurrentMode={setCurrentMode} />
       <div className="app-content">
         <Sidebar currentMode={currentMode} currentView={currentView} setCurrentView={setCurrentView} />
