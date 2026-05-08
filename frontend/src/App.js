@@ -1,62 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { DataQuery } from './pages/firefight/DataQuery';
 import { Simulator as FirefightSimulator } from './pages/firefight/Simulator';
 import { DataLibrary as FirefightDataLibrary } from './pages/firefight/DataLibrary';
 import { TTKSimulator } from './pages/firefight/TTKSimulator';
 import { BattlefieldTTK } from './pages/battlefield/BattlefieldTTK';
 import { BattlefieldSimulator } from './pages/battlefield/BattlefieldSimulator';
 import { BattlefieldDataLibrary } from './pages/battlefield/BattlefieldDataLibrary';
-import { DEFAULT_GAME_MODE, getGameModeConfig } from './config/gameModes';
+import { DEFAULT_GAME_MODE, getGameModeConfig, getRouteByModeView, getRouteByPath } from './config/gameModes';
+import { usePageSeo } from './utils/seo';
+import { trackBaiduEvent, useBaiduRouteTracking } from './utils/baiduAnalytics';
 
 function App() {
-  const [currentMode, setCurrentMode] = useState(DEFAULT_GAME_MODE);
-  const [currentView, setCurrentView] = useState(getGameModeConfig(DEFAULT_GAME_MODE).defaultView);
-
-  useEffect(() => {
-    const modeConfig = getGameModeConfig(currentMode);
-    if (!modeConfig.views.some((view) => view.id === currentView)) {
-      setCurrentView(modeConfig.defaultView);
-    }
-  }, [currentMode, currentView]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentRoute = getRouteByPath(location.pathname);
+  const currentMode = currentRoute?.modeId || DEFAULT_GAME_MODE;
+  const currentView = currentRoute?.viewId || getGameModeConfig(DEFAULT_GAME_MODE).defaultView;
+  usePageSeo(currentRoute?.path || '/firefight/ttk');
+  useBaiduRouteTracking();
 
   const handleModeChange = (mode) => {
     const modeConfig = getGameModeConfig(mode);
-    setCurrentMode(modeConfig.id);
-    setCurrentView(modeConfig.defaultView);
+    trackBaiduEvent('navigation', 'switch_mode', modeConfig.id);
+    navigate(modeConfig.defaultPath);
   };
 
-  const renderFirefightContent = () => {
-    switch (currentView) {
-    case 'simulator':
-      return <FirefightSimulator />;
-    case 'dataLibrary':
-      return <FirefightDataLibrary />;
-    case 'ttkSimulator':
-      return <TTKSimulator />;
-    case 'dataQuery':
-    default:
-      return <DataQuery />;
+  const handleViewChange = (view) => {
+    const route = getRouteByModeView(currentMode, view);
+    if (route) {
+      trackBaiduEvent('navigation', 'switch_view', route.path);
+      navigate(route.path);
     }
-  };
-
-  const renderBattlefieldContent = () => {
-    switch (currentView) {
-    case 'simulator':
-      return <BattlefieldSimulator />;
-    case 'dataLibrary':
-      return <BattlefieldDataLibrary />;
-    case 'ttk':
-    default:
-      return <BattlefieldTTK />;
-    }
-  };
-
-  const renderContent = () => {
-    if (currentMode === 'battlefield') {
-      return renderBattlefieldContent();
-    }
-    return renderFirefightContent();
   };
 
   return (
@@ -64,9 +39,19 @@ function App() {
       currentMode={currentMode}
       setCurrentMode={handleModeChange}
       currentView={currentView}
-      setCurrentView={setCurrentView}
+      setCurrentView={handleViewChange}
     >
-      {renderContent()}
+      <Routes>
+        <Route path="/" element={<Navigate to="/firefight/ttk" replace />} />
+        <Route path="/firefight/ttk" element={<TTKSimulator />} />
+        <Route path="/firefight/query" element={<Navigate to="/firefight/ttk" replace />} />
+        <Route path="/firefight/simulator" element={<FirefightSimulator />} />
+        <Route path="/firefight/library" element={<FirefightDataLibrary />} />
+        <Route path="/battlefield/ttk" element={<BattlefieldTTK />} />
+        <Route path="/battlefield/simulator" element={<BattlefieldSimulator />} />
+        <Route path="/battlefield/library" element={<BattlefieldDataLibrary />} />
+        <Route path="*" element={<Navigate to="/firefight/ttk" replace />} />
+      </Routes>
     </Layout>
   );
 }
