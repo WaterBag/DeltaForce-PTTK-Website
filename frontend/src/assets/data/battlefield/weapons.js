@@ -1,6 +1,6 @@
 export const weapons = [
   {
-    "id": "bf-1011-burst",
+    "id": "1011",
     "name": "MK4",
     "sourceName": "MK4",
     "weaponType": "smg",
@@ -44,7 +44,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1005",
+    "id": "1005",
     "name": "UZI",
     "sourceName": "UZI",
     "weaponType": "smg",
@@ -88,7 +88,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1002",
+    "id": "1002",
     "name": "MP5",
     "sourceName": "MP5",
     "weaponType": "smg",
@@ -132,7 +132,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1004",
+    "id": "1004",
     "name": "Vector",
     "sourceName": "Vector",
     "weaponType": "smg",
@@ -176,7 +176,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1003",
+    "id": "1003",
     "name": "P90",
     "sourceName": "P90",
     "weaponType": "smg",
@@ -220,7 +220,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1008",
+    "id": "1008",
     "name": "SR-3M",
     "sourceName": "SR-3M",
     "weaponType": "smg",
@@ -264,7 +264,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1006",
+    "id": "1006",
     "name": "野牛",
     "sourceName": "野牛",
     "weaponType": "smg",
@@ -308,7 +308,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1009",
+    "id": "1009",
     "name": "勇士",
     "sourceName": "勇士",
     "weaponType": "smg",
@@ -352,7 +352,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1001",
+    "id": "1001",
     "name": "QCQ171",
     "sourceName": "QCQ171",
     "weaponType": "smg",
@@ -396,11 +396,9 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-10111-auto",
+    "id": "10111",
     "name": "MK4全自动",
     "sourceName": "MK4-深空镀铬枪管",
-    "baseSourceName": "MK4",
-    "isModification": true,
     "weaponType": "smg",
     "caliber": "4.6*30mm",
     "image": "https://playerhub.df.qq.com/playerhub/60004/object/18020000012.png",
@@ -442,7 +440,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1010",
+    "id": "1010",
     "name": "MP7",
     "sourceName": "MP7",
     "weaponType": "smg",
@@ -486,7 +484,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-1007",
+    "id": "1007",
     "name": "SMG-45",
     "sourceName": "SMG-45",
     "weaponType": "smg",
@@ -530,11 +528,9 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-10031",
+    "id": "10031",
     "name": "P90长弓",
     "sourceName": "P90-长弓精钢枪管",
-    "baseSourceName": "P90",
-    "isModification": true,
     "weaponType": "smg",
     "caliber": "5.7*28mm",
     "image": "https://playerhub.df.qq.com/playerhub/60004/object/18020000002.png",
@@ -576,7 +572,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3006",
+    "id": "3006",
     "name": "K416",
     "sourceName": "K416",
     "weaponType": "rifle",
@@ -620,7 +616,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-30211-s85",
+    "id": "3021",
     "name": "MCX-LT",
     "sourceName": "MCX-LT",
     "weaponType": "rifle",
@@ -664,7 +660,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3016",
+    "id": "3016",
     "name": "AS-Val",
     "sourceName": "AS-Val",
     "weaponType": "rifle",
@@ -708,11 +704,9 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-30161",
+    "id": "30161",
     "name": "AS-Val刺客",
     "sourceName": "AS-Val-刺客高级枪管",
-    "baseSourceName": "AS-Val",
-    "isModification": true,
     "weaponType": "rifle",
     "caliber": "9*39mm",
     "image": "https://playerhub.df.qq.com/playerhub/60004/object/18010000037.png",
@@ -754,7 +748,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3018",
+    "id": "3018",
     "name": "K437",
     "sourceName": "K437",
     "weaponType": "rifle",
@@ -798,7 +792,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3001",
+    "id": "3001",
     "name": "M4A1",
     "sourceName": "M4A1",
     "weaponType": "rifle",
@@ -842,7 +836,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3019",
+    "id": "3019",
     "name": "KC17",
     "sourceName": "KC17",
     "weaponType": "rifle",
@@ -886,7 +880,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3011",
+    "id": "3011",
     "name": "AK12",
     "sourceName": "AK12",
     "weaponType": "rifle",
@@ -930,7 +924,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3004",
+    "id": "3004",
     "name": "AKS-74U",
     "sourceName": "AKS-74U",
     "weaponType": "rifle",
@@ -974,7 +968,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3002",
+    "id": "3002",
     "name": "AKM",
     "sourceName": "AKM",
     "weaponType": "rifle",
@@ -1018,7 +1012,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3015",
+    "id": "3015",
     "name": "CAR-15",
     "sourceName": "CAR-15",
     "weaponType": "rifle",
@@ -1062,7 +1056,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3014",
+    "id": "3014",
     "name": "PTR-32",
     "sourceName": "PTR-32",
     "weaponType": "rifle",
@@ -1106,7 +1100,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-2007",
+    "id": "2007",
     "name": "M1911",
     "sourceName": "M1911",
     "weaponType": "pistol",
@@ -1150,7 +1144,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3005",
+    "id": "3005",
     "name": "ASh-12",
     "sourceName": "ASh-12",
     "weaponType": "rifle",
@@ -1194,11 +1188,9 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-30051",
+    "id": "30051",
     "name": "ASh-12战斧",
     "sourceName": "ASh-12-战斧重型枪管",
-    "baseSourceName": "ASh-12",
-    "isModification": true,
     "weaponType": "rifle",
     "caliber": "12.7*55",
     "image": "https://playerhub.df.qq.com/playerhub/60004/object/18010000012.png",
@@ -1240,7 +1232,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3012",
+    "id": "3012",
     "name": "SCAR-H",
     "sourceName": "SCAR-H",
     "weaponType": "rifle",
@@ -1284,7 +1276,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3003",
+    "id": "3003",
     "name": "QBZ95",
     "sourceName": "QBZ95-1",
     "weaponType": "rifle",
@@ -1328,7 +1320,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3010",
+    "id": "3010",
     "name": "SG552",
     "sourceName": "SG552",
     "weaponType": "rifle",
@@ -1372,7 +1364,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3020",
+    "id": "3020",
     "name": "MK47",
     "sourceName": "MK47",
     "weaponType": "rifle",
@@ -1416,7 +1408,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3013",
+    "id": "3013",
     "name": "G3",
     "sourceName": "G3",
     "weaponType": "rifle",
@@ -1460,7 +1452,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3008",
+    "id": "3008",
     "name": "AUG",
     "sourceName": "AUG",
     "weaponType": "rifle",
@@ -1504,7 +1496,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3009",
+    "id": "3009",
     "name": "M7",
     "sourceName": "M7",
     "weaponType": "rifle",
@@ -1548,7 +1540,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3022",
+    "id": "3022",
     "name": "AR57",
     "sourceName": "AR57",
     "weaponType": "rifle",
@@ -1592,7 +1584,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-6005",
+    "id": "6005",
     "name": "M14",
     "sourceName": "M14",
     "weaponType": "marksman",
@@ -1636,7 +1628,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-4004",
+    "id": "4004",
     "name": "PKM",
     "sourceName": "PKM",
     "weaponType": "lmg",
@@ -1680,7 +1672,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-4003",
+    "id": "4003",
     "name": "M249",
     "sourceName": "M249",
     "weaponType": "lmg",
@@ -1724,7 +1716,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-4001",
+    "id": "4001",
     "name": "QJB201",
     "sourceName": "QJB201",
     "weaponType": "lmg",
@@ -1768,7 +1760,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-4002",
+    "id": "4002",
     "name": "M250",
     "sourceName": "M250",
     "weaponType": "lmg",
@@ -1812,7 +1804,7 @@ export const weapons = [
     "mode": "battlefield"
   },
   {
-    "id": "bf-3017",
+    "id": "3017",
     "name": "腾龙",
     "sourceName": "腾龙",
     "weaponType": "rifle",
@@ -1855,4 +1847,5 @@ export const weapons = [
     "triggerDelay": 0,
     "mode": "battlefield"
   }
-];
+]
+;

@@ -17,6 +17,19 @@ import {
   toggleModSelection,
 } from '../../utils/modSelectionUtils';
 import { buildConfiguredWeapon } from '../../utils/weaponConfigUtils';
+import {
+  TTK_CONFIG_COLORS,
+  cloneConfigResult,
+  getAvailableConfigColor,
+  getConfigColor,
+  getModNames,
+  getNextConfigId,
+  loadTtkCache,
+  resolveCachedItem,
+  resolveCachedModIds,
+  saveTtkCache,
+  withConfigColor,
+} from '../../utils/ttkConfigState';
 import { DEFAULT_HIT_PROBABILITIES, runMonteCarlo } from '../../utils/ttkMonteCarlo';
 import { getRarityClass, getProtectionLevelClass } from '../../utils/styleUtils';
 import {
@@ -52,6 +65,7 @@ const pickDefaultAmmo = (options) => {
 const createConfig = (id) => ({
   id,
   name: `方案 ${id}`,
+  color: null,
   selectedWeapon: null,
   selectedAmmo: null,
   selectedHelmet: null,
@@ -139,19 +153,8 @@ const getProbabilityDrafts = (hitProbabilities) => {
   return drafts;
 };
 
-const BAR_COLORS = [
-  '#2F6F73', '#7A6FBE', '#C17C3A', '#4F7F52', '#8A5A68', '#587A9C',
-  '#B7791F', '#3E6B45', '#9A6A5B', '#536F8F', '#8B7A3D', '#6F5C86',
-  '#2D7B8A', '#A45F3D', '#5F7863', '#9B5C7A', '#6E7F3F', '#4D6674',
-  '#8E7047', '#3D7469', '#7C675E', '#5E6FA3', '#A06565', '#6F8248',
-];
-const RECHARTS_TOOLTIP_CONTENT_STYLE = {
-  background: 'rgba(255, 255, 255, 0.84)',
-  color: '#162321',
-  borderRadius: '8px',
-  border: '1px solid #d8e2df',
-  boxShadow: '0 4px 12px rgba(22, 35, 33, 0.14)',
-};
+const BAR_COLORS = TTK_CONFIG_COLORS;
+const FIREFIGHT_TTK_CACHE_KEY = 'dfttk.firefight.ttk.v2';
 const CUSTOM_CALIBER = '独特口径';
 const CUSTOM_WEAPON_FIELDS = [
   { key: 'name', label: '枪械名称', type: 'text' },
@@ -350,6 +353,42 @@ const getSegmentDistances = (configuredWeapon, maxDistance = 100) => {
   return [...new Set(points)].sort((a, b) => a - b);
 };
 
+function ChartTooltip({ active, label, payload, rows, metric }) {
+  if (!active || !payload?.length) return null;
+
+  const entries = payload
+    .map((entry) => {
+      const row = rows.find((item) => String(item.id) === String(entry.dataKey));
+      return row ? { entry, row } : null;
+    })
+    .filter(Boolean);
+
+  if (!entries.length) return null;
+
+  return (
+    <div className="compare-tooltip chart-detail-tooltip firefight-chart-tooltip">
+      <div className="compare-tooltip-title">距离 {label}m</div>
+      <div className="chart-tooltip-table">
+        {entries.map(({ entry, row }) => (
+          <div key={row.id} className="chart-tooltip-row firefight-tooltip-row">
+            <span className="chart-tooltip-dot" style={{ backgroundColor: entry.color || row.color }} />
+            <strong title={row.weaponName}>{row.weaponName}</strong>
+            <span title={row.ammoName}>{row.ammoName}</span>
+            <span>{row.helmetLevel ? `头${row.helmetLevel}/${Math.round(row.helmetDurability || 0)}` : '头-'}</span>
+            <span>{row.armorLevel ? `甲${row.armorLevel}/${Math.round(row.armorDurability || 0)}` : '甲-'}</span>
+            <span className="chart-tooltip-mods" title={row.modSummary || '无配件'}>
+              {row.modSummary || '无配件'}
+            </span>
+            <span className="chart-tooltip-value">
+              {metric === 'ttk' ? `${Math.round(entry.value)}ms` : Number(entry.value).toFixed(2)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ComparisonLineChart({ rows, metric, applyVelocityEffect, isMobile }) {
   const lineData = useMemo(() => {
     const byDistance = {};
@@ -383,11 +422,7 @@ function ComparisonLineChart({ rows, metric, applyVelocityEffect, isMobile }) {
           tick={{ fontSize: isMobile ? 11 : 12 }}
           width={isMobile ? 40 : 56}
         />
-        <Tooltip
-          formatter={(value) => (metric === 'ttk' ? `${Math.round(value)} ms` : Number(value).toFixed(2))}
-          labelFormatter={(label) => `距离 ${label}m`}
-          contentStyle={RECHARTS_TOOLTIP_CONTENT_STYLE}
-        />
+        <Tooltip content={<ChartTooltip rows={readyRows} metric={metric} />} />
         <Legend verticalAlign={isMobile ? 'bottom' : 'top'} align="center" height={isMobile ? 26 : 36} wrapperStyle={{ fontSize: isMobile ? 11 : 12 }} />
         {readyRows.map((row, index) => (
           <Line
@@ -395,7 +430,7 @@ function ComparisonLineChart({ rows, metric, applyVelocityEffect, isMobile }) {
             type={applyVelocityEffect ? 'linear' : 'stepAfter'}
             dataKey={row.id}
             name={`${row.weaponName} (${row.ammoName})`}
-            stroke={BAR_COLORS[index % BAR_COLORS.length]}
+            stroke={row.color || BAR_COLORS[index % BAR_COLORS.length]}
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 4 }}
@@ -1124,6 +1159,7 @@ export function TTKSimulator() {
   const workerRef = useRef(null);
   const requestSeedRef = useRef(0);
   const previewCloseTimerRef = useRef(null);
+  const cacheHydratedRef = useRef(false);
 
   const weaponTemplates = useMemo(
     () => (weapons || []).filter((weapon) => !weapon.isModification && !weapon.isCustom),
@@ -1141,6 +1177,78 @@ export function TTKSimulator() {
     () => [...ammoTemplates],
     [ammoTemplates]
   );
+
+  useEffect(() => {
+    if (cacheHydratedRef.current) return;
+    if (!weapons.length || !ammos.length || !helmets.length || !armors.length || !modifications.length) return;
+
+    const cached = loadTtkCache(FIREFIGHT_TTK_CACHE_KEY);
+    cacheHydratedRef.current = true;
+    if (!cached) return;
+
+    const cachedCustomWeapons = Array.isArray(cached.customWeapons) ? cached.customWeapons : [];
+    const cachedCustomAmmos = Array.isArray(cached.customAmmos) ? cached.customAmmos : [];
+    const restoredConfigs = [];
+
+    (Array.isArray(cached.configs) ? cached.configs : []).forEach((cfg) => {
+      const restored = withConfigColor({
+        ...createConfig(cfg.id),
+        ...cfg,
+        selectedWeapon: resolveCachedItem(cfg.selectedWeapon, weapons, cachedCustomWeapons),
+        selectedAmmo: resolveCachedItem(cfg.selectedAmmo, ammos, cachedCustomAmmos),
+        selectedHelmet: resolveCachedItem(cfg.selectedHelmet, helmets),
+        selectedArmor: resolveCachedItem(cfg.selectedArmor, armors),
+        selectedMods: resolveCachedModIds(cfg.selectedMods, modifications),
+        hitProbabilities: { ...DEFAULT_HIT_PROBABILITIES, ...(cfg.hitProbabilities || {}) },
+        running: false,
+        lineRunning: false,
+        progress: cfg.result ? 1 : 0,
+        lineProgress: cfg.result?.distanceSeries ? 1 : 0,
+      }, restoredConfigs);
+      if (restored.result && (!restored.selectedWeapon || !restored.selectedAmmo || !restored.selectedHelmet || !restored.selectedArmor)) {
+        return;
+      }
+      restoredConfigs.push(restored);
+    });
+
+    setCustomWeapons(cachedCustomWeapons);
+    setCustomAmmos(cachedCustomAmmos);
+    setConfigs(restoredConfigs);
+    setSelectedConfigId(restoredConfigs.some((cfg) => cfg.id === cached.selectedConfigId)
+      ? cached.selectedConfigId
+      : (restoredConfigs[0]?.id ?? null));
+    setEditingConfigId(null);
+    setCompareMetric(cached.compareMetric || 'ttk');
+    setApplyVelocityEffect(Boolean(cached.applyVelocityEffect));
+    setApplyTriggerDelay(Boolean(cached.applyTriggerDelay));
+    setPreviewMetric(cached.previewMetric || 'ttk');
+    setPreviewSegmentByConfig(cached.previewSegmentByConfig || {});
+  }, [weapons, ammos, helmets, armors, modifications]);
+
+  useEffect(() => {
+    if (!cacheHydratedRef.current) return;
+    saveTtkCache(FIREFIGHT_TTK_CACHE_KEY, {
+      configs,
+      selectedConfigId,
+      compareMetric,
+      applyVelocityEffect,
+      applyTriggerDelay,
+      previewMetric,
+      previewSegmentByConfig,
+      customWeapons,
+      customAmmos,
+    });
+  }, [
+    configs,
+    selectedConfigId,
+    compareMetric,
+    applyVelocityEffect,
+    applyTriggerDelay,
+    previewMetric,
+    previewSegmentByConfig,
+    customWeapons,
+    customAmmos,
+  ]);
 
   useEffect(() => {
     if (!helmets.length || !armors.length) return;
@@ -1170,62 +1278,7 @@ export function TTKSimulator() {
     }
   }, []);
 
-  const addConfig = () => {
-    const nextId = (configs.length ? Math.max(...configs.map((c) => c.id)) : 0) + 1;
-
-    let nextConfig = createConfig(nextId);
-    if (configs.length > 0) {
-      const base = configs[configs.length - 1];
-      let inheritedWeapon = base.selectedWeapon;
-      let inheritedAmmo = base.selectedAmmo;
-      if (base.selectedWeapon?.isCustom && base.selectedAmmo?.isCustom) {
-        const inheritedPairId = `custom-pair-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-        const nextWeaponName = getNextSequentialName(
-          '自定义枪械',
-          (customWeapons || []).map((item) => item.name)
-        );
-        const nextAmmoName = getNextSequentialName(
-          '自定义子弹',
-          (customAmmos || []).map((item) => item.name)
-        );
-        inheritedWeapon = {
-          ...base.selectedWeapon,
-          id: `custom-weapon-${inheritedPairId}`,
-          customPairId: inheritedPairId,
-          name: nextWeaponName,
-        };
-        inheritedAmmo = {
-          ...base.selectedAmmo,
-          id: `custom-ammo-${inheritedPairId}`,
-          customPairId: inheritedPairId,
-          name: nextAmmoName,
-        };
-        setCustomWeapons((prev) => [...prev, inheritedWeapon]);
-        setCustomAmmos((prev) => [...prev, inheritedAmmo]);
-      }
-      nextConfig = {
-        ...nextConfig,
-        selectedWeapon: inheritedWeapon,
-        selectedAmmo: inheritedAmmo,
-        selectedHelmet: base.selectedHelmet,
-        selectedArmor: base.selectedArmor,
-        helmetDurability: base.helmetDurability,
-        armorDurability: base.armorDurability,
-        selectedMods: [...(base.selectedMods || [])],
-        distance: base.distance,
-        initialHp: base.initialHp,
-        trialCount: base.trialCount,
-        hitProbabilities: { ...(base.hitProbabilities || DEFAULT_HIT_PROBABILITIES) },
-      };
-    }
-
-    setConfigs((prev) => [...prev, nextConfig]);
-    setSelectedConfigId(nextId);
-    setEditingConfigId(nextId);
-  };
-
-  const addStarterConfig = () => {
-    const nextId = (configs.length ? Math.max(...configs.map((c) => c.id)) : 0) + 1;
+  const createDefaultConfig = (nextId, color) => {
     const defaultHelmet = pickMaxDurabilityByLevel(helmets, 5) || helmets[0] || null;
     const defaultArmor = pickMaxDurabilityByLevel(armors, 5) || armors[0] || null;
     const rifleTemplates = weaponTemplates.filter((weapon) => {
@@ -1241,8 +1294,9 @@ export function TTKSimulator() {
       ? pickDefaultAmmo(ammoTemplates.filter((ammo) => ammo.caliber === defaultWeapon.caliber))
       : null;
 
-    const nextConfig = {
+    return {
       ...createConfig(nextId),
+      color,
       selectedWeapon: defaultWeapon,
       selectedAmmo: defaultAmmo,
       selectedHelmet: defaultHelmet,
@@ -1250,10 +1304,86 @@ export function TTKSimulator() {
       helmetDurability: defaultHelmet?.durability || 0,
       armorDurability: defaultArmor?.durability || 0,
     };
+  };
+
+  const cloneConfigForAdd = (base, nextId, color) => {
+    let inheritedWeapon = base.selectedWeapon;
+    let inheritedAmmo = base.selectedAmmo;
+    if (base.selectedWeapon?.isCustom && base.selectedAmmo?.isCustom) {
+      const inheritedPairId = `custom-pair-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      const nextWeaponName = getNextSequentialName(
+        '自定义枪械',
+        (customWeapons || []).map((item) => item.name)
+      );
+      const nextAmmoName = getNextSequentialName(
+        '自定义子弹',
+        (customAmmos || []).map((item) => item.name)
+      );
+      inheritedWeapon = {
+        ...base.selectedWeapon,
+        id: `custom-weapon-${inheritedPairId}`,
+        customPairId: inheritedPairId,
+        name: nextWeaponName,
+      };
+      inheritedAmmo = {
+        ...base.selectedAmmo,
+        id: `custom-ammo-${inheritedPairId}`,
+        customPairId: inheritedPairId,
+        name: nextAmmoName,
+      };
+      setCustomWeapons((prev) => [...prev, inheritedWeapon]);
+      setCustomAmmos((prev) => [...prev, inheritedAmmo]);
+    }
+
+    return {
+      ...createConfig(nextId),
+      color,
+      selectedWeapon: inheritedWeapon,
+      selectedAmmo: inheritedAmmo,
+      selectedHelmet: base.selectedHelmet,
+      selectedArmor: base.selectedArmor,
+      helmetDurability: base.helmetDurability,
+      armorDurability: base.armorDurability,
+      selectedMods: [...(base.selectedMods || [])],
+      distance: base.distance,
+      initialHp: base.initialHp,
+      trialCount: base.trialCount,
+      hitProbabilities: { ...(base.hitProbabilities || DEFAULT_HIT_PROBABILITIES) },
+      result: cloneConfigResult(base.result),
+      progress: base.result ? 1 : 0,
+      lineProgress: base.result?.distanceSeries ? 1 : 0,
+    };
+  };
+
+  const canCloneConfig = (cfg) => Boolean(
+    cfg?.selectedWeapon
+    && cfg?.selectedAmmo
+    && cfg?.selectedHelmet
+    && cfg?.selectedArmor
+  );
+
+  const addConfig = () => {
+    const nextId = getNextConfigId(configs);
+    const color = getAvailableConfigColor(configs);
+    const baseConfig = configs[configs.length - 1];
+    const nextConfig = canCloneConfig(baseConfig)
+      ? cloneConfigForAdd(baseConfig, nextId, color)
+      : createDefaultConfig(nextId, color);
 
     setConfigs((prev) => [...prev, nextConfig]);
     setSelectedConfigId(nextId);
     setEditingConfigId(nextId);
+  };
+
+  const clearConfigs = () => {
+    setConfigs([]);
+    setSelectedConfigId(null);
+    setEditingConfigId(null);
+    setHoveredConfigId(null);
+    setHoverPreviewPos(null);
+    setPreviewSegmentByConfig({});
+    setCustomWeapons([]);
+    setCustomAmmos([]);
   };
 
   const openCustomModal = (targetConfigId = null, currentWeapon = null, currentAmmo = null) => {
@@ -1719,10 +1849,12 @@ export function TTKSimulator() {
         }));
 
         const segmentDistances = getSegmentDistances(configuredWeapon, 100);
+        const modSummary = getModNames(cfg.selectedMods || [], modifications).label;
 
         return {
           id: cfg.id,
           name: cfg.name,
+          color: getConfigColor(cfg),
           weaponName: cfg.selectedWeapon?.name || '-',
           weaponImage: cfg.selectedWeapon?.image,
           ammoName: cfg.selectedAmmo?.name || '-',
@@ -1731,6 +1863,7 @@ export function TTKSimulator() {
           armorLevel: cfg.selectedArmor?.level,
           helmetDurability: cfg.helmetDurability,
           armorDurability: cfg.armorDurability,
+          modSummary,
           avgBtk: cfg.result.avgBtk,
           avgTtk: adjustedAvgTtk,
           trialCount: cfg.result.trialCount,
@@ -1820,8 +1953,8 @@ export function TTKSimulator() {
   const mobilePreviewSeg = mobilePreviewRow?.segmentOptions?.[mobilePreviewSegIdx] || mobilePreviewRow?.segmentOptions?.[0];
   const mobilePreviewDist = mobilePreviewRow ? getPreviewDistribution(mobilePreviewRow, mobilePreviewSeg?.distance ?? 0) : [];
   const lineColorByConfigId = useMemo(
-    () => comparisonRows.reduce((acc, row, i) => ({ ...acc, [row.id]: BAR_COLORS[i % BAR_COLORS.length] }), {}),
-    [comparisonRows]
+    () => configs.reduce((acc, cfg, index) => ({ ...acc, [cfg.id]: getConfigColor(cfg, index) }), {}),
+    [configs]
   );
 
   return (
@@ -1832,7 +1965,7 @@ export function TTKSimulator() {
             <div className="ttk-left-head">
               <h3>方案列表</h3>
               <div className="left-head-actions">
-                <button type="button" className="ttk-btn" onClick={addStarterConfig}>快速填充</button>
+                <button type="button" className="ttk-btn" onClick={clearConfigs} disabled={configs.length === 0}>清除列表</button>
                 <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
               </div>
             </div>
@@ -1843,7 +1976,7 @@ export function TTKSimulator() {
                   <div className="config-empty-title">还没有方案</div>
                   <div className="config-empty-copy">从一套默认配置开始，稍后再按需要微调。</div>
                   <div className="config-empty-actions single">
-                    <button type="button" className="ttk-btn primary" onClick={addStarterConfig}>快速填充方案</button>
+                    <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
                   </div>
                 </div>
               )}
@@ -1865,9 +1998,10 @@ export function TTKSimulator() {
                       ? `缺少${missingConfigParts.join('/')}`
                       : '未运行';
                 return (
-                  <button
+                  <div
                     key={cfg.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     className={`config-item rich ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
                     onMouseEnter={(e) => {
                       if (isMobileViewport || !row) return;
@@ -1882,7 +2016,25 @@ export function TTKSimulator() {
                       setSelectedConfigId(cfg.id);
                       setEditingConfigId(cfg.id);
                     }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setSelectedConfigId(cfg.id);
+                        setEditingConfigId(cfg.id);
+                      }
+                    }}
                   >
+                    <button
+                      type="button"
+                      className="config-remove-btn"
+                      aria-label={`删除 ${cfg.selectedWeapon?.name || cfg.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeConfig(cfg.id);
+                      }}
+                    >
+                      ×
+                    </button>
                     <div className="config-item-layout">
                       <span className="config-badge color" style={{ backgroundColor: badgeColor }} aria-label={`方案颜色 ${idx + 1}`} />
                       {cfg.selectedWeapon?.image
@@ -1908,7 +2060,7 @@ export function TTKSimulator() {
                         )}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -1969,7 +2121,7 @@ export function TTKSimulator() {
                 <p className="compare-empty-main">先准备并运行一个方案</p>
                 <p className="compare-empty-tip">先添加一个方案，再调整弹药、防具、配件和命中概率。</p>
                 <div className="compare-empty-actions">
-                  <button type="button" className="ttk-btn" onClick={addStarterConfig}>快速填充</button>
+                  <button type="button" className="ttk-btn" onClick={clearConfigs} disabled={configs.length === 0}>清除列表</button>
                   <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
                 </div>
               </div>
@@ -2063,12 +2215,8 @@ export function TTKSimulator() {
                     : editingConfig,
                 );
               }}
-              onRemove={() => {
-                setEditingConfigId(null);
-                removeConfig(editingConfig.id);
-              }}
               showResult={false}
-              showRemoveButton
+              showRemoveButton={false}
               headerActions={<button type="button" className="ttk-btn" onClick={() => closeEditingConfig(editingConfig.id)}>关闭</button>}
             />
           </div>
@@ -2077,6 +2225,3 @@ export function TTKSimulator() {
     </div>
   );
 }
-
-
-

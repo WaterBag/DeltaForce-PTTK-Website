@@ -5,21 +5,27 @@
   "source": "user-provided battlefield screenshots",
   "files": {
     "weapons.json": {
-      "records": 36,
-      "size": 31486,
-      "sha256": "f8ec059c075cb8baec1d275e0bcb99be508ae676b0dff5c6629df330818c65e5"
+      "records": 42,
+      "size": 36839,
+      "sha256": "9d70aed129ea2a02aedc80c8f4106f2ab4d50d6603fed320549b239f64296bca"
     },
     "modifications.json": {
-      "records": 0,
-      "size": 3,
-      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      "records": 191,
+      "size": 69349,
+      "sha256": "1b7c00c68f67d7a913d2e95c9b08d3e6a6be6a250833ac18d61b5eea5281adb3"
     },
     "weapons": {
       "path": "weapons.json",
       "records": 42,
-      "sha256": "e4d5777c94b278fc2f249b14925e10041c19da76a09d4a97d41a3e2f85e2497f",
-      "size": 36981
+      "sha256": "9d70aed129ea2a02aedc80c8f4106f2ab4d50d6603fed320549b239f64296bca",
+      "size": 36839
+    },
+    "modifications": {
+      "path": "modifications.json",
+      "records": 191,
+      "sha256": "1b7c00c68f67d7a913d2e95c9b08d3e6a6be6a250833ac18d61b5eea5281adb3",
+      "size": 69349
     }
   },
-  "updatedAt": "2026-05-08T03:50:27.448Z"
+  "updatedAt": "2026-05-08T15:26:57.816Z"
 }

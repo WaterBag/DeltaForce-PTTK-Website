@@ -1062,41 +1062,26 @@
 }
 
 .battlefield-library-filters {
-  display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(120px, 150px) minmax(120px, 150px) minmax(130px, 160px);
-  flex-shrink: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-surface);
   margin: 6px 10px;
-  padding: 7px;
-  gap: 8px;
 }
 
-.battlefield-library-filters label {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 4px;
+.battlefield-filter-pill-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.battlefield-library-filters span {
-  color: var(--color-text-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
+.battlefield-library-filters .library-search-field {
+  background: var(--color-surface);
 }
 
-.battlefield-library-filters input,
-.battlefield-library-filters select {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--color-border);
-  border-radius: 7px;
-  background: var(--color-page-bg);
-  color: var(--color-text-main);
-  font: inherit;
-  min-height: 34px;
-  padding: 6px 9px;
+.battlefield-library-filters .filter-pill-field {
+  background: var(--color-surface-soft);
+}
+
+@media (max-width: 768px) {
+  .battlefield-library-container .battlefield-library-filters {
+    top: 0;
+    margin: 0 0 6px;
+  }
 }
 
 .battlefield-rich-list {

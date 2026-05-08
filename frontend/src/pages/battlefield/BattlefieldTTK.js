@@ -29,6 +29,19 @@ import {
   mergeUnlockedSlots,
   toggleModSelection,
 } from '../../utils/modSelectionUtils';
+import {
+  TTK_CONFIG_COLORS,
+  cloneConfigResult,
+  getAvailableConfigColor,
+  getConfigColor,
+  getModNames,
+  getNextConfigId,
+  loadTtkCache,
+  resolveCachedItem,
+  resolveCachedModIds,
+  saveTtkCache,
+  withConfigColor,
+} from '../../utils/ttkConfigState';
 import '../firefight/TTKSimulator.css';
 import './BattlefieldPages.css';
 
@@ -38,6 +51,7 @@ const DEFAULT_WEAPON_NAMES = ['腾龙', 'M7'];
 const createConfig = (id) => ({
   id,
   name: `方案 ${id}`,
+  color: null,
   selectedWeapon: null,
   selectedMods: [],
   distance: 10,
@@ -98,20 +112,8 @@ const PROBABILITY_PRESETS = [
   },
 ];
 
-const BAR_COLORS = [
-  '#2F6F73', '#7A6FBE', '#C17C3A', '#4F7F52', '#8A5A68', '#587A9C',
-  '#B7791F', '#3E6B45', '#9A6A5B', '#536F8F', '#8B7A3D', '#6F5C86',
-  '#2D7B8A', '#A45F3D', '#5F7863', '#9B5C7A', '#6E7F3F', '#4D6674',
-  '#8E7047', '#3D7469', '#7C675E', '#5E6FA3', '#A06565', '#6F8248',
-];
-const RECHARTS_TOOLTIP_CONTENT_STYLE = {
-  background: 'rgba(255, 255, 255, 0.84)',
-  color: '#162321',
-  borderRadius: '8px',
-  border: '1px solid #d8e2df',
-  boxShadow: '0 4px 12px rgba(22, 35, 33, 0.14)',
-};
-
+const BAR_COLORS = TTK_CONFIG_COLORS;
+const BATTLEFIELD_TTK_CACHE_KEY = 'dfttk.battlefield.ttk.v2';
 const getDisplayProbability = (hitProbabilities, sites) => {
   return sites.reduce((sum, site) => sum + (Number(hitProbabilities?.[site]) || 0), 0);
 };
@@ -179,6 +181,39 @@ const expandSegmentSeriesToDense = (segmentSeries = [], maxDistance = 100) => {
   return dense;
 };
 
+function ChartTooltip({ active, label, payload, rows, metric }) {
+  if (!active || !payload?.length) return null;
+
+  const entries = payload
+    .map((entry) => {
+      const row = rows.find((item) => String(item.id) === String(entry.dataKey));
+      return row ? { entry, row } : null;
+    })
+    .filter(Boolean);
+
+  if (!entries.length) return null;
+
+  return (
+    <div className="compare-tooltip chart-detail-tooltip battlefield-chart-tooltip">
+      <div className="compare-tooltip-title">距离 {label}m</div>
+      <div className="chart-tooltip-table">
+        {entries.map(({ entry, row }) => (
+          <div key={row.id} className="chart-tooltip-row battlefield-tooltip-row">
+            <span className="chart-tooltip-dot" style={{ backgroundColor: entry.color || row.color }} />
+            <strong title={row.weaponName}>{row.weaponName}</strong>
+            <span className="chart-tooltip-mods" title={row.modSummary || '无配件'}>
+              {row.modSummary || '无配件'}
+            </span>
+            <span className="chart-tooltip-value">
+              {metric === 'ttk' ? `${Math.round(entry.value)}ms` : Number(entry.value).toFixed(2)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ComparisonLineChart({ rows, metric, applyVelocityEffect, isMobile }) {
   const lineData = useMemo(() => {
     const byDistance = {};
@@ -212,11 +247,7 @@ function ComparisonLineChart({ rows, metric, applyVelocityEffect, isMobile }) {
           tick={{ fontSize: isMobile ? 11 : 12 }}
           width={isMobile ? 40 : 56}
         />
-        <Tooltip
-          formatter={(value) => (metric === 'ttk' ? `${Math.round(value)} ms` : Number(value).toFixed(2))}
-          labelFormatter={(label) => `距离 ${label}m`}
-          contentStyle={RECHARTS_TOOLTIP_CONTENT_STYLE}
-        />
+        <Tooltip content={<ChartTooltip rows={readyRows} metric={metric} />} />
         <Legend verticalAlign={isMobile ? 'bottom' : 'top'} align="center" height={isMobile ? 26 : 36} wrapperStyle={{ fontSize: isMobile ? 11 : 12 }} />
         {readyRows.map((row, index) => (
           <Line
@@ -224,7 +255,7 @@ function ComparisonLineChart({ rows, metric, applyVelocityEffect, isMobile }) {
             type={applyVelocityEffect ? 'linear' : 'stepAfter'}
             dataKey={row.id}
             name={row.weaponName}
-            stroke={BAR_COLORS[index % BAR_COLORS.length]}
+            stroke={row.color || BAR_COLORS[index % BAR_COLORS.length]}
             strokeWidth={2}
             dot={false}
             activeDot={{ r: 4 }}
@@ -669,12 +700,73 @@ export function BattlefieldTTK() {
     () => (typeof window !== 'undefined' ? window.innerWidth <= 768 : false)
   );
   const previewCloseTimerRef = useRef(null);
+  const cacheHydratedRef = useRef(false);
 
   const selectableWeapons = useMemo(
     () => (weapons || []).filter((weapon) => !isBattlefieldVariantWeapon(weapon, modifications)),
     [weapons, modifications]
   );
   const defaultWeapon = useMemo(() => getDefaultWeapon(selectableWeapons), [selectableWeapons]);
+
+  useEffect(() => {
+    if (cacheHydratedRef.current) return;
+    if (!weapons.length || !modifications.length) return;
+
+    const cached = loadTtkCache(BATTLEFIELD_TTK_CACHE_KEY);
+    cacheHydratedRef.current = true;
+    if (!cached) return;
+
+    const restoredConfigs = [];
+    (Array.isArray(cached.configs) ? cached.configs : []).forEach((cfg) => {
+      const restored = withConfigColor({
+        ...createConfig(cfg.id),
+        ...cfg,
+        selectedWeapon: resolveCachedItem(cfg.selectedWeapon, selectableWeapons),
+        selectedMods: resolveCachedModIds(cfg.selectedMods, modifications),
+        hitProbabilities: { ...BATTLEFIELD_DEFAULT_HIT_PROBABILITIES, ...(cfg.hitProbabilities || {}) },
+        running: false,
+        lineRunning: false,
+        progress: cfg.result ? 1 : 0,
+        lineProgress: cfg.result?.distanceSeries ? 1 : 0,
+      }, restoredConfigs);
+      if (restored.result && !restored.selectedWeapon) {
+        return;
+      }
+      restoredConfigs.push(restored);
+    });
+
+    setConfigs(restoredConfigs);
+    setSelectedConfigId(restoredConfigs.some((cfg) => cfg.id === cached.selectedConfigId)
+      ? cached.selectedConfigId
+      : (restoredConfigs[0]?.id ?? null));
+    setEditingConfigId(null);
+    setCompareMetric(cached.compareMetric || 'ttk');
+    setApplyVelocityEffect(Boolean(cached.applyVelocityEffect));
+    setApplyTriggerDelay(Boolean(cached.applyTriggerDelay));
+    setPreviewMetric(cached.previewMetric || 'ttk');
+    setPreviewSegmentByConfig(cached.previewSegmentByConfig || {});
+  }, [weapons, selectableWeapons, modifications]);
+
+  useEffect(() => {
+    if (!cacheHydratedRef.current) return;
+    saveTtkCache(BATTLEFIELD_TTK_CACHE_KEY, {
+      configs,
+      selectedConfigId,
+      compareMetric,
+      applyVelocityEffect,
+      applyTriggerDelay,
+      previewMetric,
+      previewSegmentByConfig,
+    });
+  }, [
+    configs,
+    selectedConfigId,
+    compareMetric,
+    applyVelocityEffect,
+    applyTriggerDelay,
+    previewMetric,
+    previewSegmentByConfig,
+  ]);
 
   useEffect(() => () => {
     if (previewCloseTimerRef.current) {
@@ -708,42 +800,48 @@ export function BattlefieldTTK() {
     setConfigs((prev) => prev.map((cfg) => (cfg.id === id ? { ...cfg, ...patch } : cfg)));
   };
 
+  const createDefaultConfig = (nextId, color) => ({
+    ...createConfig(nextId),
+    color,
+    selectedWeapon: defaultWeapon,
+  });
+
+  const cloneConfigForAdd = (base, nextId, color) => ({
+    ...createConfig(nextId),
+    color,
+    selectedWeapon: base.selectedWeapon,
+    selectedMods: [...(base.selectedMods || [])],
+    distance: base.distance,
+    initialHp: base.initialHp,
+    trialCount: base.trialCount,
+    hitProbabilities: { ...(base.hitProbabilities || BATTLEFIELD_DEFAULT_HIT_PROBABILITIES) },
+    result: cloneConfigResult(base.result),
+    progress: base.result ? 1 : 0,
+    lineProgress: base.result?.distanceSeries ? 1 : 0,
+  });
+
+  const canCloneConfig = (cfg) => Boolean(cfg?.selectedWeapon);
+
   const addConfig = () => {
-    const nextId = (configs.length ? Math.max(...configs.map((config) => config.id)) : 0) + 1;
-    let nextConfig = createConfig(nextId);
-    if (configs.length > 0) {
-      const base = configs[configs.length - 1];
-      nextConfig = {
-        ...nextConfig,
-        selectedWeapon: base.selectedWeapon,
-        selectedMods: [...(base.selectedMods || [])],
-        distance: base.distance,
-        initialHp: base.initialHp,
-        trialCount: base.trialCount,
-        hitProbabilities: { ...(base.hitProbabilities || BATTLEFIELD_DEFAULT_HIT_PROBABILITIES) },
-      };
-    } else {
-      nextConfig = {
-        ...nextConfig,
-        selectedWeapon: defaultWeapon,
-      };
-    }
+    const nextId = getNextConfigId(configs);
+    const color = getAvailableConfigColor(configs);
+    const baseConfig = configs[configs.length - 1];
+    const nextConfig = canCloneConfig(baseConfig)
+      ? cloneConfigForAdd(baseConfig, nextId, color)
+      : createDefaultConfig(nextId, color);
 
     setConfigs((prev) => [...prev, nextConfig]);
     setSelectedConfigId(nextId);
     setEditingConfigId(nextId);
   };
 
-  const addStarterConfig = () => {
-    const nextId = (configs.length ? Math.max(...configs.map((config) => config.id)) : 0) + 1;
-    const nextConfig = {
-      ...createConfig(nextId),
-      selectedWeapon: defaultWeapon,
-    };
-
-    setConfigs((prev) => [...prev, nextConfig]);
-    setSelectedConfigId(nextId);
-    setEditingConfigId(nextId);
+  const clearConfigs = () => {
+    setConfigs([]);
+    setSelectedConfigId(null);
+    setEditingConfigId(null);
+    setHoveredConfigId(null);
+    setHoverPreviewPos(null);
+    setPreviewSegmentByConfig({});
   };
 
   const removeConfig = (id) => {
@@ -873,12 +971,15 @@ export function BattlefieldTTK() {
         }));
 
         const segmentDistances = getBattlefieldSegmentDistances(configuredWeapon, 100);
+        const modSummary = getModNames(cfg.selectedMods || [], modifications).label;
 
         return {
           id: cfg.id,
           name: cfg.name,
+          color: getConfigColor(cfg),
           weaponName: configuredWeapon?.name || cfg.selectedWeapon?.name || '-',
           weaponImage: configuredWeapon?.image || cfg.selectedWeapon?.image,
+          modSummary,
           avgBtk: cfg.result.avgBtk,
           avgTtk: adjustedAvgTtk,
           trialCount: cfg.result.trialCount,
@@ -947,8 +1048,8 @@ export function BattlefieldTTK() {
   const mobilePreviewSeg = mobilePreviewRow?.segmentOptions?.[mobilePreviewSegIdx] || mobilePreviewRow?.segmentOptions?.[0];
   const mobilePreviewDist = mobilePreviewRow ? getPreviewDistribution(mobilePreviewRow, mobilePreviewSeg?.distance ?? 0) : [];
   const lineColorByConfigId = useMemo(
-    () => comparisonRows.reduce((acc, row, index) => ({ ...acc, [row.id]: BAR_COLORS[index % BAR_COLORS.length] }), {}),
-    [comparisonRows]
+    () => configs.reduce((acc, cfg, index) => ({ ...acc, [cfg.id]: getConfigColor(cfg, index) }), {}),
+    [configs]
   );
 
   return (
@@ -959,7 +1060,7 @@ export function BattlefieldTTK() {
             <div className="ttk-left-head">
               <h3>方案列表</h3>
               <div className="left-head-actions">
-                <button type="button" className="ttk-btn" onClick={addStarterConfig}>快速填充</button>
+                <button type="button" className="ttk-btn" onClick={clearConfigs} disabled={configs.length === 0}>清除列表</button>
                 <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
               </div>
             </div>
@@ -970,7 +1071,7 @@ export function BattlefieldTTK() {
                   <div className="config-empty-title">还没有方案</div>
                   <div className="config-empty-copy">从一套默认配置开始，稍后再按需要微调。</div>
                   <div className="config-empty-actions single">
-                    <button type="button" className="ttk-btn primary" onClick={addStarterConfig}>快速填充方案</button>
+                    <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
                   </div>
                 </div>
               )}
@@ -990,9 +1091,10 @@ export function BattlefieldTTK() {
                       : '未运行';
 
                 return (
-                  <button
+                  <div
                     key={cfg.id}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     className={`config-item rich ${selectedConfig?.id === cfg.id ? 'active' : ''}`}
                     onMouseEnter={(event) => {
                       if (isMobileViewport || !row) return;
@@ -1007,7 +1109,25 @@ export function BattlefieldTTK() {
                       setSelectedConfigId(cfg.id);
                       setEditingConfigId(cfg.id);
                     }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setSelectedConfigId(cfg.id);
+                        setEditingConfigId(cfg.id);
+                      }
+                    }}
                   >
+                    <button
+                      type="button"
+                      className="config-remove-btn"
+                      aria-label={`删除 ${row?.weaponName || cfg.selectedWeapon?.name || cfg.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removeConfig(cfg.id);
+                      }}
+                    >
+                      ×
+                    </button>
                     <div className="config-item-layout">
                       <span className="config-badge color" style={{ backgroundColor: badgeColor }} aria-label={`方案颜色 ${index + 1}`} />
                       {row?.weaponImage || cfg.selectedWeapon?.image
@@ -1023,7 +1143,7 @@ export function BattlefieldTTK() {
                         </div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -1084,7 +1204,7 @@ export function BattlefieldTTK() {
                 <p className="compare-empty-main">先准备并运行一个方案</p>
                 <p className="compare-empty-tip">先添加一套方案，再调整武器、配件和命中概率。</p>
                 <div className="compare-empty-actions">
-                  <button type="button" className="ttk-btn" onClick={addStarterConfig}>快速填充</button>
+                  <button type="button" className="ttk-btn" onClick={clearConfigs} disabled={configs.length === 0}>清除列表</button>
                   <button type="button" className="ttk-btn primary" onClick={addConfig}>添加配置</button>
                 </div>
               </div>
@@ -1157,11 +1277,7 @@ export function BattlefieldTTK() {
                     : editingConfig,
                 );
               }}
-              onRemove={() => {
-                setEditingConfigId(null);
-                removeConfig(editingConfig.id);
-              }}
-              showRemoveButton
+              showRemoveButton={false}
               headerActions={<button type="button" className="ttk-btn" onClick={() => closeEditingConfig(editingConfig.id)}>关闭</button>}
             />
           </div>

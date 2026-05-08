@@ -5,6 +5,7 @@ import firefightArmors from '../assets/data/firefight/armors';
 import firefightHelmets from '../assets/data/firefight/helmets';
 import { modifications as firefightModifications } from '../assets/data/firefight/modifications';
 import { weapons as battlefieldWeapons } from '../assets/data/battlefield/weapons';
+import { modifications as battlefieldModifications } from '../assets/data/battlefield/modifications';
 import { DEFAULT_GAME_MODE, getGameModeConfig } from '../config/gameModes';
 
 const DATA_BASE_URL = process.env.REACT_APP_DATA_BASE_URL || '/data';
@@ -22,7 +23,7 @@ const fallbackByMode = {
     ammos: [],
     armors: [],
     helmets: [],
-    modifications: firefightModifications,
+    modifications: battlefieldModifications,
   },
 };
 

@@ -471,6 +471,7 @@
   gap: 12px;
   position: sticky;
   top: 12px;
+  align-self: stretch;
 }
 
 .ttk-left-head {
@@ -480,6 +481,9 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .left-head-actions {
@@ -488,7 +492,9 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
 }
 
 .left-head-actions .ttk-btn {
@@ -496,15 +502,23 @@
 }
 
 .config-list {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 340px;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(52vh, 520px);
   overflow: auto;
   padding-top: 4px;
 }
 
 .config-item {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 100%;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   border-radius: 12px;
@@ -522,13 +536,17 @@
 .config-item.active {
   border-color: var(--color-primary);
   background: var(--color-surface);
-  box-shadow: inset 3px 0 0 var(--color-primary), 0 8px 20px rgba(47, 111, 115, 0.10);
+  box-shadow: 0 8px 20px rgba(47, 111, 115, 0.10);
 }
 
 .config-item-layout {
+  box-sizing: border-box;
   display: flex;
   align-items: stretch;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .config-item-lines {
@@ -538,6 +556,7 @@
   gap: 6px;
   min-width: 0;
   flex: 1;
+  padding-right: 24px;
 }
 
 .config-line-one {
@@ -549,11 +568,12 @@
 
 .config-badge {
   display: inline-flex;
-  min-width: 10px;
-  width: 10px;
-  height: 44px;
+  min-width: 8px;
+  width: 8px;
+  min-height: 52px;
   border-radius: 999px;
-  margin-top: 2px;
+  align-self: stretch;
+  margin: 0;
 }
 
 .config-badge.color {
@@ -682,6 +702,32 @@
 .config-item-meta.rarity-green { color: #2ecc71; }
 .config-item-meta.rarity-white { color: var(--color-text-muted); }
 
+.config-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.config-remove-btn:hover {
+  border-color: #c85d5d;
+  color: #a33f3f;
+  background: #fff6f6;
+}
+
 .card-hover-preview {
   margin-top: 8px;
   border: 1px solid var(--color-border);
@@ -693,13 +739,29 @@
 .config-hover-float {
   position: fixed;
   z-index: 1200;
-  width: 240px;
+  width: 280px;
   border: 1px solid var(--color-border);
   border-radius: 10px;
   background: var(--color-surface);
   box-shadow: 0 12px 28px rgba(22, 35, 33, 0.20);
   padding: 8px;
   animation: ttk-fade-in 150ms ease-out;
+}
+
+.config-hover-summary {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.config-hover-summary strong {
+  color: var(--color-text-main);
+  font-size: 13px;
 }
 
 .config-preview-mobile {
@@ -1060,11 +1122,13 @@
 }
 
 .ttk-left-panel > .ttk-compare {
-  height: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .ttk-left-panel > .ttk-compare:first-child {
-  flex: 1;
+  flex: 1 1 auto;
 }
 
 .ttk-right-chart .ttk-compare {
@@ -1356,18 +1420,77 @@
 .recharts-tooltip-wrapper .recharts-default-tooltip {
   background: rgba(255, 255, 255, 0.72);
   color: var(--color-text-main);
-  padding: 10px 12px;
+  padding: 6px 8px;
   border-radius: 8px;
   border: 1px solid var(--color-border);
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.25;
   box-shadow: 0 4px 12px rgba(9, 30, 66, 0.15);
   backdrop-filter: blur(2px);
 }
 
 .recharts-tooltip-wrapper .compare-tooltip-title {
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.chart-detail-tooltip {
+  display: grid;
+  gap: 4px;
+  width: max-content;
+  min-width: 0;
+  max-width: min(92vw, 560px);
+}
+
+.chart-tooltip-table {
+  display: grid;
+  gap: 3px;
+  width: max-content;
+  max-width: 100%;
+}
+
+.chart-tooltip-row {
+  display: grid;
+  gap: 5px;
+  align-items: center;
+  color: var(--color-text-main);
+  min-width: 0;
+}
+
+.firefight-tooltip-row {
+  grid-template-columns: auto max-content max-content max-content max-content minmax(56px, 180px) max-content;
+}
+
+.battlefield-tooltip-row {
+  grid-template-columns: auto max-content minmax(80px, 220px) max-content;
+}
+
+.chart-tooltip-row strong,
+.chart-tooltip-row span {
+  min-width: 0;
+}
+
+.chart-tooltip-row strong,
+.chart-tooltip-mods {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-tooltip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.chart-tooltip-row > span:not(.chart-tooltip-dot):not(.chart-tooltip-value) {
+  color: var(--color-text-muted);
+}
+
+.chart-tooltip-value {
+  justify-self: end;
+  font-weight: 800;
+  color: var(--color-primary-hover);
 }
 
 .ttk-table-wrap {
@@ -1394,15 +1517,18 @@
 @media (max-width: 1200px) {
   .ttk-main {
     grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     min-height: auto;
   }
 
   .ttk-left-panel {
     position: static;
+    align-self: auto;
   }
 
   .ttk-left-panel .ttk-compare,
   .ttk-right-chart .ttk-compare {
+    height: auto;
     min-height: auto;
   }
 
@@ -1449,12 +1575,14 @@
 
   .ttk-main {
     grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     gap: 10px;
     min-height: auto;
   }
 
   .ttk-left-panel {
     position: static;
+    align-self: auto;
     gap: 10px;
   }
 

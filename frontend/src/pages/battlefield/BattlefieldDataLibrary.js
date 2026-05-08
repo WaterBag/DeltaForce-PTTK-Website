@@ -359,35 +359,44 @@ export function BattlefieldDataLibrary() {
 
   return (
     <section className="data-library-container battlefield-library-container">
-      <div className="library-filters battlefield-library-filters">
-        <label className="search-filter">
-          <span>搜索</span>
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="输入武器或原型名称" />
-        </label>
-        <label>
-          <span>类型</span>
-          <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
-            {typeOptions.map((type) => (
-              <option key={type} value={type}>{BATTLEFIELD_WEAPON_TYPE_LABELS[type] || type}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>职业</span>
-          <select value={classFilter} onChange={(event) => setClassFilter(event.target.value)}>
-            {CLASS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>排序</span>
-          <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </label>
+      <div className="filter-toolbar battlefield-library-filters">
+        <div className="filter-search-row">
+          <label className="library-search-field">
+            <span>搜索</span>
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="输入武器或原型名称"
+              className="search-input"
+            />
+          </label>
+        </div>
+        <div className="filter-pill-grid battlefield-filter-pill-grid">
+          <label className="filter-pill-field">
+            <span>类型</span>
+            <select className="filter-select" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
+              {typeOptions.map((type) => (
+                <option key={type} value={type}>{BATTLEFIELD_WEAPON_TYPE_LABELS[type] || type}</option>
+              ))}
+            </select>
+          </label>
+          <label className="filter-pill-field">
+            <span>职业</span>
+            <select className="filter-select" value={classFilter} onChange={(event) => setClassFilter(event.target.value)}>
+              {CLASS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="filter-pill-field">
+            <span>排序</span>
+            <select className="filter-select" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
 
       <div className="weapon-list-container battlefield-weapon-list-container">
