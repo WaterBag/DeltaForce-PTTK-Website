@@ -1,8 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
+const BAIDU_ANALYTICS_HOSTS = ['dfttk.com', 'www.dfttk.com'];
+
+function canTrackBaiduAnalytics() {
+  return typeof window !== 'undefined' && BAIDU_ANALYTICS_HOSTS.includes(window.location.hostname);
+}
+
 function getHmt() {
-  if (typeof window === 'undefined') {
+  if (!canTrackBaiduAnalytics()) {
     return null;
   }
   window._hmt = window._hmt || [];
