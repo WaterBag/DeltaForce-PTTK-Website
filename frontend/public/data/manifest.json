@@ -1,64 +1,13 @@
 {
-  "version": "20260417095326",
-  "generatedAt": "2026-04-17T09:53:26.238Z",
+  "version": "20260521120000",
   "source": "DeltaForce-Data-Editor/backend/src_data",
   "defaultMode": "firefight",
-  "modes": {
-    "firefight": {
-      "label": "烽火行动",
-      "path": "/data/firefight",
-      "manifest": "/data/firefight/manifest.json",
-      "files": {
-        "weapons.json": {
-          "records": 79,
-          "size": 50299,
-          "sha256": "fbcba88978d6b2f61b37c4b07bf7a7b89c4ed0a6b1ed701164b42eb47dd0b800"
-        },
-        "ammos.json": {
-          "records": 94,
-          "size": 31439,
-          "sha256": "4aaa6328137179a861a91f7d216d41a13d3f3e90913c45b6266014098502dc0a"
-        },
-        "armors.json": {
-          "records": 26,
-          "size": 5471,
-          "sha256": "744d89fa783f5bee78d9a6d1ef6ba3e21a4ff887e1bbc84a00ae48895a3bfa9e"
-        },
-        "helmets.json": {
-          "records": 27,
-          "size": 2733,
-          "sha256": "18649764f9b79f196415f548a76e6498da1da24150b5a231fa02facee6b1ca5e"
-        },
-        "modifications.json": {
-          "records": 191,
-          "size": 69296,
-          "sha256": "88352bfe5d9ffc313116e3f76f52033e55e410c818a2b3134e6227846a331d6d"
-        }
-      }
-    },
-    "battlefield": {
-      "label": "战场模式",
-      "path": "/data/battlefield",
-      "manifest": "/data/battlefield/manifest.json",
-      "files": {
-        "weapons.json": {
-          "records": 35,
-          "size": 30607,
-          "sha256": "5d1547506779a4b49e0a8fc0dd79dc2e8491d5851093a5aaff7ba20f491ba34a"
-        },
-        "modifications.json": {
-          "records": 0,
-          "size": 3,
-          "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
-        }
-      }
-    }
-  },
+  "generatedAt": "2026-05-20T12:15:01.893Z",
   "files": {
     "weapons.json": {
       "records": 79,
-      "size": 50299,
-      "sha256": "fbcba88978d6b2f61b37c4b07bf7a7b89c4ed0a6b1ed701164b42eb47dd0b800"
+      "size": 50298,
+      "sha256": "4605cea17527f027974c1fbecd932da9a18bc04e9f610e2bde65127084eb3c62"
     },
     "ammos.json": {
       "records": 94,
@@ -77,8 +26,60 @@
     },
     "modifications.json": {
       "records": 191,
-      "size": 69296,
-      "sha256": "88352bfe5d9ffc313116e3f76f52033e55e410c818a2b3134e6227846a331d6d"
+      "size": 69332,
+      "sha256": "ff93dcbe9e4c048993ff1b75f227d81e9b0d83a2d2f062e99030bc4642acda6f"
+    }
+  },
+  "updatedAt": "2026-05-20T23:58:32.906Z",
+  "modes": {
+    "firefight": {
+      "label": "烽火行动",
+      "path": "/data/firefight",
+      "manifest": "/data/firefight/manifest.json",
+      "files": {
+        "weapons.json": {
+          "records": 79,
+          "size": 50298,
+          "sha256": "4605cea17527f027974c1fbecd932da9a18bc04e9f610e2bde65127084eb3c62"
+        },
+        "ammos.json": {
+          "records": 94,
+          "size": 31439,
+          "sha256": "4aaa6328137179a861a91f7d216d41a13d3f3e90913c45b6266014098502dc0a"
+        },
+        "armors.json": {
+          "records": 26,
+          "size": 5471,
+          "sha256": "744d89fa783f5bee78d9a6d1ef6ba3e21a4ff887e1bbc84a00ae48895a3bfa9e"
+        },
+        "helmets.json": {
+          "records": 27,
+          "size": 2733,
+          "sha256": "18649764f9b79f196415f548a76e6498da1da24150b5a231fa02facee6b1ca5e"
+        },
+        "modifications.json": {
+          "records": 191,
+          "size": 69332,
+          "sha256": "ff93dcbe9e4c048993ff1b75f227d81e9b0d83a2d2f062e99030bc4642acda6f"
+        }
+      }
+    },
+    "battlefield": {
+      "label": "战场模式",
+      "path": "/data/battlefield",
+      "manifest": "/data/battlefield/manifest.json",
+      "files": {
+        "weapons.json": {
+          "records": 42,
+          "size": 36851,
+          "sha256": "f641ef8a801a6650255477dc8afcb961c087ba65ffce9d3967ecf5f683effcee"
+        },
+        "modifications.json": {
+          "records": 191,
+          "size": 69385,
+          "sha256": "a2c437f5ba3cd7b9c58e448fb28a8a457966200257250c6e390b06be595c268f"
+        }
+      }
     }
   }
 }

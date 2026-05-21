@@ -3689,7 +3689,7 @@ export const modifications = [
       "腾龙"
     ],
     "effects": {
-      "rangeModifier": 0,
+      "rangeModifier": -0.3333333333333333,
       "fireRateModifier": 0.075,
       "muzzleVelocityModifier": 0
     }
@@ -3704,7 +3704,7 @@ export const modifications = [
       "腾龙"
     ],
     "effects": {
-      "rangeModifier": 0,
+      "rangeModifier": 0.16666666666666666,
       "fireRateModifier": -0.065,
       "muzzleVelocityModifier": 0
     }

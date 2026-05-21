@@ -1,13 +1,13 @@
 {
   "mode": "firefight",
-  "version": "20260417095326",
-  "generatedAt": "2026-04-17T09:53:26.238Z",
+  "version": "20260521120000",
   "source": "DeltaForce-Data-Editor/backend/src_data",
+  "generatedAt": "2026-05-20T12:15:01.710Z",
   "files": {
     "weapons.json": {
       "records": 79,
-      "size": 50299,
-      "sha256": "fbcba88978d6b2f61b37c4b07bf7a7b89c4ed0a6b1ed701164b42eb47dd0b800"
+      "size": 50298,
+      "sha256": "4605cea17527f027974c1fbecd932da9a18bc04e9f610e2bde65127084eb3c62"
     },
     "ammos.json": {
       "records": 94,
@@ -26,8 +26,9 @@
     },
     "modifications.json": {
       "records": 191,
-      "size": 69296,
-      "sha256": "88352bfe5d9ffc313116e3f76f52033e55e410c818a2b3134e6227846a331d6d"
+      "size": 69332,
+      "sha256": "ff93dcbe9e4c048993ff1b75f227d81e9b0d83a2d2f062e99030bc4642acda6f"
     }
-  }
+  },
+  "updatedAt": "2026-05-20T23:58:32.906Z"
 }

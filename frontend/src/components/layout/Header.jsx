@@ -8,7 +8,7 @@ export function Header({ currentMode, setCurrentMode }) {
     <header className="header">
       <div className="logo-wrap">
         <div className="logo">三角洲行动 枪械击杀用时查询</div>
-        <div className="data-tag">当前数据：S9赛季更新</div>
+        <div className="data-tag">当前数据：S9季中更新</div>
       </div>
       <div className="mode-switch" role="tablist" aria-label="游戏模式">
         {GAME_MODE_OPTIONS.map((mode) => (

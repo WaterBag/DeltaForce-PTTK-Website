@@ -84,7 +84,7 @@
     "decay3": 0.7,
     "decay4": 0.6,
     "decay5": 0.5,
-    "triggerDelay": 0,
+    "triggerDelay": 67,
     "mode": "battlefield"
   },
   {
@@ -465,9 +465,9 @@
     ],
     "decayMultipliers": [
       1,
-      0.8,
-      0.7,
-      0.6,
+      0.75,
+      0.65,
+      0.55,
       0.5
     ],
     "range1": 20,
@@ -476,9 +476,9 @@
     "range4": 50,
     "range5": 999,
     "decay1": 1,
-    "decay2": 0.8,
-    "decay3": 0.7,
-    "decay4": 0.6,
+    "decay2": 0.75,
+    "decay3": 0.65,
+    "decay4": 0.55,
     "decay5": 0.5,
     "triggerDelay": 0,
     "mode": "battlefield"
@@ -1282,7 +1282,7 @@
     "weaponType": "rifle",
     "caliber": "5.8*42mm",
     "image": "https://playerhub.df.qq.com/playerhub/60004/object/18010000008.png",
-    "damage": 22,
+    "damage": 23,
     "fireRate": 679,
     "muzzleVelocity": 550,
     "headMultiplier": 1.9,
@@ -1668,7 +1668,7 @@
     "decay3": 0.7,
     "decay4": 0.6,
     "decay5": 0.5,
-    "triggerDelay": 0,
+    "triggerDelay": 50,
     "mode": "battlefield"
   },
   {
@@ -1712,7 +1712,7 @@
     "decay3": 0.75,
     "decay4": 0.65,
     "decay5": 0.6,
-    "triggerDelay": 0,
+    "triggerDelay": 50,
     "mode": "battlefield"
   },
   {
@@ -1756,7 +1756,7 @@
     "decay3": 0.75,
     "decay4": 0.65,
     "decay5": 0.6,
-    "triggerDelay": 0,
+    "triggerDelay": 67,
     "mode": "battlefield"
   },
   {
@@ -1800,7 +1800,7 @@
     "decay3": 0.63,
     "decay4": 0.52,
     "decay5": 0.52,
-    "triggerDelay": 0,
+    "triggerDelay": 100,
     "mode": "battlefield"
   },
   {
